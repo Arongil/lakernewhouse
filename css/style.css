@@ -1,0 +1,93 @@
+/* style.css */
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    max-width: 50rem;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+h3, h4, h5, h6 {
+    text-align: left;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-top: 2.5rem;
+    color: #2c3e50;
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+}
+
+h4 {
+    font-size: 1.25rem;
+}
+
+h5 {
+    font-size: 1.1rem;
+}
+
+h6 {
+    font-size: 1rem;
+}
+
+nav {
+    text-align: center;
+    margin: 1.25rem 0;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+nav a {
+    margin: 0 0.625rem;
+    color: #3498db;
+    font-size: 1.1rem;
+}
+
+main {
+    padding: 1rem 0;
+}
+
+p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.example {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    background-color: #f8f9fa;
+    border-left: 0.25rem solid #3498db;
+    border-radius: 0.25rem;
+}
+
+.example h5 {
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #2c3e50;
+}
+
+.example p:last-child {
+    margin-bottom: 0;
+}
