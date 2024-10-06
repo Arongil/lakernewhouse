@@ -111,6 +111,15 @@ p {
     max-width: 34.5rem;
 }
 
+.row {
+    text-align: center;
+}
+
+.row a {
+    margin: 2rem 1rem;
+    display: inline;
+}
+
 .justify {
     text-align: justify;
 }
