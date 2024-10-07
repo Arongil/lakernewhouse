@@ -131,3 +131,15 @@ p {
 .margin-top {
     margin-top: 2rem;
 }
+
+.indent {
+    text-indent: 2vw;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.clean-paragraphs p {
+    margin: 0;
+}
