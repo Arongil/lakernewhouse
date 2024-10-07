@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Five Ideas, Spring 2023 - Laker Newhouse</title>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap' rel='stylesheet'>
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <h3><a href="/" style="font-size: 1.4rem; color: #333; text-decoration: none;">Laker Newhouse</a></h3>
+            <a href="/research">Research</a>
+            <a href="/writing">Writing</a>
+            <a href="/how-to-mit">~ How to MIT ~</a>
+        </nav>
+    </header>
+    <main>
+        <h2 style="margin: 0;">Top Five Ideas From Every Class</h2>
+        <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">May 2023</h4>
+		<p>At semester’s end I again do intend to record the top five ideas from every class.</p>
+		<p class="bold">21M.605 Voice and Speech for the Actor</p>
+        <ol>
+            <li>Build concentration and relaxation by breathing, gazing, and grounding.</li>
+            <li>Fill the theatrical sphere of expression with big movements, a big voice, speed, clarity, and gobs of whatever emotion matches the moment.</li>
+            <li>Speak smoothly, without micropauses; inflect upwards to conclude sentences; and use little-big-words to guide the audience to follow complex thoughts.</li>
+            <li>Act thinking. Act thinking. Act thinking.</li>
+            <li>Shakespeare is a genius. I learned as much by seeing the heart of ten plays acted.</li>
+        </ol>
+		<p>Personal notes: keep mouth open between phrases, let fly at the speed of thought, keep up the enthusiastic vocal variation (pitch, rhythm, volume), always tell a story. See <a href="#appendix">Appendix</a> for the full glossary.</p>
+		<p>“Now go be young and beautiful in the world.” – Livy D’Ambrosio</p>
+
+		<p class="bold">18.504 Seminar in Logic</p>
+        <ol>
+            <li>Terminology refresher: sentences are wffs with no free variables; interpretations assign truth values to symbols in the language, functions to function symbols, and relations to relation symbols; models are interpretations under which a sentence is satisfied.</li>
+            <li>Compactness of first order logic means a contradiction must be finite, or equivalently if every finite subset of sentences has a model then the entire set of sentences has a model. For example, there exist nonstandard models of arithmetic. Exercise: think of the proof. It's short.</li>
+            <li>Road to Gödel's incompleteness theorems: expressing ("true when") and capturing ("provable when"), Robinson arithmetic Q can express and capture primitive recursive functions, Gödel numbering \ulcorner \varphi \urcorner for wffs and sequences of wffs, capturing Prf(m, n), building G as the diagonalization of \lnot \prov \varphi, where \prov \varphi is \exists m Prf(m, \ulcorner \varphi \urcorner). Then G is true iff G is not provable in the theory T. The Second Incompleteness Theorem says T cannot prove its own consistency (\lnot \prov 0=1). The conditions are that T is primitive recursively axiomatized (so that Prf is primitive recursive), extends Q, and is consistent; the second theorem also requires the Hilbert-Bernays derivability conditions.</li>
+            <li>Critical to keep in mind that a theory may be flawed. If T is unsound it may prove false things; if T is inconsistent it proves everything. Most of all, Gödel's second theorem lays down the inescapable constraint that T can never know whether it is flawed. Thus T \vdash \varphi and T \vdash \prov \varphi must be regarded as entirely different statements.</li>
+            <li>Löb's theorem says T \vdash \prov \varphi implies T \vdash \varphi. Thus Henkin's sentence "this sentence is provable" is true. Thus Peano arithmetic only proves provability exactly when it must (namely, when \varphi was already true).</li>
+            <li>Logic is as much an art as it is mathematics.</li>
+        </ol>
+		<p>“Welllllllllllllllllllllllll, the thing is, ...” - Henry Cohn, sweetest professor ever, 2023</p>
+
+		<p class="bold">18.102 Functional Analysis</p>
+        <ol>
+            <li>L^2 is the set of equivalence classes of square-integrable functions, modulo null functions which take arbitrary values on a measure zero support. L^2 is a Hilbert space (complete with an inner product) while L^1 is a Banach space (complete with a norm).</li>
+            <li>One trick to bound an integral is to write it as an inner product in L^2, then apply Cauchy-Schwarz. For example, if f = gh for g, h in L^2, then f is in L^1 due to the (loosely written) argument \int gh = |&ltg, h&gt| \leq |g| |h| < \infty. Exercise: pause to check that this makes sense.</li>
+            <li>The closed graph theorem shows an operator is bounded if its graph \{ (x, Ax) : x \in H \} is closed. The open mapping theorem shows a bounded bijective operator has a bounded inverse.</li>
+            <li>Functional calculus of bounded, self-adjoint operators A allows forming f(A) for continuous f defined on an interval covering Spec(A), where the spectrum maps as Spec(f(A)) = f(Spec(A)). For example, if Spec(A) \subset [0, \infty), then &ltAu, u&gt is always nonnegative and sqrt(A) is well-defined. (Extending functional calculus from approximating polynomials to arbitrary continuous functions uses the Stone-Weierstrass theorem, which shows that the polynomials are dense in the continuous functions on a compact interval in the supremum norm, i.e., with uniform convergence.)</li>
+            <li>The spectral theorem applies to compact, self-adjoint operators (or compact, normal operators), giving an orthonormal eigenbasis with real eigenvalues which are discrete except possibly for an accumulation point at zero. Compact operators form a *-closed, two-sided ideal in the bounded operators.</li>
+            <li>Fourier transforms send F(xu) = i d/dx u and F(d/dx u) = ix u, if (1 + |x|)u is in L^1. The Hermite polynomials (solutions of the quantum harmonic oscillator) form an orthonormal eigenbasis of the Fourier transform on L^2(\R). One common misconception is that e^{ikx} forms an orthonormal basis, but that can't be true because e^{ikx} has norm infinity. Hermite polynomials rapidly decay at infinity, placing them in a class known as Schwartz functions, which are dense in L^2(\R), as are the infinitely differentiable functions of compact support.</li>
+            <li>Let F(f) and \hat{f} denote the Fourier transform of f in L^2(\R). Then F/\sqrt{2\pi} is an isometric isomorphism of L^2(\R) whose adjoint and inverse is \sqrt{2\pi} F^{-1}. Thus F/\sqrt{2\pi} is unitary, which gives rise to Parseval's theorem ("you can give everybody a hat"), expressed as \int u \overline{w} = 1/2\pi \int \hat{u} \overline{\hat{w}}. Plancherel's theorem ("you can flip a hat") is expressed as \int u \hat{v} = \int \hat{u} v. Exercise: what is \hat{\overline{f}}(x) in terms of \hat{f}(x)?</li>
+        </ol>
+        <div class="clean-paragraphs">
+            <p>“We’ll have to consult the prayer and fasting department for that.” – Melrose, 2023</p>
+            <p>“Maybe I should give an example... but would it just confuse you?” – Melrose, 2023</p>
+            <p>“I could prove that... but I won’t because it’d just bore you.” – Melrose, 2023</p>
+		</div>
+
+		<p class="bold">8.06 Quantum Physics III</p>
+        <ol>
+            <li>Gauges: B = curl(A), E = -\nabla \phi, and gauge transformations map inside of the equivalence class of physically equivalent potentials. The Aharanov-Bohm effect shows that the potentials are the fundamental object: a charged particle on a ring can feel magnetic flux through a solenoid in the ring's center, even if the ring is in zero magnetic field.</li>
+            <li>Perturbation theory expands the problems we can solve by epsilon in every direction from well-known footholds. For first order time-independent non-degenerate perturbation theory, the first order energy correction of an eigenstate is the overlap &ltn| \delta H |n&gt. For the degenerate case, first diagonalize the perturbation inside the degenerate subspace to find the good states. A useful lemma shows &ltn| \delta H |m&gt = 0 if [\delta H, K] = 0 and |n> and |m> have different eigenvalues under K. Commutators are the heart of quantum physics.</li>
+            <li>Fermi's Golden Rule: constant perturbations conserve energy, harmonic perturbations bump energy up or down by \hbar \omega. The transition rate into a continuum is 2\pi / \hbar^2 |V_fi|^2 \rho(E_f), seen by a grand series of approximations. For example, light stimulates emission or absorption in atoms. Einstein's argument of blackbody radiation in thermal equilibrium shows a mismatch of rates, unless spontaneous emission enters the picture.</li>
+            <li>Units are a superpower. Tracking units makes it possible to catch mistakes and binary search their place of origin. No more useful skill arose out of reading Zwiebach's whole textbook in April, one chapter per morning. Semper Celeri: Always to the Swift.</li>
+            <li>The adiabatic theorem says that quantum number is an adiabatic invariant: instantaneous eigenstates are conserved up to a phase across slow changes to the Hamiltonian. Thus the ground state will remain the ground state, even if the new ground state is much more complicated. The phase that arises is a dynamical phase plus Berry's phase, also called the geometric phase because it only depends on the path taken by the parameters of the Hamiltonian as they vary in parameter space.</li>
+            <li>Scattering describes the most prevalent, primordial concept in all physics: two objects smashing together. It is the way to probe the internals of a particle. Partial waves seek to decompose the incoming plane wave into a basis of spherical waves of every angular momentum; connecting to radial equation solutions inside the short-range potential reveals the phase shift, which is the fundamental quantity. The Born approximation expands in powers of a propagator, which is a Green's function.</li>
+            <li>The spin statistics theorem from QFT says half-integer spin particles are fermions (antisymmetric wavefunction under swap), while integer spin particles are bosons (symmetric wavefunction under swap). A gas of fermions occupies different energy levels from a gas of bosons, giving rise to different physics. The Pauli exclusion principle forbids fermions with identical state; loosely, fermions "repel" while bosons "attract." Examples of fermions include electrons, protons, neutrons, lithium atoms, and the deuterium isotope; examples of bosons include photons, the hydrogen atom, and the helium atom. Spin adds, so an odd total number of fermions is fermionic, while an even number of fermions is bosonic. Combinatorics rule in the land of symmetries.</li>
+        </ol>
+		<p>“Okay, very good!” – Max Metlitski, 2023</p>
+
+		<p class="bold">7.016 Introduction to Biology</p>
+        <ol>
+            <li>Biologists use "ase" to denote enzymes ("verbs"), like kinase (phosphorylate), DNA polymerase (extend DNA), DNA ligase (ligate DNA, i.e., join two parts).</li>
+            <li>Cell signaling pathways are all about promoters and inhibitors. For example, neurons are a forest of excitement and inhibition manifested in the action potential that travels unidirectionally down axons thanks to the refractory period. For cancer, an oncogene is a gene that promotes cell proliferation; a tumor suppressor is a gene that inhibits cell proliferation. Cancer cells are usually epithelial, meaning immobile and bound to the extracellular matrix. Metastasis occurs when a tumor cell becomes mesenchymal (a lone wolf), setting down roots in a new organ.</li>
+            <li>Biochemistry governs life. For example, ATP is high energy because the electrons bunch up nearby on the triphosphate group; cleaving it releases energy that drives molecular machinery like DNA polymerase. The 26 amino acids form a code whose operating system is protein folding. DNA to mRNA to translated protein is analogous with source code to LLVM-waiting-to-compile to compiled program.</li>
+            <li>The immune system is a marvel. B cells undergo VDJ recombination of the genome itself to produce unique specificity to a random antigen. B cells and dendritic cells present foreign antigens on the cell surface via MHC II. Helper T cells (CD4+) that recognize the foreign antigen presented on a B cell activate, signaling clonal expansion of the B cell. The B cell also undergoes hypermutation to fine-tune its affinity to the antigen. Some B cells differentiate into plasma cells which secrete antibodies, others into memory B cells in case of later reinfection. Cytotoxic T cells (CD8+) read antigens presented via MHC I, which are internal to the presenting cell; if the antigen is foreign, the T cell kills the compromised cell.</li>
+            <li>Retroviruses evolved reverse transcriptase to map RNA to DNA. RNA sequencing is now a powerful way to chart which genes are expressed and when, which is called epigenetics. Another application is mRNA vaccines, which leverage host cell translation to pump out the antigen, such as SARS-CoV-2 spike protein. Similar viral technology is the heart of CRISPR, which inserts a fragment of DNA into the host genome. An example of a gene to insert with CRISPR is GFP (green fluorescent protein, discovered in jellyfish) to tag cells. By choosing the genomic promoter under which to express GFP, certain cell types will glow while others are dark. For example, a pluripotent stem cell with a ubiquitous promoter for GFP and a muscle-cell-specific promoter for RFP will mark lineage in green and muscle differentiation in red.</li>
+        </ol>
+		<p>“[Music to open the day]” – Professor Adam Martin, every morning</p>
+
+        <br>
+		<p id="appendix" class="bold">Appendix: Voice and Speech Glossary</p>
+		<p class="bold">Unit 1 - The Basics</p>
+        <ul>
+            <li>Concentration - ability to enter a state of embodiment without interruption from the language-based, intellectual mind</li>
+            <li>Relaxation - ability to use only the muscular energy needed at any given time, no more and no less</li>
+            <ul>
+                <li>Meaningful gesture - specific use of physicality / gesture to support the clarity of your storytelling (as opposed to random, vague or meaningless gesture born from a lack of concentration / relaxation)</li>
+                <li>Home bases - a form of meaningful gesture; "resting" postures for a character</li>
+            </ul>
+            <li>Breathing, gazing, grounding - tools for practicing concentration and relaxation</li>
+            <li>Theatrical Sphere of Expression - the distance we need to fill physically and vocally to be clearly seen, heard and understood in a theatrical space</li>
+            <li>Phrasing - the technique by which a speaker breaks up memorized text into understandable units (i.e., phrases); proper phrases are created by breathing in through the mouth at the punctuation, then speaking the phrase on the exhalation</li>
+            <ul>
+                <li>Acting the behavior of thinking - together with our phrases, we must act out the behavior accompanying the character's thought process</li>
+            </ul>
+            <li>Vocal variation - the technique by which a speaker keeps a listener engaged; the technique by which a speaker helps the listener understand the content and structure of a speech; the technique by which an actor makes distinct, dynamic shifts in vocal and acting choices from phrase to phrase</li>
+            <ul>
+                <li>Point of view - the technique by which we name the character's relationship to what they are saying in a given phrase</li>
+                <ul>
+                    <li>Introspection / communication - any point of view can be played in one of two directions: an introspective acting choice has the quality of still being in process, or more for the speaker than for the listener; a communicative acting choice has the quality of being fully processed and for the listener more than the speaker</li>
+                    <li>Vocal Dynamics - pitch, rhythm and volume</li>
+                </ul>
+            </ul>
+        </ul>
+
+		<p class="bold">Unit 2 - Acting Shakespeare</p>
+        <ul>
+            <li>Familiarization - the work an actor must do to understand the monologue, including character, context, point of view, and all language</li>
+            <li>Scansion - the technique by which we analyze lines of Shakespeare for emphasized (strong) and de-emphasized (weak) syllables</li>
+            <ul>
+                <li>In a regular line of Shakespeare, there are 5 weak and 5 strong syllables: weak STRONG weak STRONG weak STRONG weak STRONG weak STRONG</li>
+                <li>Common irregularities:</li>
+                <ul>
+                    <li>weak ending (line ends on a weak syllable)</li>
+                    <li>troche (the initial "weak STRONG" is inverted to "STRONG weak")</li>
+                    <li>syncopation (two weak syllables together)</li>
+                    <li>incomplete line (empty beats)</li>
+                </ul>
+            </ul>
+            <li>Phrasing - as in Unit One, we phrase Shakespearean text punctuation by punctuation - NOT line by line</li>
+            <li>Operative words - of the strong beats in the phrase, the beats which need the MOST emphasis to make the meaning of the language clear</li>
+            <li>Shakespearean techniques using pitch:</li>
+            <ul>
+                <li>Linking / lilting inflection - adding "movement" to the end of the phrase to indicate to the listener that we're at a comma, as opposed to a period</li>
+                <li>Conclusive / upward inflection -- adding emphasis to the operative syllable of the last operative word to indicate to the listener that we're at a period, without deflating the text</li>
+                <li>Subordinate clauses - dropping the pitch so the audience can hear the difference between the subordinate phrase and the primary phrase</li>
+                <li>Big little words -- endowing words like "but, yet, or, however" with a great deal of "movement" to help the listener hear the work the word is doing in order to change the direction of the thought</li>
+            </ul>
+            <li>Techniques for creating vocal "texture":</li>
+            <ul>
+                <li>Onomatopoeia - letting a word sound like what it means</li>
+                <ul>
+                    <li>Some words lean more heavily on their vowel sounds, and others lean more heavily on their consonant sounds</li>
+                </ul>
+                <li>Alliteration - repetition of similar sounds in a cluster of words</li>
+            </ul>
+        </ul>
+
+		<p class="bold">Unit 3 - Public Speaking</p>
+        <ul>
+            <li>Make meaningful eye contact - using gazing to make eye contact with one member of the audience at a time, taking care to include folks at the edges of the audience, and not just the folks in the center</li>
+            <li>Speak in a conversational tone - use the mature part of your voice and engage the audience as you would a single listener, avoiding any quality of "reciting"</li>
+            <ul>
+                <li>Hesitation - build a slight hesitation into your words to create a sense of organic language</li>
+            </ul>
+            <li>Redefine words like "this" and "that"</li>
+            <li>Enunciate key terms and vocabulary words</li>
+            <li>Upward conclusive inflection - an extension of the lesson from Unit 2: move the operative syllable of the last operative word in the sentence forward and up in terms of pitch and volume, instead of down and back</li>
+        </ul>
+    </main>
+</body>
+</html>
