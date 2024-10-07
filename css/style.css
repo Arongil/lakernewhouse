@@ -120,6 +120,18 @@ p {
     display: inline;
 }
 
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+.caption {
+    text-align: center;
+    margin: auto;
+    color: #555;
+    max-width: 34.5em;
+}
+
 .justify {
     text-align: justify;
 }
