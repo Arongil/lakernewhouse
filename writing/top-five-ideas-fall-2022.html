@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Five Ideas, Fall 2022 - Laker Newhouse</title>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap' rel='stylesheet'>
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <h3><a href="/" style="font-size: 1.4rem; color: #333; text-decoration: none;">Laker Newhouse</a></h3>
+            <a href="/research">Research</a>
+            <a href="/writing">Writing</a>
+            <a href="/how-to-mit">~ How to MIT ~</a>
+        </nav>
+    </header>
+    <main>
+        <h2 style="margin: 0;">Top Five Ideas from Every Class</h2>
+        <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Dec 2022</h4>
+        <p>When in an MIT semester so dearly we work to glean insight into the world, decency toward the remembrance of the future self impels us to enumerate the top ideas from each field.</p>
+		<p class="bold">Performance Engineering</p>
+		<ol>
+			<li>Bithacks are magic.</li>
+			<li>Profile to see the real bottlenecks.</li>
+			<li>Lesson in software engineering: interfaces enable beautiful, clean abstraction.</li>
+			<li>Lesson in leadership: estimate how long things will take and what benefit they will confer. Take on tasks the team can finish. (Otherwise, no endgame table or parallelism.)</li>
+			<li>Heuristics for perspective and life: in Leiserchess, tuning the heuristics let the top team demolish the competition. We all viewed heuristic tuning as a maximization problem with the hugely expensive evaluation of 1000-game tournaments. The top team instead viewed heuristic weights as aiming to predict who will win the game; then they plugged 10M labeled games into least squares. <em>Perspective</em>. Let it stand as a lesson for life: know what you want, and the search will become easier.</li>
+		</ol>
+		<div class="clean-paragraphs">
+			<p>Serial slowdowns: unwise algorithms, cache misses, branches, memory lookup, divisions.</p>
+			<p>Parallel problems: lock contention, false sharing, wasted work, low span, malignant races.</p>
+			<p>Speedy suggestions: prune early, precompute, vectorize, use builtins, approximate.</p>
+			<p>In the words of the venerable Jon Bentley, “Pull your head out of your butt.”</p>
+		</div>
+
+		<p class="bold">Design and Analysis of Algorithms</p>
+		<ol>
+			<li>Median of an unsorted array in O(n) time: split into blocks of 5, find median of medians recursively, partition on it, repeat. Median of medians is guaranteed close to middle.</li>
+			<li>Union find: MAKE-SET(x), UNION(x, y), FIND(x) in O(\alpha(n)) amortized time per operation: n is the number of MAKE-SET and \alpha is the inverse Ackerman function.</li>
+			<li>Minimum spanning trees: lightest edge on a cut is in some MST; heaviest edge on a cycle is in no MST; Kruskal’s finds MST in O(|E| \log |V|) time.</li>
+			<li>Max flow: the unexpected hero. It solves questions you wouldn’t expect.</li>
+			<li>Select uniformly random element from stream of unknown length with O(1) memory: set r = r_1, then at step j with probability 1/j set r = r_j. When the stream closes, return r.</li>
+		</ol>
+		<div class="clean-paragraphs">
+			<p>“Zark Muckerberg has recently challenged Melon Usk to a ping pong game on Mars...”</p>
+			<p>– Every other 6.1220 pset</p>
+		</div>
+
+		<p class="bold">Theory of Probability</p>
+		<ol>
+			<li>If two measures agree on a pi-system with a sequence converging to the whole space, then the two measures agree everywhere. Proof: pi-lambda theorem.</li>
+			<li>Fatou’s Lemma: E[\liminf f] \leq \liminf E[f]. Exercise: derive the Dominated Convergence Theorem, stating if f_n \to f and f_n \leq g for integrable g, then E[f_n] \to E[f].</li>
+			<li>Conditional expectation Y = E[X | G] is G-measurable <a href="https://www.s.t">s.t</a>. E[Y 1_H] = E[X 1_H] for all H \subset G. Another perspective: project X on to the subspace of G-measurable maps. If G is the trivial sigma algebra, then E[X | G] = E[X]. If G is the whole sigma algebra, then E[X | G] = X. Remember that sigma algebras tell us the amount of information we know.</li>
+			<li>Characteristic function E[exp(itX)] determines the distribution of a random variable X.</li>
+			<li>Optional Stopping Theorem: in expectation, a stopped martingale ends where it starts. Condition is \tau finite and {X_i} bounded, or E[\tau] finite and |X_i - X_{i-1}| bounded.</li>
+		</ol>
+		<div class="clean-paragraphs">
+			<p>“Okay, so today we are going to pick up where we left off with uniform integrability...”</p>
+			<p>– Yair Shenfeld, at least once</p>
+		</div>
+		<div class="clean-paragraphs">
+			<p>“These psets take 20 hours the week they are due... aaaagh!”</p>
+			<p>– Me, at least once</p>
+		</div>
+
+		<p class="bold">The Art and Science of Negotiation</p>
+		<ol>
+			<li>Moves and turns: add deft perspective to name, interrupt, or reframe (Kolb and Porter).</li>
+			<li>Body language: feet are honest; they point and bounce. Torso leans away from the unpleasant. Steepled hands project confidence.</li>
+			<li>Spoilers: look out for them in important settings. Notice the signs: chameleon interests, too quiet, or too loud. Still, trust first.</li>
+			<li>Big picture: look to the best for the company at large. As the manager, give affiliation, status, appreciation. Learn the real story.</li>
+			<li>Inner Yes: the most powerful No has roots in a Yes to something bigger. Our faces leak our true feelings, so feel magnanimously.</li>
+			<li>Implementability: overcome motivated blindness. Everyone loses if the deal is founded on even the sweetest lies.</li>
+		</ol>
+		<p>Miscellaneous thoughts:</p>
+		<div class="clean-paragraphs indent">
+			<p>- Negotiation geniuses are calm and alert, patient and proactive, practical and creative.</p>
+			<p>- What frames do we impose on ourselves? What frames would empower us with agency? We can make our vision so much loftier than we normally allow.</p>
+		</div>
+    </main>
+</body>
+</html>
