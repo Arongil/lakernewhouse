@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Editor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <style>
+    :root {
+      --text-light: #1a1a1a;
+      --text-dark: #e5e5e5;
+      --bg-light: #ffffff;
+      --bg-dark: #1e293b;
+      --border-light: #e5e7eb;
+      --border-dark: #334155;
+      --header-light: #f9fafb;
+      --header-dark: #1e293b;
+      --output-dark: #1e293b;
+      --editor-dark: #282c34;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+      background: var(--bg-dark);
+    }
+
+    .editor-panel {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border-dark);
+    }
+
+    .output-panel {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      border-bottom: 1px solid var(--border-dark);
+      background: var(--header-dark);
+    }
+
+    .flex-container {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-run {
+      width: 4.75rem;
+      height: 2.25rem;
+      padding: 0;
+      gap: 0.5rem;
+      font-size: 1rem;
+      color: white;
+      background: #2563eb;
+      border-radius: 0.25rem;
+      transition: background-color 0.2s;
+    }
+
+    .btn-run:hover:not(:disabled) {
+      background: #1d4ed8;
+    }
+
+    .btn-run:disabled {
+      background: #93c5fd;
+      cursor: not-allowed;
+    }
+
+    .btn-theme {
+      padding: 0.375rem;
+      color: #f2ce4e;
+      background: transparent;
+      border-radius: 9999px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-theme:hover {
+      background: var(--theme-hover-bg, rgba(255, 255, 255, 0.1));
+    }
+
+    .editor-container {
+      flex: 1;
+      position: relative;
+      background: var(--editor-dark);
+      overflow: hidden;
+    }
+
+    .editor-highlight {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      padding: 1rem;
+      overflow: auto;
+      pointer-events: none;
+      font-family: monospace;
+      font-size: 0.875rem !important;
+      line-height: 1.25rem !important;
+      margin: 0 !important;
+      color: var(--text-dark);
+      white-space: pre;
+      tab-size: 4;
+      background: transparent !important;
+    }
+
+    .editor-highlight code {
+      font-size: 0.875rem !important;
+      line-height: 1.25rem !important;
+      background: transparent !important;
+    }
+
+    .editor-textarea {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      padding: 0.875rem 1rem 1rem 4.5rem;
+      overflow: auto;
+      font-family: monospace;
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+      background: transparent;
+      -webkit-text-fill-color: transparent;
+      caret-color: white;
+      resize: none;
+      border: none;
+      tab-size: 4;
+    }
+
+    .editor-textarea:focus {
+      outline: none;
+    }
+
+    .line-number {
+      display: inline-block;
+      width: 2.5rem;
+      user-select: none;
+      opacity: 0.5;
+      text-align: right;
+      padding-right: 0.75rem;
+      border-right: 1px solid #4B5563;
+      margin-right: 1.125rem;
+    }
+
+    .output-section {
+      height: 50%;
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--border-dark);
+    }
+
+    .output-content {
+      flex: 1;
+      padding: 1rem;
+      overflow: auto;
+      background: var(--output-dark);
+    }
+
+    .header-text {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .output-plot {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .output-plot img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .placeholder-text {
+      color: var(--text-dark);
+      opacity: 0.7;
+      font-size: 0.875rem;
+    }
+
+    .console-output {
+      font-family: monospace;
+      font-size: 0.875rem;
+      white-space: pre-wrap;
+      color: var(--text-dark);
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+  </style>
+
+  <div class="container">
+    <!-- Editor Panel -->
+    <div class="editor-panel">
+      <div class="header">
+        <div class="flex-container">
+          <button id="runButton" class="btn btn-run" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Run
+          </button>
+          <button id="themeButton" class="btn btn-theme">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="4"/>
+              <line x1="12" y1="1" x2="12" y2="5"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="3.93" y1="3.93" x2="6.76" y2="6.76"/>
+              <line x1="17.24" y1="17.24" x2="20.07" y2="20.07"/>
+              <line x1="1" y1="12" x2="5" y2="12"/>
+              <line x1="19" y1="12" x2="23" y2="12"/>
+              <line x1="3.93" y1="20.07" x2="6.76" y2="17.24"/>
+              <line x1="17.24" y1="6.76" x2="20.07" y2="3.93"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="editor-container">
+        <pre class="editor-highlight" id="highlighting" aria-hidden="true"><code class="language-python"></code></pre>
+        <textarea id="editing" spellcheck="false" class="editor-textarea"></textarea>
+      </div>
+    </div>
+
+    <!-- Output Panel -->
+    <div class="output-panel">
+      <div class="output-section">
+        <div class="header">
+          <span class="header-text">Plot Output</span>
+        </div>
+        <div class="output-content">
+          <div class="output-plot" id="plotOutput">
+            <span class="placeholder-text">Plot output will appear here</span>
+          </div>
+        </div>
+      </div>
+      <div class="output-section" style="border-bottom: none;">
+        <div class="header">
+          <span class="header-text">Console Output</span>
+        </div>
+        <div class="output-content">
+          <pre id="consoleOutput" class="console-output">Initializing...</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+  <script>
+    // Wait for Prism to load
+    function waitForPrism() {
+      return new Promise((resolve) => {
+        if (window.Prism && window.Prism.languages.python) {
+          resolve();
+        } else {
+          setTimeout(() => waitForPrism().then(resolve), 100);
+        }
+      });
+    }
+
+    // Initialize the editor
+    async function initializeEditor() {
+      await waitForPrism();
+
+      const LOCAL_STORAGE_KEY = 'eureka-labs-python-editor-code';
+      const DEFAULT_CODE = `# Example matplotlib plot
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Create data
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+# Create and show plot
+plt.figure(dpi=100, figsize=(5, 5))
+plt.plot(x, y)
+plt.title('Sine Wave')
+plt.grid(True)
+plt.show()`;
+
+      // DOM Elements
+      const runButton = document.getElementById('runButton');
+      const themeButton = document.getElementById('themeButton');
+      const editor = document.getElementById('editing');
+      const highlightElement = document.getElementById('highlighting');
+      const plotOutput = document.getElementById('plotOutput');
+      const consoleOutput = document.getElementById('consoleOutput');
+
+      // State
+      let pyodide = null;
+      let isDarkMode = true;
+
+      // Initialize editor with saved code or default
+      editor.value = localStorage.getItem(LOCAL_STORAGE_KEY) || DEFAULT_CODE;
+
+      // Update syntax highlighting
+      function updateHighlight(text) {
+        const highlighted = Prism.highlight(text, Prism.languages.python, 'python');
+        const lines = highlighted.split('\n');
+        const numberedLines = lines.map((line, i) => 
+          `<span class="line-number">${String(i + 1).padStart(3, ' ')}</span>${line}`
+        ).join('\n');
+        
+        highlightElement.querySelector('code').innerHTML = numberedLines + '\n';
+      }
+
+      // Clean Python error message
+      function cleanPythonError(error) {
+        if (!error) return '';
+        
+        const execPart = error.split('File "<exec>"').pop();
+        if (!execPart) return '';
+        
+        const match = execPart.match(/, line (\d+).*?\n.*?(\w+Error): (.+)$/s);
+        if (!match) return '';
+        
+        const [, lineNum, errorType, message] = match;
+        return `Error on line ${lineNum}: ${message}`;
+      }
+
+      // Event Handlers
+      editor.addEventListener('input', (e) => {
+        const text = e.target.value;
+        localStorage.setItem(LOCAL_STORAGE_KEY, text);
+        updateHighlight(text);
+      });
+
+      editor.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+          // Auto run code on enter
+          e.preventDefault();
+          runCode();
+        } else if (e.key === 'Tab') {
+          // Indent or unindent on tab
+          e.preventDefault();
+          const originalStart = editor.selectionStart;
+          const originalEnd = editor.selectionEnd;
+          
+          if (!e.shiftKey) {
+            // Handle indentation
+            if (originalStart == originalEnd) {
+              // Single line/cursor indentation
+              document.execCommand('insertText', false, '    ');
+            } else {
+              // Multi-line tab indent
+              const text = editor.value;
+              const startLine = text.slice(0, originalStart).lastIndexOf('\n') + 1;
+              let endLine = text.indexOf('\n', originalEnd);
+              if (endLine === -1) endLine = text.length;
+              
+              const selectedText = text.slice(startLine, endLine);
+              const lines = selectedText.split('\n');
+              const indentedText = lines.map(line => '    ' + line).join('\n');
+              
+              editor.selectionStart = startLine;
+              editor.selectionEnd = endLine;
+              document.execCommand('insertText', false, indentedText);
+              
+              // Adjust selection for the added indentation
+              const totalIndentOffset = lines.length * 4;
+              editor.selectionStart = originalStart + 4;  // First line indent
+              editor.selectionEnd = originalEnd + totalIndentOffset;  // Total indents added
+            }
+          } else {
+            // Handle unindentation (Shift+Tab)
+            if (originalStart == originalEnd) {
+              // Single line/cursor unindentation
+              const lineStart = editor.value.slice(0, originalStart).lastIndexOf('\n') + 1;
+              const lineEnd = editor.value.indexOf('\n', originalStart);
+              const currentLine = editor.value.slice(lineStart, lineEnd !== -1 ? lineEnd : editor.value.length);
+              
+              // Check if line starts with spaces/tabs to remove
+              if (currentLine.startsWith('    ')) {
+                editor.selectionStart = lineStart;
+                editor.selectionEnd = lineStart + 4;
+                document.execCommand('delete', false);
+                editor.selectionStart = editor.selectionEnd = Math.max(originalStart - 4, lineStart);
+              } else {
+                // If no unindent occurred, restore original cursor position exactly
+                editor.selectionStart = editor.selectionEnd = originalStart;
+              }
+            } else {
+              // Multi-line unindent
+              const text = editor.value;
+              const startLine = text.slice(0, originalStart).lastIndexOf('\n') + 1;
+              let endLine = text.indexOf('\n', originalEnd);
+              if (endLine === -1) endLine = text.length;
+              
+              const selectedText = text.slice(startLine, endLine);
+              const lines = selectedText.split('\n');
+              
+              // Count lines that were actually unindented
+              let unindentedLines = 0;
+              const unindentedText = lines.map(line => {
+                if (line.startsWith('    ')) {
+                  unindentedLines++;
+                  return line.slice(4);
+                }
+                return line;
+              }).join('\n');
+              
+              editor.selectionStart = startLine;
+              editor.selectionEnd = endLine;
+              document.execCommand('insertText', false, unindentedText);
+              
+              // If no unindenting occurred, restore exactly to original positions
+              if (unindentedLines === 0) {
+                editor.selectionStart = originalStart;
+                editor.selectionEnd = originalEnd;
+              } else {
+                // Only adjust selection if actual unindenting occurred
+                const firstLineUnindented = lines[0].startsWith('    ');
+                editor.selectionStart = originalStart - (firstLineUnindented ? 4 : 0);
+                editor.selectionEnd = originalEnd - (unindentedLines * 4);
+              }
+            }
+          }
+          localStorage.setItem(LOCAL_STORAGE_KEY, editor.value);
+          updateHighlight(editor.value);
+        }
+      });
+
+      editor.addEventListener('scroll', (e) => {
+        highlightElement.scrollTop = e.target.scrollTop;
+        highlightElement.scrollLeft = e.target.scrollLeft;
+      });
+
+      // Theme switching
+      function toggleTheme() {
+        isDarkMode = !isDarkMode;
+        
+        // Update Prism theme
+        const oldTheme = document.querySelector('link[href*="prism"]');
+        if (oldTheme) oldTheme.remove();
+        
+        const newTheme = document.createElement('link');
+        newTheme.rel = 'stylesheet';
+        newTheme.href = isDarkMode 
+          ? 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css'
+          : 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css';
+        document.head.appendChild(newTheme);
+        
+        if (isDarkMode) {
+          document.documentElement.style.setProperty('--text-light', '#1a1a1a');
+          document.documentElement.style.setProperty('--text-dark', '#e5e5e5');
+          document.documentElement.style.setProperty('--bg-light', '#ffffff');
+          document.documentElement.style.setProperty('--bg-dark', '#1e293b');
+          document.documentElement.style.setProperty('--border-light', '#e5e7eb');
+          document.documentElement.style.setProperty('--border-dark', '#334155');
+          document.documentElement.style.setProperty('--header-light', '#f9fafb');
+          document.documentElement.style.setProperty('--header-dark', '#1e293b');
+          document.documentElement.style.setProperty('--output-dark', '#1e293b');
+          document.documentElement.style.setProperty('--editor-dark', '#282c34');
+          document.documentElement.style.setProperty('--theme-hover-bg', 'rgba(255, 255, 255, 0.1)');
+          
+          themeButton.style.color = '#f2ce4e';
+          themeButton.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4"/>
+            <line x1="12" y1="1" x2="12" y2="5"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="3.93" y1="3.93" x2="6.76" y2="6.76"/>
+            <line x1="17.24" y1="17.24" x2="20.07" y2="20.07"/>
+            <line x1="1" y1="12" x2="5" y2="12"/>
+            <line x1="19" y1="12" x2="23" y2="12"/>
+            <line x1="3.93" y1="20.07" x2="6.76" y2="17.24"/>
+            <line x1="17.24" y1="6.76" x2="20.07" y2="3.93"/>
+          </svg>`;
+        } else {
+          document.documentElement.style.setProperty('--text-light', '#e5e5e5');
+          document.documentElement.style.setProperty('--text-dark', '#1a1a1a');
+          document.documentElement.style.setProperty('--bg-light', '#1e293b');
+          document.documentElement.style.setProperty('--bg-dark', '#ffffff');
+          document.documentElement.style.setProperty('--border-light', '#334155');
+          document.documentElement.style.setProperty('--border-dark', '#e5e7eb');
+          document.documentElement.style.setProperty('--header-light', '#1e293b');
+          document.documentElement.style.setProperty('--header-dark', '#f9fafb');
+          document.documentElement.style.setProperty('--output-dark', '#ffffff');
+          document.documentElement.style.setProperty('--editor-dark', '#ffffff');
+          document.documentElement.style.setProperty('--theme-hover-bg', 'rgba(0, 0, 0, 0.05)');
+          
+          themeButton.style.color = '#1e293b';
+          themeButton.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>`;
+        }
+        
+        updateHighlight(editor.value);
+      }
+
+      // Initialize Pyodide
+      async function initializePyodide() {
+        try {
+          consoleOutput.textContent = 'Loading Pyodide...';
+          
+          const script = document.createElement('script');
+          script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
+          await new Promise((resolve, reject) => {
+            script.onload = resolve;
+            script.onerror = reject;
+            document.body.appendChild(script);
+          });
+
+          // Wait for Pyodide to be available
+          await new Promise(resolve => {
+            const checkPyodide = () => {
+              if (window.loadPyodide) {
+                resolve();
+              } else {
+                setTimeout(checkPyodide, 100);
+              }
+            };
+            checkPyodide();
+          });
+
+          consoleOutput.textContent = 'Initializing Python environment...';
+          pyodide = await window.loadPyodide({
+            indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/'
+          });
+
+          consoleOutput.textContent = 'Loading matplotlib...';
+          await pyodide.loadPackage('matplotlib');
+
+          consoleOutput.textContent = 'Setting up environment...';
+          await pyodide.runPythonAsync(`
+            import sys
+            from io import StringIO
+            import matplotlib
+            matplotlib.use('agg')
+            import matplotlib.pyplot as plt
+
+            class WebConsole:
+                def __init__(self):
+                    self.buffer = StringIO()
+                
+                def write(self, text):
+                    self.buffer.write(text)
+                
+                def flush(self):
+                    pass
+                
+                def getvalue(self):
+                    return self.buffer.getvalue()
+                
+                def clear(self):
+                    self.buffer = StringIO()
+
+            sys.stdout = WebConsole()
+            sys.stderr = WebConsole()
+
+            def custom_show(*args, **kwargs):
+                pass
+
+            plt.show = custom_show
+          `);
+
+          runButton.disabled = false;
+          consoleOutput.textContent = 'Ready!';
+        } catch (error) {
+          console.error('Error loading Pyodide:', error);
+          consoleOutput.textContent = `Error: ${error.message || 'Failed to load Python environment'}`;
+        }
+      }
+
+      // Run Python code
+      async function runCode() {
+        if (!pyodide) return;
+
+        try {
+          consoleOutput.textContent = 'Running...';
+          plotOutput.innerHTML = '<span class="placeholder-text">Running...</span>';
+
+          pyodide.runPython('sys.stdout.clear(); sys.stderr.clear(); plt.clf()');
+          await pyodide.runPythonAsync(editor.value);
+
+          const plotOutput64 = pyodide.runPython(`
+            import io
+            import base64
+            
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png', bbox_inches='tight', dpi=100)
+            buf.seek(0)
+            base64.b64encode(buf.getvalue()).decode('utf-8')
+          `);
+
+          if (plotOutput64) {
+            plotOutput.innerHTML = `<img src="data:image/png;base64,${plotOutput64}" alt="Plot output" />`;
+          }
+
+          const stdout = pyodide.runPython('sys.stdout.getvalue()');
+          const stderr = pyodide.runPython('sys.stderr.getvalue()');
+          consoleOutput.textContent = stdout + stderr || 'Code executed successfully!';
+
+          pyodide.runPython('plt.close("all")');
+        } catch (error) {
+          consoleOutput.textContent = cleanPythonError(error.message);
+        }
+      }
+
+      // Event listeners
+      themeButton.addEventListener('click', toggleTheme);
+      runButton.addEventListener('click', runCode);
+
+      // Initialize highlighting and Pyodide
+      updateHighlight(editor.value);
+      initializePyodide();
+    }
+
+    // Start initialization when DOM is ready
+    document.addEventListener('DOMContentLoaded', initializeEditor);
+  </script>
+</body>
+</html>
