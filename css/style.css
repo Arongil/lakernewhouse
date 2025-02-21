@@ -46,13 +46,34 @@ h6 {
 
 nav {
     text-align: center;
-    margin: 1.25rem 0;
-    margin-top: 2.0rem;
+    margin: 2.0rem 0;
+    margin-bottom: 3rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 nav h3 {
-    margin: 0 4.0rem 0 0.625rem;
-    display: inline;
+    margin: 0;
+    width: 100%;
+    display: block;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    nav h3 {
+        width: auto;
+        margin-right: 4rem;
+        margin-bottom: 0.625rem;
+    }
+}
+
+@media (max-width: 768px) {
+    nav {
+        margin-bottom: 1.5rem;
+    }
 }
 
 a {
@@ -64,13 +85,16 @@ a:hover {
 }
 
 nav a {
-    margin: 0 0.625rem;
+    margin: 0 0.5rem;
     color: #3498db;
     font-size: 1.1rem;
+    padding: 0.25rem 0;
 }
 
-main {
-    padding: 1rem 0;
+@media (min-width: 768px) {
+    nav a {
+        margin-bottom: 0.325rem;
+    }
 }
 
 p {
@@ -97,10 +121,10 @@ p {
 }
 
 .main-image {
-    width: 20rem;
-    height: 18.53rem;
+    width: min(20rem, 80vw);
+    height: auto;
     display: block;
-    margin: 1rem auto 0 auto;
+    margin: 0.5rem auto 0.5rem auto;
     border-radius: 10px;
     border-style: solid;
     border-width: 1px;
@@ -112,12 +136,23 @@ p {
 }
 
 .row {
-    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2.25rem;
+    margin: 2rem 0;
+}
+
+@media (min-width: 768px) {
+    .row {
+        margin: 3rem 0;
+    }
 }
 
 .row a {
-    margin: 2rem 1rem;
-    display: inline;
+    display: block;
+    text-align: center;
+    margin: 0;
 }
 
 .img-fluid {
@@ -134,6 +169,13 @@ p {
 
 .justify {
     text-align: justify;
+}
+
+@media (max-width: 768px) {
+    .justify {
+        /* because justified can look bad on mobile */
+        text-align: left;
+    }
 }
 
 .right-justify {
