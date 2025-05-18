@@ -1,0 +1,224 @@
+<h1 id="sec:intro">Chapter 1: Introduction</h1>
+
+\begin{notebox}[“You can do anything as long as you don't need credit.”]
+Quite apart from President Truman's words, intellectual credit is due to several collaborators to whom this thesis is indebted. A common thread is that Jeremy Bernstein has thought rigorously about neural networks for ten years, lending a way of thinking---culminating in the metrized deep learning theory with Tim Large---that produced the fruits of our collaboration this year. I am also very grateful to Keller Jordan for turning his outstanding engineering prowess toward birthing the Muon optimizer together with us in fall 2024. In sum, this thesis is indebted to these works:
+\begin{itemize}
+    \item Modular norm theory: Large, Liu, Huh, Bahng, Isola, Bernstein
+    \item Optimizer anthology: Bernstein and \textbf{Newhouse}
+    \item Modular duality theory: Bernstein and \textbf{Newhouse}
+    \item Muon optimizer: Jordan, Jin, Boza, You, Cesista, \textbf{Newhouse}, Bernstein
+    \item Lipschitz transformers: \textbf{Newhouse}, Hess, Cesista, Zahorodnii, Bernstein, Isola
+\end{itemize}
+\end{notebox}
+
+\vspace{0.5em}
+
+AdamW [<a href="https://arxiv.org/abs/1711.05101" target="_blank" rel="noopener noreferrer" class="citation">Loshchilov & Hutter, 2019</a>] has become the standard optimizer in machine learning. Recently, an alternative has shown evidence that it may be faster and more scalable. This alternative is both a concrete optimizer---Muon [<a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer" class="citation">Jordan et al., 2024</a>; <a href="https://arxiv.org/abs/2502.16982" target="_blank" rel="noopener noreferrer" class="citation">Liu et al., 2025</a>; <a href="https://arxiv.org/abs/2505.02222" target="_blank" rel="noopener noreferrer" class="citation">Shah et al., 2025</a>]---and also a general method that unites past optimizers and current strands of research under a common framework.
+
+<a class="cref" data-target="sec:intro" href="#sec:intro">Chapter 1</a> explains the method of \textit{metrized deep learning}, which came about in a series of papers by Jeremy Bernstein [<a href="https://arxiv.org/abs/2002.03432" target="_blank" rel="noopener noreferrer" class="citation">Bernstein et al., 2021</a>; <a href="https://arxiv.org/abs/2210.10101" target="_blank" rel="noopener noreferrer" class="citation">Bernstein, 2022</a>; <a href="https://arxiv.org/abs/2310.17813" target="_blank" rel="noopener noreferrer" class="citation">Yang et al., 2023</a>]. Metrized deep learning seeks to control the size of every part of a neural network, including activations, weights, and gradients. Why does size matter? What is the right way to measure the size of a matrix? <a class="cref" data-target="subsec:metrizing-deep-learning" href="#subsec:metrizing-deep-learning">Section 1.1</a> answers these questions and is designed to teach the reader the key thought patterns in metrized deep learning. Because the spectral norm will emerge as a useful measure of size, <a class="cref" data-target="subsec:a-primitive-for-controlling-singular-values" href="#subsec:a-primitive-for-controlling-singular-values">Section 1.2</a> previews a computational primitive used in later chapters---odd polynomial iterations---that allows acting directly on the singular values.
+
+In <a class="cref" data-target="sec:duality" href="#sec:duality">Chapter 2</a>, metrizing deep learning leads to \textit{duality}, a way to modify the gradient according to a geometry that is well suited to it. This chapter is based on two papers, Bernstein & Newhouse [<a href="https://arxiv.org/abs/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">2024a,</a><a href="https://arxiv.org/abs/2410.21265" target="_blank" rel="noopener noreferrer" class="citation">b</a>], for which all of the credit for the ideas goes to Jeremy Bernstein. <a class="cref" data-target="subsec:old-optimizer-new-norm" href="#subsec:old-optimizer-new-norm">Section 2.1</a> tells the story of how three popular optimizers---SGD, Adam, and Shampoo---can be viewed under a common framework as duality maps under different choices of norm. <a class="cref" data-target="subsec:deriving-muon" href="#subsec:deriving-muon">Section 2.2</a> derives Muon as arising naturally from the spectral norm duality map, similar to Shampoo, but implemented with odd polynomials instead of inverse matrix powers. Keller Jordan added several more engineering innovations. <a class="cref" data-target="subsec:intriguing-properties" href="#subsec:intriguing-properties">Section 2.3</a> concludes with intriguing properties of duality, including new experiments and open questions. <a class="cref" data-target="fig:gradient-spectrum" href="#fig:gradient-spectrum">fig:gradient-spectrum</a> visualizes how useful signal could be lost in smaller singular values, which a duality map can recover.
+
+\begin{figure}[t]
+    \centering
+    \subfloat{
+        \includesvg[width=0.4\textwidth]{figure/gradient-spectrum/raw.svg}
+    }
+    \hspace{0.03\textwidth}
+    \subfloat{
+        \includesvg[width=0.4\textwidth]{figure/gradient-spectrum/processed.svg}
+    }
+    \caption{\textbf{Duality promotes signal from small singular values.} Left: Potentially useful signal could be lost because gradients are typically dominated by a few large singular values. Right: the spectral norm duality map recovers this signal. Muon [<a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer" class="citation">Jordan et al., 2024</a>] approximates the duality map using an odd polynomial that inflates singular values by at most 485$\times$, staking an implicit claim about the scale at which singular values may truly be noise. The plot shows the spectrum of a gradient from the layer 4 query matrix at step 100 of training a 120M parameter NanoGPT on internet text [<a href="https://github.com/karpathy/nanoGPT" target="_blank" rel="noopener noreferrer" class="citation">Karpathy, 2022</a>]. }
+    \label{fig:gradient-spectrum}
+\end{figure}
+
+In <a class="cref" data-target="sec:weight-decay" href="#sec:weight-decay">Chapter 3</a>, metrizing deep learning is applied to training transformers with strict weight norm constraints. This chapter is based on forthcoming work done jointly with Jeremy Bernstein and other collaborators. <a class="cref" data-target="subsec:lipschitz-enforced-introduction" href="#subsec:lipschitz-enforced-introduction">Section 3.1</a> motivates extending the benefits of small Lipschitz bounds---intuitively, the sensitivity of a network to input perturbations---to transformers beyond initialization. To develop a toolkit for training transformers with an enforced Lipschitz constant, <a class="cref" data-target="sec:comparing-methods" href="#sec:comparing-methods">Section 3.2</a> compares several methods for constraining weight norm. Perhaps surprisingly, optimizer choice appears to matter: standard methods such as weight decay [<a href="https://proceedings.neurips.cc/paper/1991/file/8eefcfdf5990e441f0fb6f3fad709e21-Paper.pdf" target="_blank" rel="noopener noreferrer" class="citation">Krogh & Hertz, 1991</a>] and spectral normalization [<a href="https://arxiv.org/abs/1705.10941" target="_blank" rel="noopener noreferrer" class="citation">Yoshida & Miyato, 2017</a>] improve a Lipschitz vs. performance tradeoff more with Muon than AdamW. Beyond standard methods, the fixed update norm of Muon inspires designing a weight constraint method called \textit{spectral soft cap}, which enforces a desired maximum spectral norm $\sigma_\text{max}$ by approximating the map $\sigma \mapsto \min(\sigma_\text{max}, \sigma)$ on all singular values $\sigma$ in parallel by iterating odd polynomials on the weights. In <a class="cref" data-target="sec:enforcing-for-transformers" href="#sec:enforcing-for-transformers">Section 3.3</a>, a 4-Lipschitz transformer is capable of achieving 60\% accuracy on Shakespeare text. Scaling to the NanoGPT speedrun benchmark [<a href="https://github.com/KellerJordan/modded-nanogpt" target="_blank" rel="noopener noreferrer" class="citation">Jordan et al., 2024</a>], we train 145M parameter transformers with an enforced Lipschitz constant without layer norm [<a href="https://arxiv.org/abs/1607.06450" target="_blank" rel="noopener noreferrer" class="citation">Ba et al., 2016</a>] or QK norm [<a href="https://arxiv.org/abs/2010.04245" target="_blank" rel="noopener noreferrer" class="citation">Henry et al., 2020</a>].
+
+In any endeavor, it is worthwhile to examine carefully the existing foundation. Two common practices in training with AdamW provide footholds into the ideas in later chapters. Therefore, the first step on this journey is to look at the way many researchers currently train models.
+
+\section{Optimizing with AdamW}
+
+This section aims to capture the current “word on the street” of how to optimize deep learning models. At the end, we point out two items that the following chapters will reconsider: gradient clipping and weight decay. The recipe looks as follows:
+
+\begin{enumerate}
+    \item Use AdamW with $\beta_1 = 0.9$, $\beta_2 = 0.95$ [<a href="https://github.com/KellerJordan/modded-nanogpt" target="_blank" rel="noopener noreferrer" class="citation">Jordan et al., 2024</a>; <a href="https://arxiv.org/abs/2411.04330" target="_blank" rel="noopener noreferrer" class="citation">Kumar et al., 2024</a>].
+    \item Sweep learning rate in logspace [<a href="https://arxiv.org/abs/1206.5533" target="_blank" rel="noopener noreferrer" class="citation">Bengio, 2012</a>], typically around $10^{-5}$ to $10^{-3}$.
+    \item Use weight decay $0.1$ [<a href="https://arxiv.org/abs/2005.14165" target="_blank" rel="noopener noreferrer" class="citation">Brown et al., 2020</a>; <a href="https://arxiv.org/abs/2305.19268" target="_blank" rel="noopener noreferrer" class="citation">Ahmadian et al., 2023</a>; <a href="https://arxiv.org/abs/2412.19437" target="_blank" rel="noopener noreferrer" class="citation">DeepSeek-AI, 2025</a>].
+    \item Clip gradient norm: $g \mapsto g / \|g\|_2$ if $\|g\|_2 > 1$ [<a href="https://arxiv.org/abs/2411.04330" target="_blank" rel="noopener noreferrer" class="citation">Kumar et al., 2024</a>; <a href="https://arxiv.org/abs/2412.19437" target="_blank" rel="noopener noreferrer" class="citation">DeepSeek-AI, 2025</a>].
+    \item Use $\epsilon = 10^{-15}$ to avoid instabilities from tiny gradient norms [<a href="https://arxiv.org/abs/2309.14322" target="_blank" rel="noopener noreferrer" class="citation">Wortsman et al., 2023</a>].
+    \item Use a linear or cosine learning rate schedule [<a href="https://arxiv.org/abs/1206.5533" target="_blank" rel="noopener noreferrer" class="citation">Bengio, 2012</a>; <a href="https://github.com/KellerJordan/modded-nanogpt" target="_blank" rel="noopener noreferrer" class="citation">Jordan et al., 2024</a>].
+\end{enumerate}
+
+
+
+
+\begin{notebox}[Improving gradient clipping]
+    As a preview of <a class="cref" data-target="sec:duality" href="#sec:duality">Chapter 2</a>, the motivation behind clipping the gradient is to stabilize training. But an ideal optimizer can be viewed as holding two goals at once: minimize the loss the most, while disturbing the model the least. Gradient clipping makes two implicit choices: 1) that the gradient already points in a useful “direction” and 2) that the right geometry to measure model disturbance in is Euclidean via the $\ell_2$ norm $\norm{\cdot}_2$. Duality revisits these choices, suggesting that different choices of norm yield different optimizers---SGD, AdamW, and Muon are special cases if momentum is turned off---that may be better suited to neural networks.
+\end{notebox}
+
+\begin{notebox}[Upgrading weight decay to a strict norm constraint]
+    As a preview of <a class="cref" data-target="sec:weight-decay" href="#sec:weight-decay">Chapter 3</a>, when weight decay is combined with a bounded weight update in some norm, the weight in that same norm cannot exceed $1/\lambda$ [<a href="https://arxiv.org/abs/2502.07529" target="_blank" rel="noopener noreferrer" class="citation">Pethick et al., 2025</a>]. The reason is an equilibrium occurs between the update step and weight decay when the weight norm $w$ satisfies $w = w(1 - \lambda \eta) + \eta$ for learning rate $\eta > 0$. <a class="cref" data-target="sec:weight-decay" href="#sec:weight-decay">Chapter 3</a> leverages this observation and extends it, since Muon's updates have fixed spectral norm, although Muon accomplishes this property not via clipping but with duality.
+\end{notebox}
+
+
+
+
+
+
+
+
+
+<h2 id="subsec:metrizing-deep-learning"> 1.1: Metrizing deep learning</h2>
+
+\textit{Contribution statement: Jeremy Bernstein developed the metrized deep learning method---a framework for assigning norms, or a way to measure size, to the weight matrices in a neural network---in a series of papers, especially “A Spectral Condition for Feature Learning,” “Optimisation and Generalisation in Networks of Neurons,” and “Scalable Optimization in the Modular Norm” [<a href="https://arxiv.org/abs/2310.17813" target="_blank" rel="noopener noreferrer" class="citation">Yang et al., 2023</a>; <a href="https://arxiv.org/abs/2210.10101" target="_blank" rel="noopener noreferrer" class="citation">Bernstein, 2022</a>; <a href="https://arxiv.org/abs/2411.04330" target="_blank" rel="noopener noreferrer" class="citation">Large et al., 2024</a>].}
+
+\vspace{0.5em}
+
+Consider a thought experiment. Suppose $x = 1$, and we wish to minimize the function $f(x) = x^2$. The negative gradient is $-2$, not far from the step $-1$ that minimizes the loss. But what if the curvature increased to $f(x) = 100x^2$? The gradient becomes far too large. What if the function flattened to $f(x) = x^2/100$? The gradient becomes far too small. It appears that the magnitude of the gradient is not always helpful information. In this thought experiment, the direction is what is useful.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{ccc}
+    \textbf{Function} & \text{\textbf{Negative Gradient}} & \text{\textbf{Optimal Step}} \\
+    \midrule[\heavyrulewidth]
+    $x^2$ & $-2$ & $-1$ \\
+    $100x^2$ & $-200$ & $-1$ \\
+    $0.01x^2$ & $-0.02$ & $-1$
+  \end{tabular}
+  \caption{Thought experiment: to minimize quadratics with different curvatures, it is helpful to ignore the \textit{magnitude} of the gradient in favor of the \textit{direction} information.}
+  \label{tab:gradient-thought-experiment}
+\end{table}
+
+Many optimizers such as Adam are motivated from second-order theory---leveraging curvature information---and other optimizers explicitly approximate the Hessian [<a href="https://link.springer.com/book/10.1007/978-0-387-40065-5" target="_blank" rel="noopener noreferrer" class="citation">Nocedal & Wright, 2006</a>; <a href="https://link.springer.com/article/10.1007/s10107-006-0706-8" target="_blank" rel="noopener noreferrer" class="citation">Nesterov & Polyak, 2006</a>]. This thought experiment suggests a different idea: \textit{normalizing} the gradient, and ignoring curvature, may be enough. However, that is not the full story. In <a class="cref" data-target="sec:duality" href="#sec:duality">Chapter 2</a>, duality indeed limits the update magnitude, but it also seeks to \textit{minimize the loss}. Duality will connect SGD, Adam, Shampoo, and Muon (with momentum turned off) as arising from different choices of \textit{norm}---or different ways to abstract away the size information from the gradient. This control over the gradient forms a step in a more general three-step agenda for building an architecture-aware optimizer:
+
+\begin{enumerate}
+    \item Bound the change in loss in terms of changes in the network output.
+    \item Relate changes in network output to changes to the weights.
+    \item Bound changes to the weights.
+\end{enumerate}
+
+This agenda gives a first-principles way to reason about creating an optimizer that will update the weights with the end goal in mind---reducing the loss. Jeremy Bernstein's PhD thesis proposes this agenda [<a href="https://arxiv.org/abs/2210.10101" target="_blank" rel="noopener noreferrer" class="citation">Bernstein, 2022</a>], building on previous work towards architecture-aware optimizers [<a href="https://arxiv.org/abs/2002.03432" target="_blank" rel="noopener noreferrer" class="citation">Bernstein et al., 2021</a>; <a href="https://arxiv.org/abs/2304.05187" target="_blank" rel="noopener noreferrer" class="citation">Bernstein et al., 2023b</a>; <a href="https://arxiv.org/abs/2102.07227" target="_blank" rel="noopener noreferrer" class="citation">Liu et al., 2021</a>], including the majorization-minimization recipe [<a href="https://epubs.siam.org/doi/pdf/10.1137/1.9781611974409" target="_blank" rel="noopener noreferrer" class="citation">Lange, 2016a</a>; <a href="https://arxiv.org/abs/2308.00190" target="_blank" rel="noopener noreferrer" class="citation">Streeter, 2023</a>].
+
+
+What is the right way to carry out this agenda for deep learning? <a href="https://arxiv.org/abs/2411.04330" target="_blank" rel="noopener noreferrer" class="citation">Large et al. (2024</a>) propose developing such bounds for the atoms of deep learning---$\linear$, $\embed$, $\conv$, and other layers---and stitching the bounds together to create a recursive, architecture-aware bound for any neural network.
+
+The central idea is to equip input and output activation spaces with a norm to measure size. Different atoms may benefit from different norms. For example, while $\linear$ and $\embed$ are both linear maps with weights in $\R^{m \times n}$, $\linear$ expects dense input vectors while $\embed$ expects one-hot input vectors. Different choices of norm will give rise to different optimizers. <a class="cref" data-target="sec:duality" href="#sec:duality">Chapter 2</a> links the $\ell_\infty$ norm with Adam and the $\rms$ norm---a rescaled $\ell_2$ norm that considers the dense all-ones vector to be unit norm---with Muon.
+
+Metrized deep learning provides no principle that proves that one norm is better than another in a particular setting. Instead, which norms are best for different situations may depend on many factors, and nailing down a precise answer is an open question. The framework posits that a choice of norm, however, is a critical design decision.
+
+Nonetheless, there is evidence that a rescaled spectral norm may be the most natural choice for $\linear$ layers. The so-called $\rms\to\rms$ (“RMS to RMS”) operator norm equals 1 when the spectral norm equals $\sqrt{d_\mathsf{out}/d_\mathsf{in}}$ for a weight matrix $W \in \R^{d_\mathsf{out} \times d_\mathsf{in}}$. For a first intuition of why this norm makes sense, some activation functions like GeLU [<a href="https://arxiv.org/abs/1606.08415" target="_blank" rel="noopener noreferrer" class="citation">Hendrycks & Gimpel, 2023</a>] are designed for activations with entries near $1$. If the all-ones vector in $d$ dimensions is to have unit norm, the only scaling of an $\ell_2$ norm that works is $\norm{\cdot}_\rms = \tfrac{1}{\sqrt{d}} \norm{\cdot}_2$. Because of this scaling, the $\rms$ norm is dimensionless and is useful across widths. For a second intuition, if feature learning is to mean changes in activations measured in a Euclidean space---which may make sense if representation spaces have linear structure [<a href="https://arxiv.org/abs/2311.03658" target="_blank" rel="noopener noreferrer" class="citation">Park et al., 2024</a>]---then a rescaled $\ell_2$ norm is the only choice. A major upside of using the $\rms\to\rms$ operator norm  size is that it recovers the initialization and update rules from maximal-update parameterization, or $\mu$P, a way to scale networks up while preserving the optimal hyperparameters [<a href="https://arxiv.org/abs/2203.03466" target="_blank" rel="noopener noreferrer" class="citation">Yang et al., 2022</a>; <a href="https://arxiv.org/abs/2310.17813" target="_blank" rel="noopener noreferrer" class="citation">Yang et al., 2023</a>]. The RMS norm therefore reproduces a path toward learning rate transfer across width, allowing one to tune the learning rate on a small network and then use the same optimal learning rate in the larger setting.
+
+Once one has selected an input and output norm, one can norm the overall matrix.
+
+\begin{definitionbox}[Operator norm of a matrix]
+    Let $W$ be a linear map from a vector space $A$ to a vector space $B$. Equipping $A$ and $B$ with norms $\norm{\cdot}_A$ and $\norm{\cdot}_B$ induces an \textit{operator norm} $\norm{\cdot}_{A \to B}$ defined by \[
+        \norm{W}_{A \to B} = \max_{x \in A : \norm{x}_A = 1} \norm{Wx}_B.
+    \]
+\end{definitionbox}
+
+Operator norms are flexible and offer an array of design choices. Some are recognizable:
+\begin{itemize}
+    \item For input $\ell_1$ and output $\ell_\infty$, the operator norm is the max absolute entry.
+    \item For input $\ell_2$ and output $\ell_2$, the operator norm is the spectral norm $\norm{\cdot}_{2 \to 2}$.
+    \item For input $\rms$ and output $\rms$, the operator norm is scaled as $\sqrt{\tfrac{d_\mathsf{in}}{d_\mathsf{out}}} \norm{\cdot}_{2 \to 2}$.
+\end{itemize}
+
+A common and important operator norm is the spectral norm.
+
+\begin{definitionbox}[Singular value decomposition (SVD) and spectral norm]
+    The \textit{singular value decomposition} of a matrix $W \in \R^{d_\out \times d_\inn}$ always exists and is written $W = U \Sigma V^T$, where $U$ and $V$ are orthogonal matrices and $\Sigma$ is diagonal. The entries of $\Sigma$ are nonnegative and are known as the singular values of $W$. The \textit{spectral norm} $\norm{\cdot}_{2 \to 2}$ of $W$ is its largest singular value. The singular values record the amount that $W$ can stretch inputs in the $\ell_2$ norm. The orthogonal matrices $U$ and $V$, which satisfy $UU^T = I$ and $VV^T = I$, are rotations that do not affect the $\ell_2$ norm at all.
+\end{definitionbox}
+
+
+
+
+    
+
+    
+
+The three-step agenda for an architecture-aware loss bound is now possible to carry out. First, near the current network output $y$, set out a local quadratic model of the loss function $\el$ of the form $\el(y) + \nabla_y \el(y)^\top\Delta y + \frac{\lambda}{2}\cdot \norm{\Delta y}^2$. Crucially, the sharpness parameter $\lambda$ and norm $\norm{\cdot}$ are chosen a-priori without ever touching an (approximate) Hessian during training.
+
+Second, operator norms enable bounding changes to network output in terms of changes to weights. A matrix $W$ acts on an input vector $x$ to produce an output vector $y$ like <div id="" class="equation">    y = Wx.</div> If the input space has norm $\norm{\cdot}_A$ and the output space has norm $\norm{\cdot}_B$, then a change to the weights $\Delta W$ changes the network output an amount bounded by the operator norm: <div id="" class="equation">    \label{eq:operator-norms-key-equation}
+    \norm{\Delta y}_B \leq \norm{\Delta W}_{A \to B} \norm{x}_A.</div> <a class="cref" data-target="eq:operator-norms-key-equation" href="#eq:operator-norms-key-equation">eq:operator-norms-key-equation</a> says that, if the activations are kept well-normed, then controlling the change in network output amounts to controlling the operator norm of the weight update. All in all, the loss function admits a local approximation, this time in terms of the weights: <div id="" class="equation">    \label{eq:steepest-descent-loss}
+    \el(W + \Delta W) \approx \el(W) + \langle \nabla_W \el(W), \Delta W \rangle + \frac{\lambda}{2}\cdot \norm{\Delta W}_{A \to B}^2,</div> where $\langle \cdot, \cdot \rangle$ denotes the Frobenius inner product---the sum of the entrywise product of two matrices. To finish out with the third step, bounding weight updates $\Delta W$ in the $\norm{\cdot}_{A \to B}$ operator norm will now control the change to the loss from every step of training.
+
+To bound a weight update, the first thing one might think to do is to \textit{normalize} it like $\Delta W \mapsto \Delta W / \norm{\Delta W}_{A \to B}$, recalling what worked in the thought experiment (<a class="cref" data-target="tab:gradient-thought-experiment" href="#tab:gradient-thought-experiment">tab:gradient-thought-experiment</a>). This approach is called gradient clipping, often done with the $\ell_2$ or $\ell_\infty$ norm on the flattened matrix. But gradient clipping is not ideal in higher dimensions. For the spectral norm, <a class="cref" data-target="fig:gradient-spectrum" href="#fig:gradient-spectrum">fig:gradient-spectrum</a> visualizes how the gradient matrix typically has a few large singular values and many more small ones. The small singular values may contain important training signal, but normalizing the gradient risks suppressing this signal. Instead of normalizing, <a class="cref" data-target="sec:duality" href="#sec:duality">Chapter 2</a> develops an alternative: \textit{dualizing} the gradient. For a gradient matrix $G \in \R^{d_\out \times d_\inn}$, duality arises by solving a steepest descent problem under a norm [<a href="https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf" target="_blank" rel="noopener noreferrer" class="citation">Boyd & Vandenberghe, 2004</a>; <a href="https://arxiv.org/abs/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">Bernstein & Newhouse, 2024a</a>]. The steepest descent problem aims to reconcile two tensions: a desire to move infinitely in the direction of linearized improvement (i.e., $\langle G, \Delta W \rangle$) and a desire to stay close to the region of validity of the linearization (i.e., $\tfrac{\lambda}{2} \norm{\Delta W}^2$). Namely, <div id="" class="equation">    \label{eq:steepest-descent}
+    \Delta W_\text{steepest} = \argmin_{\Delta W \in \R^{d_\out \times d_\inn}} \left[\langle G, \Delta W \rangle + \frac{\lambda}{2} \, \norm{\Delta W}^2 \right].</div> The art becomes to choose norms that will lead to tight approximations to <a class="cref" data-target="eq:operator-norms-key-equation,eq:steepest-descent-loss" href="#eq:operator-norms-key-equation,eq:steepest-descent-loss">eq:operator-norms-key-equation,eq:steepest-descent-loss</a>. <a href="https://arxiv.org/abs/2411.04330" target="_blank" rel="noopener noreferrer" class="citation">Large et al. (2024</a>) took early steps toward turning this art into a science by developing the \textit{modular norm}, which recursively extends norm choices on atomic modules to define a single norm for the entire neural network. Unlike prescient work by [<a href="https://arxiv.org/abs/1708.00523" target="_blank" rel="noopener noreferrer" class="citation">Flynn, 2017</a>], the modular norm takes a $\max$ over atomic norms, with scale factors that automatically track and control the sensitivity of the network output, even up to second order.
+
+While applying a duality map to gradients is one application of metrized deep learning (<a class="cref" data-target="sec:duality" href="#sec:duality">Chapter 2</a>), another is to enforce bounds on the weight matrix norm (<a class="cref" data-target="sec:weight-decay" href="#sec:weight-decay">Chapter 3</a>). A common thread is that controlling the singular values is a core operation. But it is inefficient to compute a singular value decomposition $W = U \Sigma V^T$ on a GPU, which would be necessary to apply a function $f(x)$ to every singular value directly. For weight decay, a miracle occurs: $(1-\lambda) U \Sigma V^T = U (1-\lambda) \Sigma V^T$, where $\lambda > 0$ is the weight decay parameter. Though apparently mundane, multiplying by a constant commutes to act on the singular values, preserving spectral structure without ever computing an SVD. The next section generalizes this observation to construct a GPU-friendly computational primitive for control over the singular values.
+
+<h2 id="subsec:a-primitive-for-controlling-singular-values"> 1.2: A primitive for controlling singular values</h2>
+
+\textit{Contribution statement: The idea to apply odd polynomial iterations to matrices is not new, but classically the coefficients were derived based on Taylor approximations [<a href="https://epubs.siam.org/doi/10.1137/0707031" target="_blank" rel="noopener noreferrer" class="citation">Kovarik, 1970</a>; <a href="https://www.jstor.org/stable/2949484" target="_blank" rel="noopener noreferrer" class="citation">Björck & Bowie, 1971</a>; <a href="https://epubs.siam.org/doi/10.1137/1.9780898717778" target="_blank" rel="noopener noreferrer" class="citation">Higham, 2008</a>]. Jeremy Bernstein told me about the method and proposed using these iterations to orthogonalize gradient matrices [<a href="https://arxiv.org/abs/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">Bernstein & Newhouse, 2024a</a>]. Jeremy Bernstein also popularized tuning the coefficients graphically using Desmos to find polynomials that converge faster [<a href="https://docs.modula.systems/" target="_blank" rel="noopener noreferrer" class="citation">Bernstein, 2025</a>]. I proposed applying odd polynomials directly to weight matrices, for instance to approximate $\min(1, x)$ to spectrally cap the singular values at $1$ while also allowing them to decay to $0$.}
+
+\vspace{0.5em}
+
+Suppose one wants to apply a continuous function $f : \R_{\geq0} \to \R_{\geq0}$ to all the singular values $\sigma \geq 0$ of a matrix, with the only condition that $f(0) = 0$. In other words, if the matrix has singular value decomposition $U \Sigma V^T$, the goal is to map <div id="" class="equation">    U \Sigma V^T \mapsto U f(\Sigma) V^T.</div> Two earlier methods each suffer from a problem:
+
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Do the SVD}. This method applies the SVD routine to compute $U$, $\Sigma$, and $V$, returning $Uf(\Sigma)V^T$. But the SVD is slow to run on a GPU as it is not significantly parallelizable.
+    \item \textbf{Do sketching.} Sketching is a randomized method [<a href="https://arxiv.org/abs/2002.01387" target="_blank" rel="noopener noreferrer" class="citation">Martinsson & Tropp, 2020</a>] that approximates the SVD. While more tractable to compute, sketching acts only on the top $k$ singular values while setting the rest to $0$. The small singular values may matter.
+\end{enumerate}
+
+A third method solves both problems, because it is efficient to run on a GPU and acts on every singular value:
+
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{Iterate odd polynomials.} Suppose $p_1, \dots, p_n$ are odd, single-variable polynomials that compose to approximate a continuous function $f : \R_{\geq0} \to \R_{\geq0}$ with the condition that $f(0) = 0$. Weierstrass's theorem shows that an approximation can be made arbitrarily good: approximate $g : \R \to \R$, defined as $f(x)$ on $x \geq 0$ and $-f(-x)$ on $x < 0$, then use the approximation on $x \geq 0$. Because $p_k$ is odd, applying it to a matrix acts on the singular values directly as $p_k(U \Sigma V^T) = U p_k(\Sigma) V^T$, as the theorem below shows. Therefore, applying $p_1$ up to $p_n$ in succession will apply the approximation of $f(x)$ to every singular value of a matrix.
+\end{enumerate}
+
+\begin{theorembox}[Odd polynomials act directly on the singular values]
+    If $p(x)$ is an odd polynomial and $U \Sigma V^T$ is a singular value decomposition, then $p(U \Sigma V^T) = U p(\Sigma) V^T$.
+\end{theorembox}
+
+\begin{proof}
+    Let $W = U \Sigma V^T$ be a singular value decomposition. Consider one odd power term $W^{2k + 1}$. To make the shapes work for rectangular matrices, the matrix power is defined to be $W^{2k + 1} = (WW^T)^k W$. The trick is that $U$ and $V$ are orthogonal, which means $UU^T = I$ and $VV^T = I$. Expanding gives \begin{equation}
+        W^{2k+1} =  (WW^T)^k W = (U \Sigma^2 U^T)^k W = U \Sigma^{2k} U^T W = U \Sigma^{2k+1} V^T.
+    \end{equation} Since $\Sigma^{2k+1}$ means raising each entry of the diagonal matrix to the power of $2k+1$, a single odd power of the matrix applies itself directly to the singular values. Linearity extends the proof to all odd polynomials.
+\end{proof}
+
+\begin{figure}[t]
+    \centering
+    \subfloat{
+        \includesvg[width=0.4\textwidth]{figure/newton-schulz/simple.svg}
+    }
+    \hspace{0.03\textwidth}
+    \subfloat{
+        \includesvg[width=0.4\textwidth]{figure/newton-schulz/simple-iterated.svg}
+    }
+    \caption{Preview of <a class="cref" data-target="sec:duality" href="#sec:duality">Chapter 2</a>: approximating the function $\sign(x)$ on the singular values of a gradient implements the spectral norm duality map. One odd polynomial approximation comes from iterating $p(x) = \tfrac32 x - \tfrac12 x^3$, which converges to $\sign(x)$ in the range $(-\sqrt{3}, \sqrt{3})$. The linear coefficient controls the convergence speed. Plots reproduced from <a href="https://docs.modula.systems/" target="_blank" rel="noopener noreferrer" class="citation">Bernstein (2025</a>).}  % WITH PERMISSION! Given 4/25/2025 at 8:28am via Slack
+    \label{fig:newton-schulz-simple}
+\end{figure}
+
+
+\begin{figure}[t]
+    \centering
+    \includesvg[width=0.4\textwidth]{figure/newton-schulz/generalized.svg}
+    \caption{Preview of <a class="cref" data-target="sec:weight-decay" href="#sec:weight-decay">Chapter 3</a>: \textit{spectral soft cap} is a weight constraint method that applies the above odd polynomial to all singular values of a weight matrix in parallel. It composes $p_1(x) = x - \alpha x^3$ with $p_2(x) = x + \alpha x^3$. The result is depicted for $\alpha = 0.2$ (blue), $\alpha = 0.1$ (red), $\alpha = 0.05$ (green), $\alpha = 0$ (purple).}
+    \label{fig:odd-poly-family}
+\end{figure}
+
+
+\begin{figure}[htbp]
+    \centering
+    \subfloat{
+        \includesvg[width=0.4\textwidth]{figure/newton-schulz/jiacheng.svg}
+    }
+    \hspace{0.03\textwidth}
+    \subfloat{
+        \includesvg[width=0.4\textwidth]{figure/newton-schulz/jiacheng-iterated.svg}
+    }
+    \caption{<a href="https://x.com/YouJiacheng/status/1893704552689303901" target="_blank" rel="noopener noreferrer" class="citation">You (2025</a>) discovered six odd polynomials that compose to closely approximate $\sign(x)$, which implements the spectral norm duality map (<a class="cref" data-target="sec:duality" href="#sec:duality">Chapter 2</a>) when applied to the singular values of a gradient matrix. <a href="https://x.com/YouJiacheng/status/1893704552689303901" target="_blank" rel="noopener noreferrer" class="citation">You (2025</a>)'s method is to use numerical optimization to search for good coefficients. Plots reproduced from <a href="https://docs.modula.systems/" target="_blank" rel="noopener noreferrer" class="citation">Bernstein (2025</a>).} % WITH PERMISSION! Given 4/25/2025 at 8:28am via Slack
+    \label{fig:newton-schulz-jiacheng}
+\end{figure}
+
+\textbf{Example 1: Weight decay.} The simplest example of an odd polynomial is scalar multiplication, $p(x) = (1 - \lambda \eta)x$, which implements weight decay for decay parameter $\lambda > 0$ and learning rate $\eta > 0$. Because $(1 - \lambda \eta) U \Sigma V^T = U (1-\lambda \eta) \Sigma V^T$, weight decay acts on the singular values of the weight matrix and preserves its spectral structure.
+
+\textbf{Example 2: Duality.} The spectral norm duality map for a gradient says to set all the singular values to $1$, equivalent to applying the odd function $\sign(x)$ for $x > 0$. <a class="cref" data-target="fig:newton-schulz-simple" href="#fig:newton-schulz-simple">fig:newton-schulz-simple</a> shows that iterating the odd polynomial $p(x) = \tfrac32 x - \tfrac12 x^3$ provides one such approximation, valid in the range $(0, \sqrt{3})$. To squash the singular values into this range, one can first divide by the Frobenius norm of the gradient, which upper bounds the spectral norm. Tuning the coefficients can speed up convergence, such as $p(x) = 3x - 3.2x^3 + 1.2x^5$. <a href="https://x.com/YouJiacheng/status/1893704552689303901" target="_blank" rel="noopener noreferrer" class="citation">You (2025</a>) discovered a six-step iteration that converges quickly and stably, shown in <a class="cref" data-target="fig:newton-schulz-jiacheng" href="#fig:newton-schulz-jiacheng">fig:newton-schulz-jiacheng</a>.
+
+\textbf{Example 3: Generalized weight decay.} Beyond linear polynomials, consider the polynomials $p_1(x) = x - \alpha x^3$ and $p_2(x) = x + \alpha x^3$, for strength parameter $\alpha > 0$. When $\alpha = 0.05$, the polynomial $p_2(p_1(x))$ never exceeds 2. As a result we say that this polynomial \textit{spectrally caps} the singular values at 2. <a class="cref" data-target="fig:odd-poly-family" href="#fig:odd-poly-family">fig:odd-poly-family</a> plots this polynomial for $\alpha \in \{0.2, 0.1, 0.05, 0\}$. Polynomials that approximate $\min(\sigma_\text{max}, x)$ for a desired maximum spectral norm $\sigma_\text{max} > 0$ become important in <a class="cref" data-target="sec:weight-decay" href="#sec:weight-decay">Chapter 3</a>.
+
+\begin{notebox}[Accelerating odd polynomial iterations]
+    GPU kernels for odd polynomial iterations can be accelerated around 30\% by exploiting that many of the matrix multiplications are symmetric, like $AA^\top$. I proposed this idea and wrote a proof-of-concept kernel [<a href="https://www.lakernewhouse.com/assets/writing/faster-symmul-with-thunderkittens.pdf" target="_blank" rel="noopener noreferrer" class="citation">Newhouse et al., 2024</a>], but it had a bug. Our code used ThunderKittens, a framework for simple and fast kernels [<a href="https://arxiv.org/abs/2410.20399" target="_blank" rel="noopener noreferrer" class="citation">Spector et al., 2024</a>]. <a href="https://github.com/nil0x9/flash-muon" target="_blank" rel="noopener noreferrer" class="citation">Lin (2025</a>) fixed the bug and called the algorithm Flash-Muon.
+\end{notebox}

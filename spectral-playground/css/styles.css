@@ -1,0 +1,225 @@
+/* Theorem boxes */
+.box {
+    border-radius: 0.5rem;
+    padding: 0.0rem 1.0rem 1.0rem 1.0rem;
+    margin: 1.0rem 0;
+    border-width: 0.12rem;
+    border-style: solid;
+}
+
+.box .title {
+    color: white;
+    font-weight: bold;
+    padding: 0.4rem 1.2rem;
+    margin: -0.2rem -1.0rem 1rem -1.0rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+    font-size: 1.1rem;
+}
+
+.theorem-box {
+    background-color: rgb(231, 238, 251);
+    border-color: rgb(80, 135, 175);
+}
+
+.theorem-box .title {
+    background-color: rgb(80, 135, 175);
+}
+
+.definition-box {
+    background-color: rgb(246, 244, 231);
+    border-color: rgb(160, 145, 100);
+}
+
+.definition-box .title {
+    background-color: rgb(160, 145, 100);
+}
+
+.note-box {
+    background-color: rgb(233, 247, 236);
+    border-color: rgb(99, 168, 139);
+}
+
+.note-box .title {
+    background-color: rgb(99, 168, 139);
+    position: relative;
+    z-index: 1;
+}
+
+/* Chapter navigation */
+.chapter-nav {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: white;
+    padding: 1.2rem;
+    border-radius: 0.4rem;
+    box-shadow: 0 0.15rem 0.4rem rgba(0,0,0,0.1);
+    z-index: 1000;
+    width: 18.75rem;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+}
+
+.chapter-nav h3 {
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 0.12rem solid #eee;
+    font-size: 1.1rem;
+}
+
+.chapter-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.chapter-nav li {
+    margin: 0.5rem 0;
+}
+
+.chapter-nav a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+    padding: 0.3rem 0;
+    transition: color 0.2s;
+    font-size: 0.95em;
+    line-height: 1.4;
+}
+
+.chapter-nav a:hover {
+    color: #007bff;
+}
+
+.chapter-nav a.active {
+    color: #007bff;
+    font-weight: 500;
+}
+
+/* Content area */
+.content-area {
+    max-width: 45rem;
+    margin: 0 auto;
+    padding: 1.2rem;
+    text-align: justify;
+}
+
+/* Interactive elements */
+.interactive-demo {
+    border: 0.08rem solid #ddd;
+    border-radius: 0.4rem;
+    padding: 1.2rem;
+    margin: 1.5rem 0;
+    background: #f8f9fa;
+}
+
+/* Math styling */
+.math-display {
+    overflow-x: auto;
+    padding: 0.7rem 0;
+}
+
+/* Responsive design */
+@media (max-width: 48rem) {
+    .chapter-nav {
+        position: static;
+        margin-bottom: 1.2rem;
+        width: 100%;
+        max-width: 100vw;
+    }
+    .content-area {
+        padding: 0.7rem;
+    }
+} 
+
+.chapter-nav {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 15.625rem;
+    background: #f8f9fa;
+    padding: 1.2rem;
+    border-right: 0.08rem solid #dee2e6;
+    overflow-y: auto;
+}
+.main-content {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1.2rem;
+    max-width: 45rem;
+}
+.chapter-nav h3 {
+    margin-bottom: 1.2rem;
+    font-size: 1.1rem;
+}
+.chapter-nav ul {
+    list-style: none;
+    padding: 0;
+}
+.chapter-nav li {
+    margin-bottom: 0.7rem;
+}
+.chapter-nav a {
+    text-decoration: none;
+    color: #495057;
+}
+.chapter-nav a:hover {
+    color: #0d6efd;
+}
+/* Cross-reference styles */
+.cref {
+    color: #0d6efd;
+    text-decoration: none;
+    cursor: pointer;
+}
+.cref:hover {
+    text-decoration: underline;
+}
+/* Equation styles */
+.equation {
+    position: relative;
+    cursor: pointer;
+}
+.equation:hover {
+    background-color: #f8f9fa;
+}
+.equation-number {
+    position: absolute;
+    right: 0;
+    color: #6c757d;
+    font-size: 0.95em;
+}
+
+.box > *:not(.title) {
+    margin-bottom: 0;
+}
+.box > *:not(:last-child) {
+    margin-bottom: 0.7rem;
+}
+
+.citation {
+    text-decoration: none;
+}
+
+.proof {
+    margin: 1rem 0;
+}
+.qed {
+    margin-left: 0.5em;
+    font-weight: bold;
+}
+
+h2 {
+    margin-top: 4rem;
+}
+
+.main-content, .content-area {
+    text-align: justify;
+}
+figure img {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+}
