@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meg & Joe Newhouse - Family Stories</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 60px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .quote-container {
+            position: relative;
+            min-height: 300px;
+            margin-bottom: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quote-card {
+            position: absolute;
+            width: 100%;
+            max-width: 700px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .quote-card.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .quote-text {
+            font-size: 1.3em;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-style: italic;
+            position: relative;
+        }
+
+        .quote-author {
+            font-size: 1.1em;
+            color: #3498db;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        .quote-author::before {
+            content: '—';
+            margin-right: 10px;
+            color: #95a5a6;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-button {
+            display: inline-block;
+            padding: 15px 35px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-3px);
+        }
+
+        .nav-button:hover::before {
+            left: 100%;
+        }
+
+        .quote-progress {
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #e74c3c);
+            border-radius: 2px;
+            transform-origin: left;
+            animation: progress 6s linear infinite;
+        }
+
+        @keyframes progress {
+            0% { transform: scaleX(0); }
+            100% { transform: scaleX(1); }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2em;
+            }
+            
+            .quote-card {
+                padding: 30px 25px;
+                margin: 0 10px;
+            }
+            
+            .quote-text {
+                font-size: 1.1em;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-button {
+                width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Meg & Joe Newhouse</h1>
+            <p class="subtitle">
+            Family Stories & Memories, May 2025
+            <br>
+            Interviewed by Laker Newhouse
+            </p>
+        </div>
+
+        <div class="quote-container">
+            <div class="quote-progress"></div>
+            <!-- Quotes will be dynamically inserted here -->
+        </div>
+
+        <div class="navigation-buttons">
+            <a href="meg.html" class="nav-button">Meg's interview</a>
+            <a href="joe.html" class="nav-button">Joe's interview</a>
+        </div>
+    </div>
+
+    <script>
+        const quotes = [
+            {
+                text: "Since my grandfather, Walter Locke, couldn't read for long, what he chose to do was memorize poetry. He collected poems and memorized them all his life.",
+                author: "Meg"
+            },
+            {
+                text: "Ines was one of the first female physicians in this country. She practiced in Lincoln, Nebraska. She went around by buggy all over, delivering babies. One of my favorite stories is that she delivered all five Sorenson kids. Ted Sorenson became the chief speechwriter and advisor, except perhaps for Bobby, to President Kennedy.",
+                author: "Meg"
+            },
+            {
+                text: "My grandfather, Walter Locke, wrote to this young man—his name was Abe Sorensen—and told him he admired him and would like to show him a university and a church that would welcome him, even put him up at his home. Because of that friendship, I got to work as an intern in Ted Sorensen's office in the Kennedy administration.",
+                author: "Meg"
+            },
+            {
+                text: "I went to Kripalu, where my sister was, and during a guided program had what I would call a near-death experience. It radically shifted my view of life, death, and the afterlife.",
+                author: "Meg"
+            },
+            {
+                text: "Joe didn't believe me that I was too tired to study together. He thought he'd been ditched and basically wrote me off. I wouldn't call him, and he wouldn't call me.",
+                author: "Meg"
+            },
+            {
+                text: "Practice and maintain the high emotions. Love, joy, gratitude, awe or reverence, kindness, compassion, generosity. As the poets put it: the good, the true, and the beautiful.",
+                author: "Meg"
+            },
+            {
+                text: "Harvard was a shock in many ways. I had never seen a Greek letter.",
+                author: "Joe"
+            },
+            {
+                text: "As a freshman, we were supposed to write 1,500-word papers. I would write a sentence and then count the words, because I was so unused to writing.",
+                author: "Joe"
+            },
+            {
+                text: "I didn't know what economics was, but by process of elimination, I wrote down economics as my major.",
+                author: "Joe"
+            },
+            {
+                text: "The German universities were almost never in session, so I traveled a lot. I kind of grew up that year. When I got back to graduate school, I was really ready to work in a way I hadn't been before.",
+                author: "Joe"
+            },
+            {
+                text: "The notion of going to Vietnam—that was scary. Luckily, I didn't.",
+                author: "Joe"
+            },
+            {
+                text: "I was lucky that we got a policy-relevant answer. Cost-sharing made a difference in how many services people used, but the extra services didn't seem to affect health unless you were sick and poor.",
+                author: "Joe"
+            }
+        ];
+
+        let currentQuoteIndex = 0;
+        let rotationInterval;
+        let progressAnimation;
+        let isFirstCard = true;
+        let shuffledQuotes = [];
+
+        // Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function createQuoteCards() {
+            const container = document.querySelector('.quote-container');
+            
+            shuffledQuotes.forEach((quote, index) => {
+                const card = document.createElement('div');
+                card.className = 'quote-card';
+                if (index === 0) card.classList.add('active');
+                
+                card.innerHTML = `
+                    <div class="quote-text">${quote.text}</div>
+                    <div class="quote-author">${quote.author}</div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        function showQuote(index) {
+            const cards = document.querySelectorAll('.quote-card');
+            
+            // Remove active class from all cards
+            cards.forEach(card => card.classList.remove('active'));
+            
+            // Add active class to current card
+            cards[index].classList.add('active');
+            
+            currentQuoteIndex = index;
+        }
+
+        function nextQuote() {
+            const nextIndex = (currentQuoteIndex + 1) % shuffledQuotes.length;
+            showQuote(nextIndex);
+        }
+
+        function startRotation() {
+            // First card shows for 2 seconds, subsequent cards for 6 seconds
+            const timeout = isFirstCard ? 2000 : 6000;
+            rotationInterval = setTimeout(() => {
+                nextQuote();
+                isFirstCard = false;
+                // Start regular 5-second interval after first card
+                rotationInterval = setInterval(nextQuote, 6000);
+            }, timeout);
+        }
+
+        function resetProgressAnimation() {
+            const progressBar = document.querySelector('.quote-progress');
+            const duration = isFirstCard ? '2s' : '5s';
+            progressBar.style.animation = 'none';
+            progressBar.offsetHeight; // Trigger reflow
+            progressBar.style.animation = `progress ${duration} linear infinite`;
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Shuffle quotes at the beginning
+            shuffledQuotes = shuffleArray(quotes);
+            
+            createQuoteCards();
+            startRotation();
+            
+            // Reset progress animation - first one at 2s, then every 5s
+            setTimeout(() => {
+                resetProgressAnimation();
+                setInterval(resetProgressAnimation, 6000);
+            }, 2000);
+        });
+
+        // Pause rotation on hover
+        document.querySelector('.quote-container').addEventListener('mouseenter', () => {
+            clearInterval(rotationInterval);
+        });
+
+        document.querySelector('.quote-container').addEventListener('mouseleave', () => {
+            startRotation();
+        });
+    </script>
+</body>
+</html>
