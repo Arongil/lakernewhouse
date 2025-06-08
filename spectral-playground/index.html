@@ -5,59 +5,76 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Spectral Playground</h1>
-    <div class="controls">
-        <select id="accum">
-            <option value="1">batch 0.5M</option>
-            <option value="4">batch 2M</option>
-            <option value="16">batch 6M</option>
-        </select>
-        <select id="step">
-            <option value="100">step 100</option>
-            <option value="200">step 200</option>
-            <option value="400">step 400</option>
-            <option value="800">step 800</option>
-            <option value="1600">step 1600</option>
-        </select>
-        <select id="layer">
-            <option value="0">layer 0</option>
-            <option value="1">layer 1</option>
-            <option value="2">layer 2</option>
-            <option value="3">layer 3</option>
-            <option value="4">layer 4</option>
-            <option value="5">layer 5</option>
-            <option value="6">layer 6</option>
-            <option value="7">layer 7</option>
-            <option value="8">layer 8</option>
-            <option value="9">layer 9</option>
-            <option value="10">layer 10</option>
-            <option value="11">layer 11</option>
-        </select>
-        <select id="matrix">
-            <option value="q">query</option>
-            <option value="k">key</option>
-            <option value="v">value</option>
-            <option value="c_proj">att out</option>
-            <option value="mlp_fc">mlp in</option>
-            <option value="mlp_proj">mlp out</option>
-        </select>
-        <button id="load">Load</button>
-    </div>
-    <div class="canvas-container">
-        <div id="y-label">Count</div>
-        <canvas id="canvas" width="400" height="400"></canvas>
-        <div class="x-labels">
-            <span>10⁻⁶</span>
-            <span>10⁻⁴</span>
-            <span>10⁻²</span>
-            <span>10⁰</span>
+    <header>
+        <nav>
+            <h3><a href="/" style="font-size: 1.4rem; color: #333; text-decoration: none;">Laker Newhouse</a></h3>
+            <a href="/research">Research</a>
+            <a href="/writing">Writing</a>
+            <a href="/how-to-mit">~ How to MIT ~</a>
+        </nav>
+    </header>
+    <main>
+        <h2 style="margin: 0; text-align: left;">Spectral Playground</h2>
+        <h6 style="margin-top: 0; margin-bottom: 2rem; color: #666;">June 8th, 2025 · 5 minute read</h6>
+        <p>There's a lot of excitement around Muon speeding up deep learning training [<a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer" class="citation">1</a>; <a href="https://arxiv.org/abs/2502.16982" target="_blank" rel="noopener noreferrer" class="citation">Liu et al., 2025</a>; <a href="https://arxiv.org/abs/2505.02222" target="_blank" rel="noopener noreferrer" class="citation">Shah et al., 2025</a>]. But why does Muon work? There are some excellent explainers out there already that introduce Muon's core operation: for gradient matrices, set every singular value to one [<a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer" class="citation">Jordan et al., 2024</a>; <a href="https://jeremybernste.in/writing/deriving-muon" target="_blank" rel="noopener noreferrer" class="citation">Bernstein, 2025</a>].</p>
+        <p>But want to see it for yourself? This post is an interactive version of my MIT master's thesis: . You could reverse the size of the singular values, or whatever else you can imagine. This post is an interactive version of Figure 1 from my thesis [<a href="https://lakernewhouse.com/assets/writing/thesis.pdf" target="_blank" rel="noopener noreferrer" class="citation">Newhouse, 2025</a>]; check it out for an introduction to odd polynomial iterations and the method that led to Muon: metrized deep learning.</p>
+        <h4>Design your own optimizer</h4>
+        <p></p>
+        <div class="controls">
+            <select id="accum">
+                <option value="1">batch 0.5M</option>
+                <option value="4">batch 2M</option>
+                <option value="16">batch 6M</option>
+            </select>
+            <select id="step">
+                <option value="100">step 100</option>
+                <option value="200">step 200</option>
+                <option value="400">step 400</option>
+                <option value="800">step 800</option>
+                <option value="1600">step 1600</option>
+            </select>
+            <select id="layer">
+                <option value="0">layer 0</option>
+                <option value="1">layer 1</option>
+                <option value="2">layer 2</option>
+                <option value="3">layer 3</option>
+                <option value="4">layer 4</option>
+                <option value="5">layer 5</option>
+                <option value="6">layer 6</option>
+                <option value="7">layer 7</option>
+                <option value="8">layer 8</option>
+                <option value="9">layer 9</option>
+                <option value="10">layer 10</option>
+                <option value="11">layer 11</option>
+            </select>
+            <select id="matrix">
+                <option value="q">query</option>
+                <option value="k">key</option>
+                <option value="v">value</option>
+                <option value="c_proj">att out</option>
+                <option value="mlp_fc">mlp in</option>
+                <option value="mlp_proj">mlp out</option>
+            </select>
+            <button id="load">Load</button>
         </div>
-        <div id="x-label">Singular value</div>
-    </div>
-    <script src="draw.js"></script>
-    <script src="histogram.js"></script>
+        <div class="canvas-container">
+            <div id="y-label">Count</div>
+            <canvas id="canvas" width="400" height="400"></canvas>
+            <div class="x-labels">
+                <span>10⁻⁶</span>
+                <span>10⁻⁴</span>
+                <span>10⁻²</span>
+                <span>10⁰</span>
+            </div>
+            <div id="x-label">Singular value</div>
+        </div>
+        <script src="draw.js"></script>
+        <script src="histogram.js"></script>
+    </main>
 </body>
 </html>
