@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Muon Chronicles</title>
+    
+    <!-- KaTeX for math rendering -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        });
+    </script>
+    
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <h3><a href="/" style="font-size: 1.4rem; color: #333; text-decoration: none;">Laker Newhouse</a></h3>
+            <a href="/research">Research</a>
+            <a href="/writing">Writing</a>
+            <a href="/how-to-mit">~ How to MIT ~</a>
+        </nav>
+    </header>
+    <main>
+        <h2 style="margin: 0;">The Muon Chronicles</h2>
+        <h2 style="margin: 0;">Chapter 1: Into the Matrix</h2>
+        <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
+        <p>This is the first chapter of the Muon Chronicles, a ``practitioner's guide'' series of blog posts about the Muon optimizer. The Muon optimizer is a new optimizer for training deep learning models that people are very excited about right now because it's shown speedups from 100M up to 1T parameter models (see <a href="https://github.com/KellerJordan/modded-nanogpt" target="_blank" rel="noopener noreferrer" class="citation">1</a>, <a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer" class="citation">2</a>, <a href="https://arxiv.org/abs/2505.02222" target="_blank" rel="noopener noreferrer" class="citation">3</a>).</p>
+        <p>To understand Muon, the first step is to enter the Matrix.</p>
+        <p>Normally we think of neural network gradients as vectors of unrelated numbers. Not anymore.</p>
+        <p>A neural network does matrix multiplications (lots of them). Therefore Muon views the gradients as matrices, too, unlike Adam which treats every parameter independently. And in the Matrix, there is a lot more to do.</p>
+        <h3>Neo, The One</h3>
+        <p>Optimizers are constantly struggling against the <em>fundamental tension</em>: they want the loss to go down as fast as possible, but the model's gradient is only accurate exactly where it is measured. To step a finite distance is always a leap of faith.</p>
+        <p>And it's not clear how to use information from how big the gradient is.</p>
+        <p>If the gradient is 10x as large, should we step 10x as far?</p>
+        <p>Imagine a loss landscape, like a parabola $y=(x/100)^2$. The gradients will be small, but the model should take big steps. If the loss were $y=(100x)^2$, the gradients would be big, but the model should take small steps.</p>
+        <p>Many optimizers resolve this tension with some form of the following medicine: no matter how giant or tiny the gradient is, move a fixed distance of one. Move in the direction of the gradient, but do not listen to its size.</p>
+        <p>The optimizer wishes it could step forever toward the gradient. Self-denial strengthens the optimizer.</p>
+        <p>The elementwise optimizers have a limited menu for how to take this medicine. The simplest way is SignSGD:</p>
+        <ul>
+            <li>Instead of SGD: $W_{n+1} = W_n - \eta \cdot G_{n+1}$</li>
+            <li>Do SignSGD: $W_{n+1} = W_n - \eta \cdot \text{sign}(G_{n+1})$</li>
+        </ul>
+        <p>where $\eta > 0$ is the leap-of-faith parameter (commonly known as the learning rate).</p>
+        <p>The Lion optimizer is very nearly SignSGD with momentum, to smooth out the gradient estimate.</p>
+        <p>The Adam optimizer—king of the realm—reduces to SignSGD when its momentum is turned off. In its general form,
+        Adam tracks two momentum buffers with different time scales and makes updates akin to $\frac{G}{\sqrt{G^2}} \approx \text{sign}(G)$
+        so that its update's entries hover near the golden compromise of One.</p>
+        <p>But Muon... he has entered the Matrix. He does not see entries of a matrix. He sees the matrix itself.</p>
+        <a href="/writing/muon-2" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+            <span>Chapter 2: The Architect</span>
+            <span style="font-size: 1.1em; transition: transform 0.2s ease;">→</span>
+        </a>
+        <!--
+        <p>Optimizers can be viewed as different resolutions to this fundamental tension:</p>
+        <ul>
+            <li>SGD: who knows, just move more if the gradient is bigger like $W_{n+1} = W_n - \eta G_{n+1}$</li>
+            <li>Momentum: who knows, but let's smooth things out via $M_{n+1} = \beta M_{n} + (1 - \beta) G_{n+1}$ instead of $G_{n+1}$</li>
+            <li>SignSGD/Lion: whatever a gradient/momentum entry is, make it $\pm 1$ like $W_{n+1} = W_n - \eta \text{sign}(G_{n+1})$</li>
+            <li>Adam: approximately set entries to $\pm 1$ via two momentum buffers that are divided like $\frac{x}{\sqrt{x^2 + \epsilon}} \approx \text{sign}(x)$</li>
+            <li>Muon: set singular values of the gradient to 1</li>
+        </ul>
+        </p>
+        <h3>Chapter 1: Introduction</h3>
+        <p>In this chapter, we will introduce the Muon optimizer and discuss its motivation and design. We will also discuss the basic ideas of metrized deep learning and how they are applied to the Muon optimizer.</p>
+        <p>Let's get started!</p>
+        <h3>Chapter 2: Duality in Deep Learning</h3>
+        <p>In this chapter, we will discuss the duality in deep learning. We will discuss the basic ideas of duality and how they are applied to the Muon optimizer.</p>
+        <p>Let's get started!</p>
+        <p>
+            Interlude... the origins of Muon are in Jeremy Bernstein's research on a concept he calls
+            <a href="https://docs.modula.systems/" target="_blank" rel="noopener noreferrer" class="citation">metrized deep learning</a>.
+            <a href="https://arxiv.org/abs/2210.10101" target="_blank" rel="noopener noreferrer" class="citation">Jeremy's thesis</a>
+            led to his <a href="https://arxiv.org/abs/2310.17813" target="_blank" rel="noopener noreferrer" class="citation">spectral norm work</a>
+            and <a href="https://arxiv.org/abs/2405.14813" target="_blank" rel="noopener noreferrer" class="citation">modular norm work</a>,
+            which led to the <a href="https://arxiv.org/abs/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">optimizer anthology</a>
+            that we wrote together, which inspired Keller Jordan to implement the ideas into competitive benchmarks like the
+            <a href="https://github.com/KellerJordan/cifar10-airbench" target="_blank" rel="noopener noreferrer" class="citation">CIFAR-10 speedrun</a> and
+            then the <a href="https://github.com/KellerJordan/modded-nanogpt"  target="_blank" rel="noopener noreferrer" class="citation">NanoGPT speedrun</a>.
+            Since then, several resources on Muon have been written, including
+            <a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer" class="citation">Keller's blog post</a>,
+            <a href="https://jeremybernste.in/writing/deriving-muon" target="_blank" rel="noopener noreferrer" class="citation">Jeremy's blog post</a>,
+            and <a href="https://kexue.fm/archives/10739" target="_blank" rel="noopener noreferrer" class="citation">Jianlin Su's excellent blog posts</a>
+        </p>
+            
+        <h3>Chapter 3: Training Transformers with Enforced Lipschitz Constraints</h3>
+    -->
+    </main>
+</body>
+</html>

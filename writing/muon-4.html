@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Muon Chronicles</title>
+    
+    <!-- KaTeX for math rendering -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+    
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        });
+    </script>
+    
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <style>
+        /* Custom styles for highlighted lines and tooltips */
+        .line-highlight {
+            background-color: rgba(255, 235, 59, 0.2) !important;
+            position: relative;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            max-width: 300px;
+            z-index: 1000;
+            pointer-events: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .tooltip.show {
+            opacity: 1;
+        }
+        
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        
+        /* Ensure code block doesn't overflow */
+        pre[class*="language-"] {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        
+        /* Style for highlighted lines */
+        .line-numbers .line-numbers-rows > span.highlight {
+            background-color: rgba(255, 235, 59, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <h3><a href="/" style="font-size: 1.4rem; color: #333; text-decoration: none;">Laker Newhouse</a></h3>
+            <a href="/research">Research</a>
+            <a href="/writing">Writing</a>
+            <a href="/how-to-mit">~ How to MIT ~</a>
+        </nav>
+    </header>
+    <main>
+        <h2 style="margin: 0;">The Muon Chronicles</h2>
+        <h2 style="margin: 0;">Chapter 4: Source Code</h2>
+        <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
+    </main>
+    <p>Muon took a last look at the bald boy, then walked into the next room. There was no oracle inside to explain what he saw next, but he found that when he inspected each line closely, an explanation appeared...</p>
+
+    <pre class="line-numbers"><code class="language-python" id="muon-code">import torch
+
+def set_all_singular_values_to_near_one(G, steps: int):
+    assert G.ndim >= 2
+    a, b, c = (3.4445, -4.7750,  2.0315)
+    X = G.bfloat16()
+    if G.size(-2) > G.size(-1):
+        X = X.mT
+
+    X = X / (X.norm(dim=(-2, -1), keepdim=True) + 1e-7)
+    # Perform the NS iterations
+    for _ in range(steps):
+        A = X @ X.mT
+        B = b * A + c * A @ A
+        X = a * X + B @ X
+    
+    if G.size(-2) > G.size(-1):
+        X = X.mT
+    return X
+
+def muon_update(grad, momentum, beta=0.95, ns_steps=5, nesterov=True):
+    momentum.lerp_(grad, 1 - beta)
+    update = grad.lerp_(momentum, beta) if nesterov else momentum
+    update = set_all_singular_values_to_near_one(update, steps=ns_steps)
+    update *= (grad.size(-2) / grad.size(-1))**0.5
+    return update
+
+def adam_update(grad, buf1, buf2, step, betas, eps):
+    buf1.lerp_(grad, 1 - betas[0])
+    buf2.lerp_(grad.square(), 1 - betas[1])
+    buf1c = buf1 / (1 - betas[0]**step)
+    buf2c = buf2 / (1 - betas[1]**step)
+    return buf1c / (buf2c.sqrt() + eps)
+
+class Muon(torch.optim.Optimizer):
+    def __init__(self, param_groups):
+        for group in param_groups:
+            assert "use_muon" in group
+            if group["use_muon"]:
+                # defaults
+                group["lr"] = group.get("lr", 0.02)
+                group["momentum"] = group.get("momentum", 0.95)
+                group["weight_decay"] = group.get("weight_decay", 0)
+                assert set(group.keys()) == set(["params", "lr", "momentum", "weight_decay", "use_muon"])
+            else:
+                # defaults
+                group["lr"] = group.get("lr", 3e-4)
+                group["betas"] = group.get("betas", (0.9, 0.95))
+                group["eps"] = group.get("eps", 1e-10)
+                group["weight_decay"] = group.get("weight_decay", 0)
+                assert set(group.keys()) == set(["params", "lr", "betas", "eps", "weight_decay", "use_muon"])
+        super().__init__(param_groups, dict())
+
+    @torch.no_grad()
+    def step(self, closure=None):
+
+        loss = None
+        if closure is not None:
+            with torch.enable_grad():
+                loss = closure()
+
+        for group in self.param_groups:
+            if group["use_muon"]:
+                for p in group["params"]:
+                    if p.grad is None:
+                        p.grad = torch.zeros_like(p)
+                    state = self.state[p]
+                    if len(state) == 0:
+                        state["momentum_buffer"] = torch.zeros_like(p)
+                    update = muon_update(p.grad, state["momentum_buffer"], beta=group["momentum"])
+                    p.mul_(1 - group["lr"] * group["weight_decay"])
+                    p.add_(update.reshape(p.shape), alpha=-group["lr"])
+            else:
+                for p in group["params"]:
+                    if p.grad is None:
+                        p.grad = torch.zeros_like(p)
+                    state = self.state[p]
+                    if len(state) == 0:
+                        state["exp_avg"] = torch.zeros_like(p)
+                        state["exp_avg_sq"] = torch.zeros_like(p)
+                        state["step"] = 0
+                    state["step"] += 1
+                    update = adam_update(p.grad, state["exp_avg"], state["exp_avg_sq"],
+                                        state["step"], group["betas"], group["eps"])
+                    p.mul_(1 - group["lr"] * group["weight_decay"])
+                    p.add_(update, alpha=-group["lr"])
+
+        return loss
+</code></pre>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    
+    <script>
+        // Line explanations - mapping line numbers to explanations
+        const lineExplanations = {
+            5: "Newton-Schulz coefficients for 5th order approximation to compute the sign function",
+            6: "Convert to bfloat16 for better numerical stability during iterations",
+            7: "Transpose if matrix is tall rather than wide for computational efficiency",
+            10: "Normalize the matrix to unit Frobenius norm to ensure stable iterations",
+            13: "Newton-Schulz iteration: A = X @ X^T computes the Gram matrix",
+            14: "Newton-Schulz iteration: B combines linear and quadratic terms in A",
+            15: "Newton-Schulz iteration: Update X using the polynomial approximation",
+            21: "Exponential moving average update of momentum buffer",
+            22: "Nesterov momentum: look ahead by combining current gradient with momentum",
+            23: "Apply Newton-Schulz method to set all singular values to near one (zero power scaling)",
+            24: "Scaling factor to account for parameter matrix dimensions",
+            28: "Standard Adam: exponential moving average of gradients",
+            29: "Standard Adam: exponential moving average of squared gradients",
+            30: "Bias correction for first moment estimate",
+            31: "Bias correction for second moment estimate",
+            32: "Adam update rule: first moment divided by square root of second moment",
+            61: "Call the Muon update function with gradient and momentum buffer",
+            62: "Apply weight decay by scaling parameters",
+            63: "Apply the Muon update with learning rate scaling"
+        };
+        
+        // Create tooltip element
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        document.body.appendChild(tooltip);
+        
+        // Function to highlight lines and add hover functionality
+        function setupLineHighlighting() {
+            console.log('Setting up line highlighting...');
+            
+            // Multiple attempts to find the line numbers with different selectors
+            let lineNumberRows = document.querySelector('.line-numbers-rows');
+            
+            if (!lineNumberRows) {
+                console.log('Line numbers not found, trying alternative approach...');
+                // Alternative approach: add tooltips directly to code lines
+                const preElement = document.querySelector('pre.line-numbers');
+                if (preElement) {
+                    const codeElement = preElement.querySelector('code');
+                    const lines = codeElement.innerHTML.split('\n');
+                    
+                    // Create a wrapper for each line
+                    let newHTML = '';
+                    lines.forEach((line, index) => {
+                        const lineNum = index + 1;
+                        if (lineExplanations[lineNum]) {
+                            newHTML += `<span class="explained-line" data-line="${lineNum}" data-explanation="${lineExplanations[lineNum]}">${line}</span>`;
+                        } else {
+                            newHTML += line;
+                        }
+                        if (index < lines.length - 1) newHTML += '\n';
+                    });
+                    
+                    codeElement.innerHTML = newHTML;
+                    
+                    // Add event listeners to explained lines
+                    const explainedLines = document.querySelectorAll('.explained-line');
+                    explainedLines.forEach(line => {
+                        line.style.backgroundColor = 'rgba(255, 235, 59, 0.2)';
+                        line.style.cursor = 'pointer';
+                        line.style.display = 'block';
+                        line.style.padding = '0 4px';
+                        line.style.margin = '0 -4px';
+                        
+                        line.addEventListener('mouseenter', function(e) {
+                            tooltip.textContent = this.getAttribute('data-explanation');
+                            tooltip.style.left = e.pageX + 10 + 'px';
+                            tooltip.style.top = e.pageY - 10 + 'px';
+                            tooltip.classList.add('show');
+                        });
+                        
+                        line.addEventListener('mouseleave', function() {
+                            tooltip.classList.remove('show');
+                        });
+                        
+                        line.addEventListener('mousemove', function(e) {
+                            tooltip.style.left = e.pageX + 10 + 'px';
+                            tooltip.style.top = e.pageY - 10 + 'px';
+                        });
+                    });
+                }
+                return;
+            }
+            
+            console.log('Found line numbers, adding highlights...');
+            const lineElements = lineNumberRows.querySelectorAll('span');
+            console.log(`Found ${lineElements.length} line elements`);
+            
+            Object.keys(lineExplanations).forEach(lineNum => {
+                const index = parseInt(lineNum) - 1; // Convert to 0-based index
+                if (lineElements[index]) {
+                    console.log(`Highlighting line ${lineNum}`);
+                    lineElements[index].classList.add('highlight');
+                    lineElements[index].style.cursor = 'pointer';
+                    lineElements[index].style.backgroundColor = 'rgba(255, 235, 59, 0.3)';
+                    
+                    // Add hover event listeners
+                    lineElements[index].addEventListener('mouseenter', function(e) {
+                        console.log(`Hovering line ${lineNum}`);
+                        tooltip.textContent = lineExplanations[lineNum];
+                        tooltip.style.left = e.pageX + 10 + 'px';
+                        tooltip.style.top = e.pageY - 10 + 'px';
+                        tooltip.classList.add('show');
+                    });
+                    
+                    lineElements[index].addEventListener('mouseleave', function() {
+                        tooltip.classList.remove('show');
+                    });
+                    
+                    lineElements[index].addEventListener('mousemove', function(e) {
+                        tooltip.style.left = e.pageX + 10 + 'px';
+                        tooltip.style.top = e.pageY - 10 + 'px';
+                    });
+                }
+            });
+        }
+        
+        // Multiple initialization attempts
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, waiting for Prism...');
+            
+            // Try immediately
+            setupLineHighlighting();
+            
+            // Try after a short delay
+            setTimeout(setupLineHighlighting, 100);
+            
+            // Try after a longer delay
+            setTimeout(setupLineHighlighting, 500);
+            
+            // Try after Prism should definitely be loaded
+            setTimeout(setupLineHighlighting, 1000);
+        });
+        
+        // Also try when Prism is ready
+        if (window.Prism) {
+            Prism.hooks.add('complete', function() {
+                console.log('Prism complete hook fired');
+                setTimeout(setupLineHighlighting, 50);
+            });
+        }
+    </script>
+
+    <!--
+    Talk about, briefly:
+    intuitions for hyperparameters
+    learning rate scaling / muP (importance of proper embedding etc. scaling as in Dion)
+    hit all the tensors in your program (ndim trick, but be careful)
+    Adam or Lion for vector params or embeddings where spaces mean different things
+    interlude: related work like the anthology and other reading goes here
+    -->
+</body>
+</html>
