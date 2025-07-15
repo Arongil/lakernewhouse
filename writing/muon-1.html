@@ -41,11 +41,12 @@
 
         <img src="/assets/writing/muon/morpheus.jpg" alt="Muon" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
 
-        <p>The blue pill says that a gradient's entries are unrelated numbers. Not anymore.</p>
+        <p>"You take the blue pill? The story ends, and you believe that a gradient's entries are unrelated numbers."</p>
+        <p>"You take the red pill? You stay in Wonderland, and I show you how deep the rabbit hole goes."</p>
         <p>A neural network does matrix multiplications (lots of them). Therefore Muon sees the gradients as matrices, unlike Adam which treats every parameter independently. And in the Matrix, there is a lot more you can do.</p>
         <h3>Neo, The One</h3>
         <p>Optimizers are constantly struggling against the <em>fundamental tension</em>: they want the loss to go down far, but the model's gradient is only accurate exactly where it is measured. To step a finite distance is always a leap of faith.</p>
-        <p>And when making that leap, it's not clear how to use how big the gradient is.</p>
+        <p>And when making that leap, it's not clear how to interpret how big the gradient is.</p>
         <p>If the gradient is 10x as large, should we step 10x as far?</p>
         <p>Quite the opposite. If the loss were $y=(x/100)^2$, the gradients would be small, but the model should take big steps. If the loss were $y=(100x)^2$, the gradients would be big, but the model should take small steps.</p>
         <p>Many optimizers resolve this tension with some form of the following medicine: no matter how giant or tiny the gradient is, move a fixed distance of one. Move in the direction of the gradient, but do not listen to its size.</p>

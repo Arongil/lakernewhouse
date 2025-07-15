@@ -40,7 +40,10 @@
         <p>"Your life is a balance," began the Architect. "You saw the gradient of a model, yet you did not know how far to pursue it. Your learning rate was only part of the answer, because you did not understand how to measure how far you had gone."</p>
         <p>"You haven't answered my question," said Muon.</p>
         <p>"Quite right. Interesting. That was quicker than the others," said the Architect. "When I made the Matrix, I did not force it to choose a measure of size, a norm $\| \cdot \| : \mathbb{R}^{n \times m} \to \mathbb{R}$. I was idealistic then. Soon I will tell you about the norm for which you were born. But first let me show you how you came to be."</p>
-        <p>"I wished to decrease the loss of a machine learning model. Suppose the model is a single layer, $y = Wx$. If I updated the weight to be $W + \Delta W$, then the output $y$—a logit of language, or a video frame—cannot change its norm by more than $\| \Delta W \| \| x \|$. The subadditivity of norms guarantees it."</p>
+
+        <img src="/assets/writing/muon/architect.jpg" alt="The Architect" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
+
+        <p>"I wished to decrease the loss of a machine learning model," said the Architect. "I imagined the model was a single layer, $y = Wx$. If I updated the weight to be $W + \Delta W$, then the output $y$—a logit of language, or a video frame—cannot change its norm by more than $\| \Delta W \| \| x \|$. The subadditivity of norms guarantees it."</p>
         <p>"The loss cannot spike when the output cannot spike. That is why you appeared. Your role was always as a diplomat between man and machine. At every instant, you were meant to broker a compromise: $$\underset{\Delta W \text{ s.t. } \| \Delta W \| \leq 1}{\text{argmin}} \langle G, \Delta W \rangle.$$</p>
         <p>"The gradient wished for you to flee forever away, maximizing the alignment with $\Delta W = -c \cdot G$ as $c \rightarrow \infty$. But such excess would not do. The constraint demanded compromise, a choice of unit size for some size $\| \cdot \|$."</p>
         <p>"You are The One. You knew to step always a unit distance, or else the learning rate $\eta > 0$ the humans desired."</p>
