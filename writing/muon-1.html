@@ -36,15 +36,18 @@
         <h2 style="margin: 0;">The Muon Chronicles</h2>
         <h2 style="margin: 0;">Chapter 1: Into the Matrix</h2>
         <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
-        <p>This is the first chapter of the Muon Chronicles, a practitioner's guide about the Muon optimizer. The Muon optimizer is a new optimizer for training deep learning models that people are very excited about right now because it's shown ~2x speedups from 100M up to 1T parameter scale (see <a href="https://github.com/KellerJordan/modded-nanogpt" target="_blank" rel="noopener noreferrer" class="citation">1</a>, <a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer" class="citation">2</a>, <a href="https://arxiv.org/abs/2505.02222" target="_blank" rel="noopener noreferrer" class="citation">3</a>). Want to see it for yourself?</p>
-        <p>To understand Muon, the first step is to enter the Matrix.</p>
-        <p>Normally we think of gradients as vectors of unrelated numbers. Not anymore.</p>
-        <p>A neural network does matrix multiplications (lots of them). Therefore Muon views the gradients as matrices, too, unlike Adam which treats every parameter independently. And in the Matrix, there is a lot more you can do.</p>
+        <p>This is the first chapter of the Muon Chronicles, a practitioner's guide to the Muon optimizer—told as a story to make it stickier to remember. People are very excited about Muon right now because it's shown ~2x speedups training models from 100M to 1T parameter scale (see <a href="https://github.com/KellerJordan/modded-nanogpt" target="_blank" rel="noopener noreferrer" class="citation">1</a>, <a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer" class="citation">2</a>, <a href="https://arxiv.org/abs/2505.02222" target="_blank" rel="noopener noreferrer" class="citation">3</a>). We'll walk through everything from why it works to a line-by-line annotation of its PyTorch implementation. Want to see it for yourself?</p>
+        <p style="text-align: center;">"To understand Muon, the first step is to enter the Matrix."<br>—Not quite Morpheus</p>
+
+        <img src="/assets/writing/muon/morpheus.jpg" alt="Muon" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
+
+        <p>The blue pill says that a gradient's entries are unrelated numbers. Not anymore.</p>
+        <p>A neural network does matrix multiplications (lots of them). Therefore Muon sees the gradients as matrices, unlike Adam which treats every parameter independently. And in the Matrix, there is a lot more you can do.</p>
         <h3>Neo, The One</h3>
         <p>Optimizers are constantly struggling against the <em>fundamental tension</em>: they want the loss to go down far, but the model's gradient is only accurate exactly where it is measured. To step a finite distance is always a leap of faith.</p>
-        <p>And when making that leap, it's not clear how to use information from how big the gradient is.</p>
+        <p>And when making that leap, it's not clear how to use how big the gradient is.</p>
         <p>If the gradient is 10x as large, should we step 10x as far?</p>
-        <p>Imagine a loss landscape. If the loss were $y=(x/100)^2$, the gradients would be small, but the model should take big steps. If the loss were $y=(100x)^2$, the gradients would be big, but the model should take small steps.</p>
+        <p>Quite the opposite. If the loss were $y=(x/100)^2$, the gradients would be small, but the model should take big steps. If the loss were $y=(100x)^2$, the gradients would be big, but the model should take small steps.</p>
         <p>Many optimizers resolve this tension with some form of the following medicine: no matter how giant or tiny the gradient is, move a fixed distance of one. Move in the direction of the gradient, but do not listen to its size.</p>
         <!-- <p>The optimizer wishes it could step forever toward the gradient. Self-denial strengthens the optimizer.</p> -->
         <p>The elementwise optimizers have a limited menu for how to take this medicine. The simplest way is SignSGD:</p>
@@ -55,8 +58,8 @@
         <p>where $\eta > 0$ is the leap-of-faith parameter (commonly known as the learning rate).</p>
         <!-- <p>The Lion optimizer is very nearly SignSGD with momentum, to smooth out the gradient estimate.</p> -->
         <p>The Adam optimizer—king of the realm—reduces to SignSGD when its momentum is turned off. In its general form,
-        Adam tracks two momentum buffers with different time scales. Its updates are akin to $\frac{G}{\sqrt{G^2}} \approx \text{sign}(G)$
-        so that the update entries hover near the golden compromise of One.</p>
+        Adam tracks two momentum buffers with different time scales. Its updates are akin to $\frac{G}{\sqrt{G^2}} \approx \text{sign}(G)$,
+        and its update entries hover near the golden compromise of One.</p>
         <p>But Muon... he has entered the Matrix. He does not see entries of a matrix. He sees the matrix itself.</p>
         <a href="/writing/muon-2" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
             <span>Chapter 2: The Architect</span>

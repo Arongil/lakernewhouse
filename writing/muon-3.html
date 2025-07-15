@@ -36,20 +36,23 @@
         <h2 style="margin: 0;">The Muon Chronicles</h2>
         <h2 style="margin: 0;">Chapter 3: Bend the Singular Values</h2>
         <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
-        <p>The bald boy said, "Do not try to bend the singular values, that's impossible. The direct SVD calculation $$G = U \Sigma V^T \mapsto U f(\Sigma) V^T$$ that sends every singular value $\sigma \mapsto f(\sigma)$ doesn't parallelize well on a GPU. Instead, only try to realize the truth... you don't need to see the singular values to bend them. Do you recall what singular values are?"</p>
+        <p>The bald boy said, "Do not try to bend the singular values, that's impossible. The direct SVD calculation $$G = U \Sigma V^T \mapsto U f(\Sigma) V^T$$ to send every singular value $\sigma \mapsto f(\sigma)$ doesn't parallelize well on a GPU. Instead, only try to realize the truth... you don't need to see the singular values to bend them. Do you recall what singular values are?"</p>
+
+        <img src="/assets/writing/muon/spoon.jpg" alt="Spoon" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
+
         <p>The boy explains that every matrix $G \in \mathbb{R}^{d_\text{out} \times d_\text{in}}$ has a singular value decomposition $G = U \Sigma V^T$, where $U$ and $V$ are orthogonal—meaning they preserve a vector's norm—and $\Sigma$ is diagonal with nonnegative entries $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_n \geq 0$, called the singular values. The spectral norm of $G$ is its largest singular value $\sigma_1$.
         <p>Yet you do not know how to proceed. You stare at the matrix. It stares back. You blink. You cube it.</p>
         <p>Suddenly, the axes along which the matrix stretches bend, but the matrix is still recognizable: $$(GG^T)G = (U \Sigma V^T V \Sigma U^T) U \Sigma V^T = U \Sigma^3 V^T.$$</p>
         <p>You realize you can bend more odd powers, $G^{2k+1} = U \Sigma^{2k+1} V^T$. The odd powers commute straight into the singular values. You draw on linearity to form up a polynomial, $p(x) = ax + bx^3 + cx^5$, that bends singular values as directly as it bends a single number, without seeing a single one of them.</p>
-        <p>Divide the gradient by something certainly bigger than its largest singular value, say by $\| G \|_F = \sqrt{\sum_{i,j} G_{ij}^2}$.</p>
-        <p>Then again and again and again apply $p(x) = \tfrac32 x - \tfrac12 x^3$ to push every number in the range $[0, \sqrt{3})$ toward $1$.</p>
+        <p>You divide the gradient by something certainly bigger than its largest singular value, say $\| G \|_F = \sqrt{\sum_{i,j} G_{ij}^2}$.</p>
+        <p>Then again and again and again you apply $p(x) = \tfrac32 x - \tfrac12 x^3$ to push every number from $[0, \sqrt{3})$ toward $1$.</p>
         
         <div style="display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;">
             <img src="/assets/writing/muon/simple.svg" alt="Simple" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
             <img src="/assets/writing/muon/simple-iterated.svg" alt="Simple Iterated" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
         </div>
 
-        <p>Faster iterations abound if one is willing to sacrifice convergence, like Muon's own $$p(x) = 3.4445x - 4.7750x^3 + 2.0315x^5.$$</p>
+        <p>Faster iterations abound if you are willing to sacrifice convergence, like Muon's own $$p(x) = 3.4445x - 4.7750x^3 + 2.0315x^5.$$</p>
         
         <div style="display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;">
             <img src="/assets/writing/muon/muon.svg" alt="Muon" style="width: 35%; aspect-ratio: 1; object-fit: contain;">

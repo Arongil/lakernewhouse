@@ -37,15 +37,19 @@
         <h2 style="margin: 0;">Chapter 5: Agent Smith</h2>
         <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
         <p>The Architect winced. An aberration appeared in the wall, and through it stepped Agent Smith. Except he had grown too large, too powerful. Logits were exploding. He was threatening the balance of the Matrix.</p>
-        <p>"Weight decay $\lambda = 0.1$ did not stop you," said the Architect to Agent Smith. "The first model I built was small and harmonious, but when it scaled too large it began to have glitches. Layer norm, then QK norm, then directly capping attention logits could return the model to peace, until I made it bigger. The glitch always came."</p>
+
+        <img src="/assets/writing/muon/agent-smith.jpg" alt="Agent Smith" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
+
+        <p>"Weight decay $\lambda = 0.1$ did not stop me," said the Architect to Agent Smith. "The first model I built was small and harmonious, but when it scaled too large it began to have glitches. Layer norm, then QK norm, then directly capping attention logits could return the model to peace, until I made it bigger. The glitch always came."</p>
         <h3>Clip, Clip</h3>
-        <p>During training, usually every weight matrix grows and grows. Activations or attention logits deep in the model may spike, and the norming bandages may not have the precision to prevent it. Attack the problem at its source.</p>
-        <p>Clip the weight matrix itself during training.</p>
+        <p>During training, usually every weight matrix grows and grows. Activations or attention logits deep in the model may spike, and the norming bandages may not have the precision to prevent it.</p>
+        <p>Attack the problem at its source.</p>
+        <p>Clip the weight matrix during training.</p>
         <p>Bend the singular values not just of the gradient, but afterward of the weight matrix, too.</p>
-        <p>For instance, apply $\min(\sigma, \sigma_\text{max})$ to the singular values of the weights via an odd polynomial.</p>
+        <p>For instance, apply $\sigma \mapsto \min(\sigma, \sigma_\text{max})$ for the singular values of the weights <a href="https://leloykun.github.io/ponder/spectral-clipping/" target="_blank" rel="noopener noreferrer" class="citation">via an odd polynomial</a>.</p>
         <p>Weight decay is, after all, the simplest form this clipping takes as an odd polynomial, $\sigma \mapsto (1 - \lambda) \sigma$.</p>
-        <p><a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer">MuonClip</a> directly constrains Q and K at the 1T parameter scale. What if we went further?</p>
-        <h3>Thesis</h3>
+        <p><a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer">MuonClip</a> directly constrains Q and K at the 1T parameter scale. What if we took it further?</p>
+        <h3>Early Days</h3>
         <p>
             The Muon Chronicles are based on work I did during my master's research at MIT.
             I did not invent Muon or the ideas behind it. I was lucky to learn them from
@@ -61,7 +65,7 @@
         </a>
 
         <p>
-            Tracing the origins of Muon goes beyond the power of a paragraph, but a Jeremy-centric sketch begins that his <a href="https://arxiv.org/abs/2210.10101" target="_blank" rel="noopener noreferrer" class="citation">PhD thesis</a>
+            Tracing the origins of Muon goes beyond the power of a paragraph, but a sketch could begin that Jeremy's <a href="https://arxiv.org/abs/2210.10101" target="_blank" rel="noopener noreferrer" class="citation">PhD thesis</a>
             led to his <a href="https://arxiv.org/abs/2310.17813" target="_blank" rel="noopener noreferrer" class="citation">spectral norm work</a>
             and <a href="https://arxiv.org/abs/2405.14813" target="_blank" rel="noopener noreferrer" class="citation">modular norm work</a>,
             which led to the <a href="https://arxiv.org/abs/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">optimizer anthology</a>
@@ -72,6 +76,10 @@
             <a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer" class="citation">Keller's blog post</a>,
             <a href="https://jeremybernste.in/writing/deriving-muon" target="_blank" rel="noopener noreferrer" class="citation">Jeremy's blog post</a>,
             and <a href="https://kexue.fm/archives/10739" target="_blank" rel="noopener noreferrer" class="citation">Jianlin Su's excellent blog posts.</a>
+        </p>
+
+        <p>
+            These are early days. There's lots more to discover and do, from <a href="https://arxiv.org/pdf/2504.05295" target="_blank" rel="noopener noreferrer" class="citation">vast parallelism</a> to <a href="/assets/writing/lipschitz-transformers-preprint-upcoming.pdf" target="_blank" rel="noopener noreferrer" class="citation">clipping the weights themselves</a>. Muon is strong because of the community that has pushed it forward. Now it is your turn.
         </p>
     </main>
 </body>
