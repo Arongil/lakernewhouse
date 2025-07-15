@@ -49,14 +49,15 @@
         <p>For instance, apply $\sigma \mapsto \min(\sigma, \sigma_\text{max})$ for the singular values of the weights <a href="https://leloykun.github.io/ponder/spectral-clipping/" target="_blank" rel="noopener noreferrer" class="citation">via an odd polynomial</a>.</p>
         <p>Weight decay is, after all, the simplest form this clipping takes as an odd polynomial, $\sigma \mapsto (1 - \lambda) \sigma$.</p>
         <p><a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer">MuonClip</a> directly constrains Q and K at the 1T parameter scale. What if we took it further?</p>
+        <p>Muon looked at the weights, and he wondered the right way to put them into harmony.</p>
         <h3>Early Days</h3>
         <p>
             The Muon Chronicles are based on work I did during my master's research at MIT.
             I did not invent Muon or the ideas behind it. I was lucky to learn them from
-            Jeremy Bernstein. Check out my thesis for a fuller explanation of how Muon works,
-            why it fits into Jeremy's broader research agenda called
+            Jeremy Bernstein. For a fuller explanation of how Muon works,
+            why it fits into Jeremy's broader agenda called
             <a href="https://docs.modula.systems/" target="_blank" rel="noopener noreferrer" class="citation">metrized deep learning</a>,
-            and whether direct weight constraints as in "Clip, Clip" could open a paradigm for training free from loss spikes, by design.
+            and whether direct weight constraints as in "Clip, Clip" could open a paradigm for training free from loss spikes, by design, check out my thesis from MIT.
         </p>
 
         <a href="/thesis.pdf" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(208, 255, 177, 0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
