@@ -99,7 +99,7 @@
         <h2 style="margin: 0;">Chapter 4: Source Code</h2>
         <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
     </main>
-    <p>Muon thanked the bald boy, then walked into the next room. There was no oracle inside to explain what he saw next, but he found that when he inspected each line closely, an explanation appeared... Muon spent the next several minutes examining his own source code.</p>
+    <p>Muon thanked the boy who had taught him to bend singular values, then walked into the next room. There was no oracle inside to explain what he saw next, but he found that when he inspected each line closely, an explanation appeared... Muon spent the next several minutes examining his own source code.</p>
 
     <pre><code class="language-python" id="muon-code">import torch
 
@@ -155,7 +155,6 @@ class Muon(torch.optim.Optimizer):
 
     @torch.no_grad()
     def step(self, closure=None):
-
         loss = None
         if closure is not None:
             with torch.enable_grad():
@@ -171,7 +170,7 @@ class Muon(torch.optim.Optimizer):
                         state["momentum_buffer"] = torch.zeros_like(p)
                     update = muon_update(p.grad, state["momentum_buffer"], beta=group["momentum"])
                     p.mul_(1 - group["lr"] * group["weight_decay"])
-                    p.add_(update.reshape(p.shape), alpha=-group["lr"])
+                    p.add_(update, alpha=-group["lr"])
             else:
                 for p in group["params"]:
                     if p.grad is None:
@@ -208,30 +207,29 @@ class Muon(torch.optim.Optimizer):
     <script>
         // Annotation data - mapping text patterns to explanations
         const simplePatterns = {
-            'set_all_singular_values_to_near_one': "Muon's core idea is to set gradient singular values to one. This is a ~matrix-pilled~ resolution to the <em>fundamental tension</em>: the optimizer wants to follow the gradient forever, but knows that the gradient is only valid exactly where it is measured.",
+            'set_all_singular_values_to_near_one': "Muon's core idea is to set gradient singular values to one. To do so it will iterate a polynomial five times:<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/muon.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/muon-iterated.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>This is a ~matrix-pilled~ resolution to the <em>fundamental tension</em>: the optimizer wants to follow the gradient forever, but knows that the gradient is only valid exactly where it is measured. So Muon will step distance 1, no matter the size of the gradient.",
             'X = G.bfloat16()': "We're going to compute a polynomial five times in a row on the gradient matrix $G$. It's numerically stable enough to use a lower precision data type like bfloat16 to speed it up, unlike computing $G^{-1/4}$ which the original Shampoo optimizer update required.",
-            'update = set_all_singular_values_to_near_one(update, steps=ns_steps)': "Apply Newton-Schulz method to set all singular values to near one (zero power scaling)"
+            'A = X @ X.mT': "Step 1. Compute $XX^T$ and save it for later",
+            'B = b * A + c * A @ A': "Step 2. Compute $bX^2 + cX^4$, so that next line we can multiply by $X$ to get $bX^3 + cX^5$",
+            'X = a * X + B @ X': "Step 3. Finish up computing $p(X) = aX + bX^3 + cX^5$. Remember what this looks like!<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/muon.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/muon-iterated.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>The big idea is we're sending all singular values to 1 in parallel, since odd polynomials commute into the singular value decomposition to act directly on the singular values, $p(G) = p(U \\Sigma V^T) = U p(\\Sigma) V^T$.",
+            'update = set_all_singular_values_to_near_one(update, steps=ns_steps)': "Muon's core operation: set the singular values of the update to 1!"
         };
         
         // Complex patterns that span syntax-highlighted elements
         const complexPatterns = {
             'a, b, c = (3.4445, -4.7750,  2.0315)': "These are coefficients of the polynomial $p(x) = 3.4445x - 4.7750x^3 + 2.0315x^5$. This polynomial might look like black magic, but check out this Desmos graph:<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/muon.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/muon-iterated.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>That's what $p(x)$ looks like (left) and what $p(p(p(p(p(x)))))$ looks like (right). Applying $p(x)$ five times is a fast way to send all numbers $x$ to somewhere close to 1, hence (nearly) setting all singular values to 1.",
-            'if G.size(-2) > G.size(-1):': "Transpose if matrix is tall rather than wide for computational efficiency",
+            'X = X.mT': "This is a computational trick. We'll need to find $XX^T$, which has shape $(n, n)$ if $X$ has shape $(n, m)$. So if $n > m$, we switch them upfront so the inner calculations are smaller. We undo the transpose at the end. And X.mT just means batched transpose, where it will switch the last two dimensions.",
             'X = X / (X.norm(dim=(-2, -1), keepdim=True) + 1e-7)': "Remember what the polynomial that we're applying to the singular values looks like?<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/muon.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/muon-iterated.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>It doesn't work past $x > 1$. To make sure it works, we first squash all the singular values to be less than 1. Here $\\text{X.norm()}$ is the Frobenius norm of X, $\\| X \\|_F = \\sqrt{\\sum_{i,j} X_{ij}^2}$. The Frobenius norm is always at least as big as the spectral norm, so now all singular values don't exceed 1.",
-            'A = X @ X.mT': "Newton-Schulz iteration: A = X @ X^T computes the Gram matrix",
-            'B = b * A + c * A @ A': "Newton-Schulz iteration: B combines linear and quadratic terms in A",
-            'X = a * X + B @ X': "Newton-Schulz iteration: Update X using the polynomial approximation",
-            'momentum.lerp_(grad, 1 - beta)': "Exponential moving average update of momentum buffer",
-            'update = grad.lerp_(momentum, beta) if nesterov else momentum': "Nesterov momentum: look ahead by combining current gradient with momentum",
-            'update *= (grad.size(-2) / grad.size(-1))**0.5': "Scaling factor to account for parameter matrix dimensions",
-            'buf1.lerp_(grad, 1 - betas[0])': "Standard Adam: exponential moving average of gradients",
-            'buf2.lerp_(grad.square(), 1 - betas[1])': "Standard Adam: exponential moving average of squared gradients",
-            'buf1c = buf1 / (1 - betas[0]**step)': "Bias correction for first moment estimate",
-            'buf2c = buf2 / (1 - betas[1]**step)': "Bias correction for second moment estimate",
-            'buf1c / (buf2c.sqrt() + eps)': "Adam update rule: first moment divided by square root of second moment",
-            'update = muon_update(p.grad, state["momentum_buffer"], beta=group["momentum"])': "Call the Muon update function with gradient and momentum buffer",
-            'p.mul_(1 - group["lr"] * group["weight_decay"])': "Apply weight decay by scaling parameters",
-            'p.add_(update.reshape(p.shape), alpha=-group["lr"])': "Apply the Muon update with learning rate scaling"
+            'momentum.lerp_(grad, 1 - beta)': "lerp_ means do a linear interpolation to set $M_{n+1} = \\beta M_n + (1 - \\beta) G$, so Muon can smooth out gradients using momentum",
+            'update = grad.lerp_(momentum, beta) if nesterov else momentum': "Nesterov momentum often helps, too. All it does is mix a bigger fraction of the current gradient into the momentum.",
+            'update *= (grad.size(-2) / grad.size(-1))**0.5': "Remember how the spectral norm is prejudiced by dimension? Instead of using it directly, we rescale to use the overall map $$G \\mapsto \\sqrt{\\frac{d_\\text{out}}{d_\\text{in}}} \\text{orthogonalize}(G)$$ to make the update dimension-independent. This way the input and output spaces are treated with the RMS norm, which views the vectors $(1, 1, 1)$ and $(1, 1, 1, \\dots, 1)$ both as having norm 1.",
+            'adam_update': "Since Muon is built for matrix parameters, it uses Adam to optimize all other parameters. This function just implements Adam.",
+            'buf1c / (buf2c.sqrt() + eps)': "Notice! The two buffers track $G$ and $G^2$ (square is done elementwise). And the division $\\frac{G}{\\sqrt{G^2}}$ approximately makes each entry 1, another example of optimizers moving distance 1 no matter the size of the gradient. Adam just does it elementwise, while Muon does it on the potentially more natural space of singular values.",
+            'group in param_groups': "All the __init__ function does is set up some default hyperparameters. It's running an internal AdamW optimizer on parameters not designed for Muon. More on that below the source code...",
+            'group["use_muon"]': "Muon is designed to optimize matrix parameters. All other parameters are optimized with AdamW.",
+            'closure is not None': "This is a PyTorch feature where you can optionally allow the optimizer to recompute the loss inside the step() function.",
+            'state["momentum_buffer"] = torch.zeros_like(p)': "Initialize the momentum buffer!",
+            'update = muon_update(p.grad, state["momentum_buffer"], beta=group["momentum"])': "The update we've all been waiting for!",
         };
         
         function addAnnotations() {
@@ -295,7 +293,7 @@ class Muon(torch.optim.Optimizer):
                     annotationCount++;
                 }
             });
-            
+
             codeElement.innerHTML = html;
             
             return annotationCount;
