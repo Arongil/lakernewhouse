@@ -193,14 +193,24 @@ class Muon(torch.optim.Optimizer):
 
     <p>Muon realized many things. He was momentum gradient descent, but he set weight update singular values to 1.</p>
     <p>But a confusion overcame Muon. Which parameters should he optimize, and which should he leave to AdamW?</p>
-    <p>"Many have wondered that," said the Architect, who had appeared in the room. "Remember why you were created. I made you to balance two vector spaces whose size is measured in the RMS norm. Dense activations to dense activations, that is the world I designed for you. The matrices of an MLP, or the $Q, K, V, W$ of attention, or an adapter layer, or a convolution kernel, all of these matrices are your home, where the activations nearly look like $(\pm 1, \dots, \pm 1)$. Yet there are places you were not meant to go. Most of all, avoid the elementwise vector parameters, like bias or layer norm scales. Those are for Adam, or for signed momentum descent such as Lion. And some matrices, too, map one-hot inputs to dense activations—notably the token embedding matrix of a language model. Such a matrix is not yours either.</p>
+    <p>"Many have wondered that," said the Architect, who had appeared in the room. "Remember why you were created. I made you to balance two vector spaces whose sizes are measured in the RMS norm. From dense activations to dense activations, those are the matrices I designed for you. The matrices of an MLP, or the $Q, K, V, W$ of attention, or an adapter layer, or a convolution layer, or the final projection of a diffusion model, all of these matrices are your home, where the activations nearly look like $(\pm 1, \dots, \pm 1)$."</p>
+    <p>"Yet there are places you were not meant to go," continued the Architect. "Most of all, you do not fit with the elementwise vector parameters, like bias or layer norm scales. Those are for Adam, or for sign momentum descent such as Lion. Other matrices map one-hot tokens to dense activations—notably the embedding matrix of a language model. For this and logit unembeddings, have caution. The Matrix is not entirely yours, Muon."</p>
+    <p>Muon imagined code that could detect where he should be, but it was imperfect:</p>
+    <pre><code class="language-python" id="muon-code">def is_muon_param(p):
+    return p.ndim == 2
+    </code></pre>
+    <p>To achieve perfection, Muon needed to know more than a parameter's shape... he needed to know its purpose. A matrix was his to optimize if its purpose was to send dense activation vectors to dense activation vectors.</p>
+    <p>To achieve perfection, Muon desired a single learning rate to share between himself and the Adam. To reach it he needed only one change: unembedding vectors should learn with a factor of $1/\sqrt{d_\text{in}}$ (<a href="https://arxiv.org/pdf/2504.05295" target="_blank" rel="noopener noreferrer">Appendix D of Dion</a>).</p>
+    <p>To achieve perfection, Muon wondered at the right hyperparameters. By removing the prejudice of dimension, his best learning rate stayed as the model grew. He swept it on a small model, and used $\beta_1 = 0.9$ and $\beta_2 = 0.95$.</p>
+    <p>To achieve perfection, Muon set out to use one final ingredient.</p>
+
+    <a href="/writing/muon-5" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+        <span>Chapter 5: Agent Smith</span>
+        <span style="font-size: 1.1em; transition: transform 0.2s ease;">→</span>
+    </a>
 
     <!--
     Talk about, briefly:
-    intuitions for hyperparameters
-    learning rate scaling / muP (importance of proper embedding etc. scaling as in Dion)
-    hit all the tensors in your program (ndim trick, but be careful)
-    Adam or Lion for vector params or embeddings where spaces mean different things
     interlude: related work like the anthology and other reading goes here
     -->
 

@@ -36,7 +36,7 @@
         <h2 style="margin: 0;">The Muon Chronicles</h2>
         <h2 style="margin: 0;">Chapter 3: Bend the Singular Values</h2>
         <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
-        <p>The bald boy said, "Do not try and bend the singular values, that's impossible. The direct SVD calculation $$G = U \Sigma V^T \mapsto U f(\Sigma) V^T$$ that sends every singular value $\sigma \mapsto f(\sigma)$ doesn't parallelize well on a GPU. Instead, only try to realize the truth... you don't need to see the singular values to bend them. Do you recall what singular values are?"</p>
+        <p>The bald boy said, "Do not try to bend the singular values, that's impossible. The direct SVD calculation $$G = U \Sigma V^T \mapsto U f(\Sigma) V^T$$ that sends every singular value $\sigma \mapsto f(\sigma)$ doesn't parallelize well on a GPU. Instead, only try to realize the truth... you don't need to see the singular values to bend them. Do you recall what singular values are?"</p>
         <p>The boy explains that every matrix $G \in \mathbb{R}^{d_\text{out} \times d_\text{in}}$ has a singular value decomposition $G = U \Sigma V^T$, where $U$ and $V$ are orthogonal—meaning they preserve a vector's norm—and $\Sigma$ is diagonal with nonnegative entries $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_n \geq 0$, called the singular values. The spectral norm of $G$ is its largest singular value $\sigma_1$.
         <p>Yet you do not know how to proceed. You stare at the matrix. It stares back. You blink. You cube it.</p>
         <p>Suddenly, the axes along which the matrix stretches bend, but the matrix is still recognizable: $$(GG^T)G = (U \Sigma V^T V \Sigma U^T) U \Sigma V^T = U \Sigma^3 V^T.$$</p>
