@@ -99,7 +99,7 @@
         <h2 style="margin: 0;">Chapter 4: Source Code</h2>
         <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
     </main>
-    <p>Muon thanked the boy who had taught him to bend singular values, then walked into the next room. There was no oracle inside to explain what he saw next, but he found that when he inspected each line closely, an explanation appeared... Muon spent the next several minutes examining his own source code.</p>
+    <p>Muon thanked the boy who had taught him how to bend singular values. When he walked into the next room, there was no oracle inside to explain what he saw next. But he found that when he inspected each line closely, an explanation appeared... Muon spent the next several minutes examining his own source code.</p>
 
     <pre><code class="language-python" id="muon-code">import torch
 
@@ -189,6 +189,11 @@ class Muon(torch.optim.Optimizer):
         return loss
 </code></pre>
  
+    <p>(<em>Implementation adapted from <a href="https://github.com/KellerJordan/Muon">Keller Jordan's GitHub</a></em>.)</p>
+
+    <p>Muon realized many things. He was momentum gradient descent, but he set weight update singular values to 1.</p>
+    <p>But a confusion overcame Muon. Which parameters should he optimize, and which should he leave to AdamW?</p>
+    <p>"Many have wondered that," said the Architect, who had appeared in the room. "Remember why you were created. I made you to balance two vector spaces whose size is measured in the RMS norm. Dense activations to dense activations, that is the world I designed for you. The matrices of an MLP, or the $Q, K, V, W$ of attention, or an adapter layer, or a convolution kernel, all of these matrices are your home, where the activations nearly look like $(\pm 1, \dots, \pm 1)$. Yet there are places you were not meant to go. Most of all, avoid the elementwise vector parameters, like bias or layer norm scales. Those are for Adam, or for signed momentum descent such as Lion. And some matrices, too, map one-hot inputs to dense activations—notably the token embedding matrix of a language model. Such a matrix is not yours either.</p>
 
     <!--
     Talk about, briefly:
