@@ -1,13 +1,155 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Spectral Playground</title>
+    <title>Gradient Transformation Playground</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/normalize.css">
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        .playground-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .desmos-section {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .desmos-container {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .desmos-caption {
+            font-style: italic;
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .preset-buttons {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .preset-btn {
+            margin: 0 10px;
+            padding: 10px 20px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .preset-btn:hover {
+            background-color: #357abd;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            color: #856404;
+            display: none;
+        }
+        
+        .histograms-container {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+            justify-content: center;
+        }
+        
+        .histogram-section {
+            flex: 1;
+            max-width: 450px;
+        }
+        
+        .histogram-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        
+        .histogram-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        
+        .histogram-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .axis-labels {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .x-axis-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .y-axis-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            position: absolute;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .controls select {
+            margin: 0 10px;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .controls button {
+            margin: 0 10px;
+            padding: 8px 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .controls button:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -18,63 +160,125 @@
             <a href="/how-to-mit">~ How to MIT ~</a>
         </nav>
     </header>
+    
     <main>
         <h2 style="margin: 0; text-align: left;">Spectral Playground</h2>
         <h6 style="margin-top: 0; margin-bottom: 2rem; color: #666;">June 8th, 2025 · 5 minute read</h6>
         <p>There's a lot of excitement around Muon speeding up deep learning training [<a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer" class="citation">1</a>; <a href="https://arxiv.org/abs/2502.16982" target="_blank" rel="noopener noreferrer" class="citation">Liu et al., 2025</a>; <a href="https://arxiv.org/abs/2505.02222" target="_blank" rel="noopener noreferrer" class="citation">Shah et al., 2025</a>]. But why does Muon work? There are some excellent explainers out there already that introduce Muon's core operation: for gradient matrices, set every singular value to one [<a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer" class="citation">Jordan et al., 2024</a>; <a href="https://jeremybernste.in/writing/deriving-muon" target="_blank" rel="noopener noreferrer" class="citation">Bernstein, 2025</a>].</p>
         <p>But want to see it for yourself? This post is an interactive version of my MIT master's thesis: . You could reverse the size of the singular values, or whatever else you can imagine. This post is an interactive version of Figure 1 from my thesis [<a href="https://lakernewhouse.com/assets/writing/thesis.pdf" target="_blank" rel="noopener noreferrer" class="citation">Newhouse, 2025</a>]; check it out for an introduction to odd polynomial iterations and the method that led to Muon: metrized deep learning.</p>
         <h4>Design your own optimizer</h4>
-        <p></p>
-        <div class="controls">
-            <select id="accum">
-                <option value="1">batch 0.5M</option>
-                <option value="4">batch 2M</option>
-                <option value="16">batch 6M</option>
-            </select>
-            <select id="step">
-                <option value="100">step 100</option>
-                <option value="200">step 200</option>
-                <option value="400">step 400</option>
-                <option value="800">step 800</option>
-                <option value="1600">step 1600</option>
-            </select>
-            <select id="layer">
-                <option value="0">layer 0</option>
-                <option value="1">layer 1</option>
-                <option value="2">layer 2</option>
-                <option value="3">layer 3</option>
-                <option value="4">layer 4</option>
-                <option value="5">layer 5</option>
-                <option value="6">layer 6</option>
-                <option value="7">layer 7</option>
-                <option value="8">layer 8</option>
-                <option value="9">layer 9</option>
-                <option value="10">layer 10</option>
-                <option value="11">layer 11</option>
-            </select>
-            <select id="matrix">
-                <option value="q">query</option>
-                <option value="k">key</option>
-                <option value="v">value</option>
-                <option value="c_proj">att out</option>
-                <option value="mlp_fc">mlp in</option>
-                <option value="mlp_proj">mlp out</option>
-            </select>
-            <button id="load">Load</button>
-        </div>
-        <div class="canvas-container">
-            <div id="y-label">Count</div>
-            <canvas id="canvas" width="400" height="400"></canvas>
-            <div class="x-labels">
-                <span>10⁻⁶</span>
-                <span>10⁻⁴</span>
-                <span>10⁻²</span>
-                <span>10⁰</span>
+
+        <div class="playground-container">
+            <p>Odd polynomials act directly on gradient singular values. Create your own!</p>
+            <p>Interactive visualization of how different optimizers transform gradient singular values</p>
+            <div class="desmos-section">
+                <div class="preset-buttons">
+                    <button class="preset-btn" id="sgd-btn">SGD</button>
+                    <button class="preset-btn" id="muon-btn">Muon</button>
+                    <button class="preset-btn" id="reverso-btn">Reverso</button>
+                </div>
+
+                <div class="desmos-container" id="calculator"></div>
+                <div class="desmos-caption">Put your final odd polynomial into f(x)</div>
+                
+                <div class="warning" id="odd-warning">
+                    ⚠️ Warning: The function f(x) is not an odd polynomial. For a valid optimizer, f(-x) should equal -f(x).
+                </div>
             </div>
-            <div id="x-label">Singular value</div>
+            
+            <div class="histograms-container">
+                <div class="histogram-section">
+                    <h3 class="histogram-title">Raw Gradient</h3>
+                    <div class="histogram-container">
+                        <div class="y-axis-label">Count</div>
+                        <canvas class="histogram-canvas" id="raw-canvas" width="400" height="250"></canvas>
+                    </div>
+                    <div class="axis-labels">
+                        <div class="x-axis-labels">
+                            <span>10⁻⁶</span>
+                            <span>10⁻⁴</span>
+                            <span>10⁻²</span>
+                            <span>10⁰</span>
+                        </div>
+                        <div style="text-align: center; margin-top: 5px; font-size: 12px; color: #666;">
+                            Singular Value
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="histogram-section">
+                    <h3 class="histogram-title">Transformed Gradient</h3>
+                    <div class="histogram-container">
+                        <div class="y-axis-label">Count</div>
+                        <canvas class="histogram-canvas" id="transformed-canvas" width="400" height="250"></canvas>
+                    </div>
+                    <div class="axis-labels">
+                        <div class="x-axis-labels">
+                            <span>10⁻⁶</span>
+                            <span>10⁻⁴</span>
+                            <span>10⁻²</span>
+                            <span>10⁰</span>
+                        </div>
+                        <div style="text-align: center; margin-top: 5px; font-size: 12px; color: #666;">
+                            Singular Value
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <select id="accum">
+                    <option value="1">Batch 0.5M</option>
+                    <option value="4">Batch 2M</option>
+                    <option value="16" selected>Batch 6M</option>
+                </select>
+                <select id="step">
+                    <option value="0">Step 0</option>
+                    <option value="100" selected>Step 100</option>
+                    <option value="200">Step 200</option>
+                    <option value="400">Step 400</option>
+                    <option value="800">Step 800</option>
+                    <option value="1600">Step 1600</option>
+                </select>
+                <select id="layer">
+                    <option value="0" selected>Layer 0</option>
+                    <option value="1">Layer 1</option>
+                    <option value="2">Layer 2</option>
+                    <option value="3">Layer 3</option>
+                    <option value="4">Layer 4</option>
+                    <option value="5">Layer 5</option>
+                    <option value="6">Layer 6</option>
+                    <option value="7">Layer 7</option>
+                    <option value="8">Layer 8</option>
+                    <option value="9">Layer 9</option>
+                    <option value="10">Layer 10</option>
+                    <option value="11">Layer 11</option>
+                </select>
+                <select id="matrix">
+                    <option value="q">Query</option>
+                    <option value="k">Key</option>
+                    <option value="v">Value</option>
+                    <option value="c_proj" selected>Attention Out</option>
+                    <option value="mlp_fc">MLP In</option>
+                    <option value="mlp_proj">MLP Out</option>
+                </select>
+                <button id="load-btn">Load Data</button>
+            </div>
+            
+            <div style="margin-top: 40px;">
+                <h3>How It Works</h3>
+                <p>This visualization shows how different optimizers transform gradient singular values:</p>
+                <ul>
+                    <li><strong>SGD:</strong> f(x) = x - No transformation, gradients are used as-is</li>
+                    <li><strong>Muon:</strong> Multiple iterations of g(x) = 3/2 * x - 1/2 * x³ to push singular values toward 1</li>
+                    <li><strong>Reverso:</strong> Approximates x/(x² + 1e-6) to handle large singular values</li>
+                </ul>
+                <p>The color gradient helps you see how values from the raw histogram map to the transformed histogram.</p>
+            </div>
         </div>
-        <script src="draw.js"></script>
-        <script src="histogram.js"></script>
     </main>
+    
+    <script src="https://www.desmos.com/api/v1.11/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+    <script src="gradient-playground.js"></script>
 </body>
 </html>

@@ -9,10 +9,10 @@ and maps it through user-defined odd polynomial iteration, preserving the color 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-const width = canvas.width;
-const height = canvas.height;
-const centerX = width / 2;
-const centerY = height / 2;
+const WIDTH = canvas.width;
+const HEIGHT = canvas.height;
+const CENTERX = WIDTH / 2;
+const CENTERY = HEIGHT / 2;
 
 // Get control elements
 const accumSelect = document.getElementById('accum');
@@ -31,13 +31,18 @@ async function loadHistogram(accum, step, layer, matrix) {
     return histogram;
 }
 
-async function renderHistogram(histogram) {
+async function renderHistogram(histogram, x, y, width, height) {
     // histogram has 50 bins between -6 and 0 in logspace (base 10)
     // each one should render as a blue bar
 
     // graph background
     fill(255, 255, 255);
-    rect(centerX, centerY, canvas.width, canvas.height);
+    rect(x, y, width, height);
+
+    stroke(0, 0, 0);
+    line(x, y + height, x, y);
+    line(x, y + height, x + width, y + height);
+    strokeWeight(0);
 
     // Calculate dimensions for histogram
     const barWidth = width / histogram.length;
@@ -63,5 +68,5 @@ loadButton.addEventListener('click', async () => {
     const matrix = matrixSelect.value;
     
     const histogram = await loadHistogram(accum, step, layer, matrix);
-    renderHistogram(histogram);
+    renderHistogram(histogram, 0, CENTERY, WIDTH/2, HEIGHT/2);
 });

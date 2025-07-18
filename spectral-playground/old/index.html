@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spectral Playground</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <h3><a href="/" style="font-size: 1.4rem; color: #333; text-decoration: none;">Laker Newhouse</a></h3>
+            <a href="/research">Research</a>
+            <a href="/writing">Writing</a>
+            <a href="/how-to-mit">~ How to MIT ~</a>
+        </nav>
+    </header>
+    <main>
+        <h2 style="margin: 0; text-align: left;">Spectral Playground</h2>
+        <h6 style="margin-top: 0; margin-bottom: 2rem; color: #666c; font-weight: normal;">June 2025 · 5 minute read</h6>
+
+        <div class="controls">
+            <select id="accum">
+                <option value="1">batch 0.5M</option>
+                <option value="4">batch 2M</option>
+                <option value="16">batch 6M</option>
+            </select>
+            <select id="step">
+                <option value="100">step 100</option>
+                <option value="200">step 200</option>
+                <option value="400">step 400</option>
+                <option value="800">step 800</option>
+                <option value="1600">step 1600</option>
+            </select>
+            <select id="layer">
+                <option value="0">layer 0</option>
+                <option value="1">layer 1</option>
+                <option value="2">layer 2</option>
+                <option value="3">layer 3</option>
+                <option value="4">layer 4</option>
+                <option value="5">layer 5</option>
+                <option value="6">layer 6</option>
+                <option value="7">layer 7</option>
+                <option value="8">layer 8</option>
+                <option value="9">layer 9</option>
+                <option value="10">layer 10</option>
+                <option value="11">layer 11</option>
+            </select>
+            <select id="matrix">
+                <option value="q">query</option>
+                <option value="k">key</option>
+                <option value="v">value</option>
+                <option value="c_proj">att out</option>
+                <option value="mlp_fc">mlp in</option>
+                <option value="mlp_proj">mlp out</option>
+            </select>
+            <button id="load">Load</button>
+        </div>
+        <div class="canvas-container">
+            <div id="y-label">Count</div>
+            <canvas id="canvas" width="400px" height="200px"></canvas>
+            <div class="x-labels">
+                <span>10⁻⁶</span>
+                <span>10⁻⁴</span>
+                <span>10⁻²</span>
+                <span>10⁰</span>
+            </div>
+            <div id="x-label">Singular value</div>
+        </div>
+
+        <p>There's a lot of excitement around Muon speeding up deep learning training [<a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer" class="citation">1</a>, <a href="https://arxiv.org/abs/2502.16982" target="_blank" rel="noopener noreferrer" class="citation">2</a>, <a href="https://arxiv.org/abs/2505.02222" target="_blank" rel="noopener noreferrer" class="citation">3</a>]. But why does Muon work? What is the simple idea behind it? There are already some excellent explainers that introduce Muon's core operation: setting all the gradient singular values to one [<a href="https://jeremybernste.in/writing/deriving-muon" target="_blank" rel="noopener noreferrer" class="citation">4</a>]. The spirit of this choice is that an ideal optimizer wants two things at once:</p>
+        <ul>
+            <li>Reduce the loss the most.</li>
+            <li>Disturb the model the least.</li>
+        </ul>
+        <p>But to reduce the loss, the model must change. One way to compromise is to allow a certain budget for how big the weight update can be. Depending how we measure size, we get different optimizers. Two common choices are the max entry (related to Adam) and the max singular value (related to Muon) [<a href="https://arxiv.org/abs/2409.20325v2" target="_blank" class="citation">5</a>, <a href="https://kexue.fm/archives/10739" target="_blank" class="citation">6</a>].</p>
+        <p>But want to see it for yourself? This post is an interactive demo of building your own optimizer. It is based on my thesis from MIT: <a href="https://lakernewhouse.com/assets/writing/thesis.pdf" target="_blank" rel="noopener noreferrer" class="citation">Duality, Weight Decay, and Metrized Deep Learning</a>. Below are real gradients from NanoGPT, and you see a function that modifies the gradient. Depending on this function, the optimizer is either SGD, Muon, a cousin of Adam, or anything else you can dream up---like the "Reverso" optimizer. Try it out!</p>
+        <h4>Design your own optimizer</h4>
+        <p></p>
+        <script src="draw.js"></script>
+        <script src="histogram.js"></script>
+    </main>
+</body>
+</html>
