@@ -22,8 +22,29 @@
     
     <link rel="stylesheet" href="/css/normalize.css">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/muon/sidebar.css">
 </head>
 <body>
+    <!-- Chapter Index Sidebar -->
+    <div class="chapter-index">
+        <h3>Muon and Beyond</h3>
+        
+        <div class="chapter-item">
+            <a href="/writing/muon-1" class="chapter-link current">Chapter 1: Into the Matrix</a>
+            <span class="chapter-description">Speedy and fun Muon explainer</span>
+        </div>
+        
+        <div class="chapter-item">
+            <a href="/writing/muon-2" class="chapter-link">Chapter 2: Source Code</a>
+            <span class="chapter-description">Annotated PyTorch implementation</span>
+        </div>
+        
+        <div class="chapter-item">
+            <a href="/writing/muon-3" class="chapter-link">Chapter 3: Constrain Weights</a>
+            <span class="chapter-description">Our work, and future directions</span>
+        </div>
+    </div>
+
     <header>
         <nav>
             <h3><a href="/" style="font-size: 1.4rem; color: #333; text-decoration: none;">Laker Newhouse</a></h3>
@@ -33,37 +54,202 @@
         </nav>
     </header>
     <main>
-        <h2 style="margin: 0;">The Muon Chronicles</h2>
+        <h2 style="margin: 0;">Muon and Beyond</h2>
         <h2 style="margin: 0;">Chapter 1: Into the Matrix</h2>
         <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
-        <p>This is the first chapter of the Muon Chronicles, a practitioner's guide to the Muon optimizer—told as a story to make it stickier to remember. People are very excited about Muon right now because it's shown ~2x speedups training models from 100M to 1T parameter scale (see <a href="https://github.com/KellerJordan/modded-nanogpt" target="_blank" rel="noopener noreferrer" class="citation">1</a>, <a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer" class="citation">2</a>, <a href="https://arxiv.org/abs/2505.02222" target="_blank" rel="noopener noreferrer" class="citation">3</a>). We'll walk through everything from why it works to a line-by-line annotation of its PyTorch implementation. Want to see it for yourself?</p>
+
         <p style="text-align: center;">"To understand Muon, the first step is to enter the Matrix."<br>—Not quite Morpheus</p>
 
         <img src="/assets/writing/muon/morpheus.jpg" alt="Muon" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
 
+        <p>We have seen
+        <a href="https://x.com/Kimi_Moonshot/status/1897929976948965870" target="_blank" rel="noopener noreferrer" class="citation">a</a>
+        <a href="https://arxiv.org/pdf/2505.02222" target="_blank" rel="noopener noreferrer" class="citation">lot</a>
+        <a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer" class="citation">of</a>
+        <a href="https://x.com/soumithchintala/status/1945297225988354315" target="_blank" rel="noopener noreferrer" class="citation">appreciation</a>
+        for the Muon optimizer
+        and, recently, excitement that it's been scaled up to training a
+        <a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer" class="citation">1T parameter model</a>.
+        So a lot of people are learning about Muon for the first time.
+        The first goal of this series is to be a useful guide for everyone who is getting started using Muon.
+        But I also think it's a good time to remind ourselves what are the fundamental
+        questions Muon tries to solve, and which ones are still unanswered? We wanted
+        1) fast and 2) scalable training.
+        I want to argue that Muon is only half the picture: not only should we develop
+        good ways to regulate <em>gradients</em>, but there is now an opportunity
+        to use similar techniques to regulate the <em>weights</em>.
+        This series proceeds in three parts:
+        </p>
+        <ul>
+            <li><a href="/writing/muon-1" class="chapter-link no-block">Chapter 1: Into the Matrix <span style="color: #666;">(speedy Muon explainer based on common confusion points)</span></a></li>
+            <li><a href="/writing/muon-2" class="chapter-link no-block">Chapter 2: Source Code <span style="color: #666;">(annotated PyTorch implementation + hyperparameter advice)</span></a></li>
+            <li><a href="/writing/muon-3" class="chapter-link no-block">Chapter 3: Weight Regulation <span style="color: #666;">(discussion of MuonClip, our work, and future directions)</span></a></li>
+        </ul>
+
+        By the end we will see why
+        <a href="https://kexue.fm/archives/11126" class="citation">Jianlin Su's recent blog on QK-clip</a>
+        deserves its praise, and why direct, designed weight constraints may be able to guarantee stable training.
+        If you're interested, check out our new paper about training transformers with weight constraints. We compare old and new methods and show we can train
+        a 145M parameter transformer with zero usual stability techniques such as layer norm, QK norm, and
+        logit softcapping.
+
+        <a href="https://arxiv.org/abs/2507.13338" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(186, 233, 255, 0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+            <span>Check out the paper (joint with fantastic collaborators)</span>
+            <span style="font-size: 1.1em; transition: transform 0.2s ease;">→</span>
+        </a>
+
+        <p>Now let's dive in... to the Matrix. (Or click to <span id="toggle-resources" style="color: #007bff; text-decoration: underline; cursor: pointer;">expand</span> other resources on Muon.)</p>
+
+        <div id="resources-content" style="display: none; background: rgba(64, 64, 64, 0.1); color: #444; border-radius: 8px; padding: 1.2em; margin: 1em 0; font-size: 0.95em; line-height: 1.6;">
+            <p style="margin:dd 0 0 1em 0;"><strong>Muon is a community effort</strong></p>
+            <ul>
+                <li><a href="https://jeremybernste.in/writing/deriving-muon" target="_blank" rel="noopener noreferrer" class="citation">"Deriving Muon" by Jeremy Bernstein (why Muon is the way it is)</a></li>
+                <li><a href="https://kexue.fm/archives/10739" target="_blank" rel="noopener noreferrer" class="citation">"Why we chose Muon" by Jianlin Su (more philosophical focus)</a></li>
+                <li><a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer" class="citation">"Muon" by Keller Jordan et al. (more speedrun focus)</a></li>
+            </ul>
+            <p>
+                Our series here is inspired by all three sources above.
+                In addition, this series is about my master's research this year at MIT.
+                Tracing Muon's scholarly history has many branches, including
+                <a href="https://arxiv.org/abs/1802.09568" target="_blank" rel="noopener noreferrer" class="citation">Shampoo</a>,
+                <a href="https://proceedings.mlr.press/v38/carlson15.pdf" target="_blank" rel="noopener noreferrer" class="citation">spectral descent</a>, 
+                and <a href="https://arxiv.org/pdf/1708.00523" target="_blank" rel="noopener noreferrer" class="citation">duality descent</a>
+                all pre-2020. Jeremy Bernstein picked up with his
+                <a href="https://arxiv.org/abs/2210.10101" target="_blank" rel="noopener noreferrer" class="citation">PhD thesis</a>,
+                <a href="https://arxiv.org/abs/2310.17813" target="_blank" rel="noopener noreferrer" class="citation">spectral norm work</a>,
+                and <a href="https://arxiv.org/abs/2405.14813" target="_blank" rel="noopener noreferrer" class="citation">modular norm work</a>,
+                which led to the <a href="https://arxiv.org/abs/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">optimizer anthology</a>
+                that we wrote together. The anthology proposed an efficient Newton-Schulz
+                iteration for setting singular values to 1. The iteration inspired Keller Jordan to
+                try the resulting optimizer on two competitive benchmarks, 
+                <a href="https://github.com/KellerJordan/cifar10-airbench" target="_blank" rel="noopener noreferrer" class="citation">CIFAR-10 speedrun</a>
+                and <a href="https://github.com/KellerJordan/modded-nanogpt"  target="_blank" rel="noopener noreferrer" class="citation">NanoGPT speedrun</a>.
+            </p>
+
+            <p>My MIT master's thesis (May 2025) is also designed to teach Muon. Its three chapters loosely reflect the three chapters here but are more detailed: intro to Muon, mechanics of Muon, and then weight constraints.</p>
+
+            <a href="/thesis.pdf" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(208, 255, 177, 0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+                <span>Check out my thesis</span>
+                <span style="font-size: 1.1em; transition: transform 0.2s ease;">→</span>
+            </a>
+        </div>
+
+        <script>
+            document.getElementById('toggle-resources').addEventListener('click', function() {
+                const content = document.getElementById('resources-content');
+                const toggle = document.getElementById('toggle-resources');
+                
+                if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    toggle.textContent = 'collapse';
+                } else {
+                    content.style.display = 'none';
+                    toggle.textContent = 'expand';
+                }
+            });
+        </script>
+
+        <h3>Neo, The One</h3>
         <p>"You take the blue pill? The story ends, and you believe that a gradient's entries are unrelated numbers."</p>
         <p>"You take the red pill? You stay in Wonderland, and I show you how deep the rabbit hole goes."</p>
-        <p>A neural network does matrix multiplications (lots of them). Therefore Muon sees the gradients as matrices, unlike Adam which treats every parameter independently. And in the Matrix, there is a lot more you can do.</p>
-        <h3>Neo, The One</h3>
-        <p>Optimizers are constantly struggling against the <em>fundamental tension</em>: they want the loss to go down far, but the model's gradient is only accurate exactly where it is measured. To step a finite distance is always a leap of faith.</p>
-        <p>And when making that leap, it's not clear how to interpret how big the gradient is.</p>
-        <p>If the gradient is 10x as large, should we step 10x as far?</p>
-        <p>Quite the opposite. If the loss were $y=(x/100)^2$, the gradients would be small, but the model should take big steps. If the loss were $y=(100x)^2$, the gradients would be big, but the model should take small steps.</p>
-        <p>Many optimizers resolve this tension with some form of the following medicine: no matter how giant or tiny the gradient is, move a fixed distance of one. Move in the direction of the gradient, but do not listen to its size.</p>
+
+        <p>Let's start with a thought experiment. If the gradient is 10x as large, should an optimizer step 10x as far?</p>
+        <p>Almost the opposite:</p>
+        <ul>
+            <li>If the loss is $y=(x/100)^2$, the gradients are small, but the model should take big steps.</li>
+            <li>If the loss is $y=(100x)^2$, the gradients are big, but the model should take small steps.</li>
+        </ul>
+
+        <!--
+            Want weight and update to be on the same scale.
+            Weights cause feature change proportionally to ||W||.
+            Regard (1, 1, 1) and (1, ..., 1) as the same size.
+            Need to know how big a matrix update is. For that need to see beyond the individual entries.
+        -->
+
+        <p>As a preview of what is to come, many optimizers therefore take some form of the following advice:</p>
+        <p style="text-align: center;">"No matter how giant or tiny the gradient is, move a fixed distance of one."</p>
         <!-- <p>The optimizer wishes it could step forever toward the gradient. Self-denial strengthens the optimizer.</p> -->
-        <p>The elementwise optimizers have a limited menu for how to take this medicine. The simplest way is SignSGD:</p>
+        <p>But elementwise optimizers have a limited menu for how to take this advice. The simplest way is SignSGD:</p>
         <ul>
             <li>Instead of SGD: $W_{n+1} = W_n - \eta \cdot G_{n+1}$</li>
             <li>Do SignSGD: $W_{n+1} = W_n - \eta \cdot \text{sign}(G_{n+1})$</li>
         </ul>
-        <p>where $\eta > 0$ is the leap-of-faith parameter (commonly known as the learning rate).</p>
+        <p>where $\eta > 0$ is the learning rate. SignSGD turns every number in the gradient into either $1$ or $-1$.</p>
         <!-- <p>The Lion optimizer is very nearly SignSGD with momentum, to smooth out the gradient estimate.</p> -->
-        <p>The Adam optimizer—king of the realm—reduces to SignSGD when its momentum is turned off. In its general form,
-        Adam tracks two momentum buffers with different time scales. Its updates are akin to $\frac{G}{\sqrt{G^2}} \approx \text{sign}(G)$,
-        and its update entries hover near the golden compromise of One.</p>
-        <p>But Muon... he has entered the Matrix. He does not see entries of a matrix. He sees the matrix itself.</p>
+        <p>
+            The Adam optimizer actually reduces to SignSGD when its momentum is turned off
+            <a href="https://arxiv.org/pdf/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">(Anthology, Story 1)</a>.
+            With momentum on, Adam's updates are still akin to $\frac{G}{\sqrt{G^2}} \approx \text{sign}(G)$,
+            and each <em>entry</em> of its updates hovers near one.
+        </p>
+        <p>But Muon... it has entered the Matrix. It does not see <em>entries</em> of a gradient matrix. It sees the matrix itself.</p>
+        <p>And that will be very useful so that Muon can exploit a more sophisticated way to measure "distance one."</p>
+
+        <!-- <p>A neural network does matrix multiplications (lots of them). Therefore Muon sees the gradients as matrices, unlike Adam which treats every parameter independently. And in the Matrix, there is a lot more you can do.</p> -->
+
+        <h3>The Fundamental Tension</h3>
+
+        <p>"When I made the Matrix, I did not force it to choose a measure of size," began the Architect. "I was idealistic then. So for you I chose a norm $\| \cdot \| : \mathbb{R}^{n \times m} \to \mathbb{R}$, and it is how you came to be."
+
+        <img src="/assets/writing/muon/architect.jpg" alt="The Architect" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
+
+        <p>Why is distance one a good compromise? Because optimizers are constantly struggling against the <em>fundamental tension</em>: they want the loss to go down far, but they don't want to disturb the model's output too much; the gradient is only accurate exactly where it is measured. To step a finite distance is always a leap of faith.</p>
+        <p>But how should we measure how far we are leaping? This is a question Muon innovates on.</p>
+        <p>Suppose we have single linear layer, $y = Wx$. If we update the weights to be $W + \Delta W$, then how much can the output $y$ change? We'd like a measure of size called $\| \Delta W \|$ where we'd know that $\| y \|$ wouldn't change by more than $\| \Delta W \| \| x \|$. Then even though we actually care about controlling output change, we could get away with controlling the weight update size. So we would arrive at our compromise:</p>
+
+        <p>$$\underset{\Delta W \text{ s.t. } \| \Delta W \| \leq 1}{\text{argmin}} \langle G, \Delta W \rangle.$$</p>
+
+        <p>The compromise says to maximize the alignment between the gradient $G$ and the weight update $\Delta W$, but not step farther than distance one. Otherwise the argmin would flee forever away like $\Delta W = -c \cdot G$ as $c \rightarrow \infty$.</p>
+
+        <p>But what is the size $\| \Delta W \|$?</p>
+
+        <p>To see, forget that a matrix is made of numbers. Forget that a matrix is called a matrix.</p>
+        <p>A linear transformation is all there is, $A : \mathbb{R}^{d_\text{in}} \to \mathbb{R}^{d_\text{out}}$. The transformation sends vectors to vectors.</p>
+        <p>Its inputs are lists of numbers, and we'd like to measure $(\pm 1, \dots, \pm 1)$ as size $1$ no matter how long it is. That's because we'd like activations in our neural network to have entries approximately $1$ or $-1$. It's what $\mu\text{P}$ recommends for consistent dimension scaling, and it's the most expressive range for floating point numbers.</p>
+        <p>But the regular $\ell_2$ norm $\| v \|_2^2 = v_1^2 + \cdots + v_n^2$ will not do, because it judges all-ones vectors differently depending on dimension. Instead we use the root-mean-square norm $\| v \|_\text{RMS}^2 = \tfrac{1}{d} (v_1^2 + \cdots + v_n^2)$.</p>
+        <p>How much can $A$ change vectors? The linear transformation replies it will take all vectors $v$ with $\| v \|_\text{RMS} = 1$, and it will bend this sphere into an oblong shape. Whichever vector is sent farthest away, its size will be $A$'s size: $$\| A \|_{\text{RMS} \rightarrow \text{RMS}} := \underset{v : \| v \|_\text{RMS} = 1}{\max} \| A v \|_\text{RMS}.$$</p>
+        <p>This measure is the $\text{RMS}$ to $\text{RMS}$ norm, the maximum stretch that the $\text{RMS}$ norm can detect. It is closely related to the spectral norm, which measures matrix size in terms of the $\ell_2$ norm: $$\| A \|_{\text{RMS} \rightarrow \text{RMS}} = \sqrt{\frac{d_\text{in}}{d_\text{out}}} \| A \|_{\ell_2 \rightarrow \ell_2}.$$</p>
+        <p>For an optimizer to scale dimension-independently, it recovers $\mu \text{P}$ to initialize with $\| W \|_{\text{RMS} \rightarrow \text{RMS}} = 1$. Then $\mu\text{P}$ recommends that the update scale match the weight scale (prior to scaling by the learning rate $\eta > 0$). So we arrive back to our compromise, armed with a specific norm. But what actually is</p>
+
+        <p>$$\underset{\Delta W \text{ s.t. } \| \Delta W \|_{\text{RMS} \rightarrow \text{RMS}} \leq 1}{\text{argmin}} \langle G, \Delta W \rangle?$$</p>
+
+        <h3>Bend the Singular Values</h3>
+
+        <p>The bald boy said, "Do not try to bend the singular values, that's impossible. The direct SVD calculation $$G = U \Sigma V^T \mapsto U f(\Sigma) V^T$$ to send every singular value $\sigma \mapsto f(\sigma)$ doesn't parallelize well on a GPU. Instead, only try to realize the truth... you don't need to see the singular values to bend them. Do you recall what singular values are?"</p>
+
+        <img src="/assets/writing/muon/spoon.jpg" alt="Spoon" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
+
+        <p>The boy explains that every matrix $G \in \mathbb{R}^{d_\text{out} \times d_\text{in}}$ has a singular value decomposition $G = U \Sigma V^T$, where $U$ and $V$ are orthogonal—meaning they preserve a vector's norm—and $\Sigma$ is diagonal with nonnegative entries $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_n \geq 0$, called the singular values. The spectral norm of $G$ is its largest singular value $\sigma_1$.
+        <p>Another way to see it is we can write $G = \sum_k \sigma_k u_k v_k^T$ where $u_k$ and $v_k$ are orthonormal vectors. Then</p>
+        <p>$$\underset{\| \Delta W \|_{\ell_2 \rightarrow \ell_2} \leq 1}{\text{argmin}} \langle G, \Delta W \rangle = \underset{\| \Delta W \|_{\ell_2 \rightarrow \ell_2} \leq 1}{\text{argmin}} \sum_k \sigma_k (u_k^T \Delta W v_k).$$</p>
+        <p>We can solve each singular vector pair independently because they are orthogonal. Since $\Delta W$'s singular values can't exceed $1$, we use up the budget: set all singular values to $1$. In other words, the solution is $\Delta W = U V^T$ if $G = U \Sigma V^T$. This operation is called <em>orthogonalizing</em>. Finally we multiply by $\sqrt{d_\text{out} / d_\text{in}}$ to recover dimension-independence from the $\text{RMS}$ to $\text{RMS}$ norm. (More detail and full proof in <a href="https://arxiv.org/pdf/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">Anthology, Story 2</a>.)
+        <p>But how can we set singular values to $1$? Materializing the SVD isn't friendly to the GPU.</p>
+        <p>To bend singular values, there's a wonderful trick that Jeremy Bernstein devised in August 2024.</p>
+        <p>Cube it! Suddenly, the matrix bends but is still recognizable: $$G^3 := (GG^T)G = (U \Sigma V^T V \Sigma U^T) U \Sigma V^T = U \Sigma^3 V^T.$$</p>
+        <p>We can bend more odd powers, $G^{2k+1} = U \Sigma^{2k+1} V^T$. The odd powers commute straight into the singular values. We draw on linearity to form up a polynomial, $p(x) = ax + bx^3 + cx^5$, that bends singular values as directly as it bends a single number, without seeing a single one of them. So we do two things:</p>
+        <p>Divide the gradient by something certainly bigger than its largest singular value, say $\| G \|_F = \sqrt{\sum_{i,j} G_{ij}^2}$.</p>
+        <p>Then again and again and again apply $p(x) = \tfrac32 x - \tfrac12 x^3$ to push every number from $[0, \sqrt{3})$ toward $1$.</p>
+        
+        <div style="display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;">
+            <img src="/assets/writing/muon/simple.svg" alt="Simple" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
+            <img src="/assets/writing/muon/simple-iterated.svg" alt="Simple Iterated" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
+        </div>
+
+        <p>Faster iterations abound if we are willing to sacrifice convergence, like Muon's own $$p(x) = 3.4445x - 4.7750x^3 + 2.0315x^5.$$</p>
+        
+        <div style="display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;">
+            <img src="/assets/writing/muon/muon.svg" alt="Muon" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
+            <img src="/assets/writing/muon/muon-iterated.svg" alt="Muon Iterated" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
+        </div>
+
+        <p>So we've followed the gradient as far as it will go, but only stepping distance $1$. And the distance is fundamentally <em>matrix-based</em>. Controlling $\Delta W$ this way controls how much each optimizer update can affect the model output.</p>
+        <p>To recover Muon, we add back the smoothness of momentum, constructing $M_{n+1} = \beta M_n + (1 - \beta) G_{n+1}$ for some parameter $\beta$, typically $0.95$. Muon proposes its core update as orthogonalized momentum:</p>
+        <p>$$\Delta W_n = \sqrt{\frac{d_\text{out}}{d_\text{in}}} \text{orthogonalize}(M_n).$$</p>
+        <p>The spoon is bent without having even looked at it. In the next chapter, we'll go through Muon's PyTorch code line-by-line so that you can't get stuck understanding it. And we'll advise on learning rate and when to use Muon.</p>
+
         <a href="/writing/muon-2" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
-            <span>Chapter 2: The Architect</span>
+            <span>Chapter 2: Source Code</span>
             <span style="font-size: 1.1em; transition: transform 0.2s ease;">→</span>
         </a>
     </main>
