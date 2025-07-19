@@ -28,9 +28,6 @@
     <link rel="icon" href="/assets/writing/muon/favicon.png" type="image/png">
 </head>
 <body>
-    <!-- Mobile chapter toggle button -->
-    <button class="chapter-toggle" id="chapter-toggle">Chapters ☰</button>
-    
     <!-- Chapter Index Sidebar -->
     <div class="chapter-index" id="chapter-index">
         <h3>Understanding Muon</h3>
@@ -154,31 +151,6 @@
                     toggle.textContent = 'expand';
                 }
             });
-            
-            // Chapter index mobile toggle
-            document.getElementById('chapter-toggle').addEventListener('click', function() {
-                const chapterIndex = document.getElementById('chapter-index');
-                const toggleBtn = document.getElementById('chapter-toggle');
-                
-                if (chapterIndex.classList.contains('show')) {
-                    chapterIndex.classList.remove('show');
-                    toggleBtn.textContent = 'Chapters ☰';
-                } else {
-                    chapterIndex.classList.add('show');
-                    toggleBtn.textContent = 'Close ✕';
-                }
-            });
-            
-            // Close chapter index when clicking outside (mobile)
-            document.addEventListener('click', function(e) {
-                const chapterIndex = document.getElementById('chapter-index');
-                const toggleBtn = document.getElementById('chapter-toggle');
-                
-                if (!chapterIndex.contains(e.target) && e.target !== toggleBtn) {
-                    chapterIndex.classList.remove('show');
-                    toggleBtn.textContent = 'Chapters ☰';
-                }
-            });
         </script>
 
         <h3>Neo, The One</h3>
@@ -228,19 +200,19 @@
 
         <p>Why is distance one a good compromise? Because optimizers are constantly struggling against the <em>fundamental tension</em>: they want the loss to go down far, but they don't want to disturb the model's output too much; the gradient is only accurate exactly where it is measured. To step a finite distance is always a leap of faith.</p>
         <p>But how should we measure how far we are leaping? This is a question Muon innovates on.</p>
-        <p>Suppose we have single linear layer, $y = Wx$. If we update the weights to be $W + \Delta W$, then how much can the output $y$ change? We'd like a measure of size called $\| \Delta W \|$ where we'd know that $\| y \|$ wouldn't change by more than $\| \Delta W \| \| x \|$. Then even though we actually care about controlling output change, we could get away with controlling the weight update size. So we would arrive at our compromise:</p>
+        <p>Suppose we have single linear layer, $y = Wx$. If we update the weights to be $W + \Delta W$, then how much can the output $y$ change? We'd like a measure of size called $\| \Delta W \|$ where we'd know that $\| y \|$ wouldn't change by more than $\| \Delta W \| \| x \|$. Then even though we actually care about controlling output change, we could get away with controlling the weight update size. So we arrive at a compromise:</p>
 
         <p>$$\underset{\Delta W \text{ s.t. } \| \Delta W \| \leq 1}{\text{argmin}} \langle G, \Delta W \rangle.$$</p>
 
         <p>The compromise says to maximize the alignment between the gradient $G$ and the weight update $\Delta W$, but not step farther than distance one. Otherwise the argmin would flee forever away like $\Delta W = -c \cdot G$ as $c \rightarrow \infty$.</p>
 
-        <p>But what is the size $\| \Delta W \|$?</p>
+        <p>But how do we measure the size $\| \Delta W \|$?</p>
 
         <p>To see, forget that a matrix is made of numbers. Forget that a matrix is called a matrix.</p>
         <p>A linear transformation is all there is, $A : \mathbb{R}^{d_\text{in}} \to \mathbb{R}^{d_\text{out}}$. The transformation sends vectors to vectors.</p>
-        <p>Its inputs are lists of numbers, and we'd like to measure $(\pm 1, \dots, \pm 1)$ as size $1$ no matter how long it is. That's because we'd like activations in our neural network to have entries approximately $1$ or $-1$. It's what $\mu\text{P}$ recommends for consistent dimension scaling, and it's the most expressive range for floating point numbers.</p>
+        <p>Its inputs are lists of numbers, and we'd like to measure $(\pm 1, \dots, \pm 1)$ as size $1$ no matter how long the list is. That's because we'd like activations in our neural network to have entries approximately $1$ or $-1$. It's what $\mu\text{P}$ recommends for consistent dimension scaling, and it's the most expressive range for floating point numbers.</p>
         <p>But the regular $\ell_2$ norm $\| v \|_2^2 = v_1^2 + \cdots + v_n^2$ will not do, because it judges all-ones vectors differently depending on dimension. Instead we use the root-mean-square norm $\| v \|_\text{RMS}^2 = \tfrac{1}{d} (v_1^2 + \cdots + v_n^2)$.</p>
-        <p>How much can $A$ change vectors? The linear transformation replies it will take all vectors $v$ with $\| v \|_\text{RMS} = 1$, and it will bend this sphere into an oblong shape. Whichever vector is sent farthest away, its size will be $A$'s size: $$\| A \|_{\text{RMS} \rightarrow \text{RMS}} := \underset{v : \| v \|_\text{RMS} = 1}{\max} \| A v \|_\text{RMS}.$$</p>
+        <p>How much can $A$ change vectors? Imagine the linear transformation takes all vectors $v$ with $\| v \|_\text{RMS} = 1$, and it bends this sphere into an oblong shape. Whichever vector is sent farthest away, its size will be $A$'s size: $$\| A \|_{\text{RMS} \rightarrow \text{RMS}} := \underset{v : \| v \|_\text{RMS} = 1}{\max} \| A v \|_\text{RMS}.$$</p>
         <p>This measure is the $\text{RMS}$ to $\text{RMS}$ norm, the maximum stretch that the $\text{RMS}$ norm can detect. It is closely related to the spectral norm, which measures matrix size in terms of the $\ell_2$ norm: $$\| A \|_{\text{RMS} \rightarrow \text{RMS}} = \sqrt{\frac{d_\text{in}}{d_\text{out}}} \| A \|_{\ell_2 \rightarrow \ell_2}.$$</p>
         <p>For an optimizer to scale dimension-independently, $\mu \text{P}$ advocates initializing with $\| W \|_{\text{RMS} \rightarrow \text{RMS}} = 1$. Then $\mu\text{P}$ recommends that the update scale match the weight scale (prior to scaling by the learning rate $\eta > 0$). So we arrive back to our compromise, armed with a specific norm. But what is the solution to</p>
 
