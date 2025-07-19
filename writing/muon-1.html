@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Muon Chronicles</title>
+    <title>Understanding Muon</title>
     
     <!-- KaTeX for math rendering -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
@@ -148,10 +148,10 @@
                 
                 if (content.style.display === 'none') {
                     content.style.display = 'block';
-                    toggle.textContent = 'click here to collapse other excellent resources on Muon';
+                    toggle.textContent = 'collapse';
                 } else {
                     content.style.display = 'none';
-                    toggle.textContent = 'click here to expand other excellent resources on Muon';
+                    toggle.textContent = 'expand';
                 }
             });
             
@@ -242,7 +242,7 @@
         <p>But the regular $\ell_2$ norm $\| v \|_2^2 = v_1^2 + \cdots + v_n^2$ will not do, because it judges all-ones vectors differently depending on dimension. Instead we use the root-mean-square norm $\| v \|_\text{RMS}^2 = \tfrac{1}{d} (v_1^2 + \cdots + v_n^2)$.</p>
         <p>How much can $A$ change vectors? The linear transformation replies it will take all vectors $v$ with $\| v \|_\text{RMS} = 1$, and it will bend this sphere into an oblong shape. Whichever vector is sent farthest away, its size will be $A$'s size: $$\| A \|_{\text{RMS} \rightarrow \text{RMS}} := \underset{v : \| v \|_\text{RMS} = 1}{\max} \| A v \|_\text{RMS}.$$</p>
         <p>This measure is the $\text{RMS}$ to $\text{RMS}$ norm, the maximum stretch that the $\text{RMS}$ norm can detect. It is closely related to the spectral norm, which measures matrix size in terms of the $\ell_2$ norm: $$\| A \|_{\text{RMS} \rightarrow \text{RMS}} = \sqrt{\frac{d_\text{in}}{d_\text{out}}} \| A \|_{\ell_2 \rightarrow \ell_2}.$$</p>
-        <p>For an optimizer to scale dimension-independently, it recovers $\mu \text{P}$ to initialize with $\| W \|_{\text{RMS} \rightarrow \text{RMS}} = 1$. Then $\mu\text{P}$ recommends that the update scale match the weight scale (prior to scaling by the learning rate $\eta > 0$). So we arrive back to our compromise, armed with a specific norm. But what actually is</p>
+        <p>For an optimizer to scale dimension-independently, $\mu \text{P}$ advocates initializing with $\| W \|_{\text{RMS} \rightarrow \text{RMS}} = 1$. Then $\mu\text{P}$ recommends that the update scale match the weight scale (prior to scaling by the learning rate $\eta > 0$). So we arrive back to our compromise, armed with a specific norm. But what is the solution to</p>
 
         <p>$$\underset{\Delta W \text{ s.t. } \| \Delta W \|_{\text{RMS} \rightarrow \text{RMS}} \leq 1}{\text{argmin}} \langle G, \Delta W \rangle?$$</p>
 
@@ -255,7 +255,7 @@
         <p>The boy explains that every matrix $G \in \mathbb{R}^{d_\text{out} \times d_\text{in}}$ has a singular value decomposition $G = U \Sigma V^T$, where $U$ and $V$ are orthogonal—meaning they preserve a vector's norm—and $\Sigma$ is diagonal with nonnegative entries $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_n \geq 0$, called the singular values. The spectral norm of $G$ is its largest singular value $\sigma_1$.
         <p>Another way to see it is we can write $G = \sum_k \sigma_k u_k v_k^T$ where $u_k$ and $v_k$ are orthonormal vectors. Then</p>
         <p>$$\underset{\| \Delta W \|_{\ell_2 \rightarrow \ell_2} \leq 1}{\text{argmin}} \langle G, \Delta W \rangle = \underset{\| \Delta W \|_{\ell_2 \rightarrow \ell_2} \leq 1}{\text{argmin}} \sum_k \sigma_k (u_k^T \Delta W v_k).$$</p>
-        <p>We can solve each singular vector pair independently because they are orthogonal. Since $\Delta W$'s singular values can't exceed $1$, we use up the budget: set all singular values to $1$. In other words, the solution is $\Delta W = U V^T$ if $G = U \Sigma V^T$. This operation is called <em>orthogonalizing</em>. Finally we multiply by $\sqrt{d_\text{out} / d_\text{in}}$ to recover dimension-independence from the $\text{RMS}$ to $\text{RMS}$ norm. (More detail and full proof in <a href="https://arxiv.org/pdf/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">Anthology, Story 2</a>.)
+        <p>We can argmin each singular vector pair independently because they are orthogonal. Since $\Delta W$'s singular values can't exceed $1$, we use up the budget: set all singular values to $1$. In other words, the solution is $\Delta W = U V^T$ if $G = U \Sigma V^T$. This operation is called <em>orthogonalizing</em>. Finally we multiply by $\sqrt{d_\text{out} / d_\text{in}}$ to recover dimension-independence from the $\text{RMS}$ to $\text{RMS}$ norm. (More detail and full proof in <a href="https://arxiv.org/pdf/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">Anthology, Story 2</a>.)
         <p>But how can we set singular values to $1$? Materializing the SVD isn't friendly to the GPU.</p>
         <p>To bend singular values, there's a wonderful trick that Jeremy Bernstein devised in August 2024.</p>
         <p>Cube it! Suddenly, the matrix bends but is still recognizable: $$G^3 := (GG^T)G = (U \Sigma V^T V \Sigma U^T) U \Sigma V^T = U \Sigma^3 V^T.$$</p>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Muon Chronicles</title>
+    <title>Understanding Muon</title>
     
     <!-- KaTeX for math rendering -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
@@ -91,22 +91,22 @@
 </head>
 <body>
     <!-- Chapter Index Sidebar -->
-    <div class="chapter-index">
-        <h3>Muon and Beyond</h3>
+    <div class="chapter-index" id="chapter-index">
+        <h3>Understanding Muon</h3>
         
         <div class="chapter-item">
-            <a href="/writing/muon-1" class="chapter-link">Chapter 1: Into the Matrix</a>
-            <span class="chapter-description">The gradient is not a vector</span>
+            <a href="/writing/muon-1" class="chapter-link current">Chapter 1: Into the Matrix</a>
+            <span class="chapter-description">Speedy and fun Muon explainer</span>
         </div>
         
         <div class="chapter-item">
             <a href="/writing/muon-2" class="chapter-link">Chapter 2: Source Code</a>
-            <span class="chapter-description">An annotated implementation, line-by-line</span>
+            <span class="chapter-description">Annotated PyTorch implementation</span>
         </div>
         
         <div class="chapter-item">
             <a href="/writing/muon-3" class="chapter-link">Chapter 3: Constrain Weights</a>
-            <span class="chapter-description">Beyond weight decay, but needed</span>
+            <span class="chapter-description">Our work, and future directions</span>
         </div>
     </div>
 
@@ -119,11 +119,11 @@
         </nav>
     </header>
     <main>
-        <h2 style="margin: 0;">The Muon Chronicles</h2>
+        <h2 style="margin: 0;">Understanding Muon</h2>
         <h2 style="margin: 0;">Chapter 2: The Source Code</h2>
         <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
     </main>
-    <p>Some of Muon's code can appear puzzling, like the magic numbers $(3.4445, -4.7750, 2.0315)$ in Newton-Schulz. No more puzzling: we'll go through the code with line-by-line annotations, including pictures. Afterwards we'll discuss how you can use Muon to get ~1.5x speedups without headaches.</p>
+    <p>Some of Muon's code can appear puzzling, like the magic numbers $(3.4445, -4.7750, 2.0315)$ in Newton-Schulz. No more being confused: we'll go through the code with line-by-line annotations, including pictures. Afterwards we'll discuss how you can use Muon to get ~1.5x speedups without headaches.</p>
     
     <p><em>Mouse over the highlights to see explanations.</em></p>
     <pre><code class="language-python" id="muon-code">import torch
@@ -253,6 +253,12 @@ class Muon(torch.optim.Optimizer):
                 Muon and Adam is a good default (e.g.,
                 <a href="https://arxiv.org/pdf/2502.16982" target="_blank" rel="noopener noreferrer">Appendix A of Moonlight</a>
                 or <a href="https://arxiv.org/pdf/2504.05295" target="_blank" rel="noopener noreferrer">Appendix D of Dion</a>).
+
+                <br>
+                <br>
+                <strong>vvvvv  INCOMPLETE AFTER THIS POINT  vvvvv</strong>
+                <br>
+
                 <br>
                 You can run this experiment at home: Adam's RMS norm averaged over 10k steps
                 of random gradients for $\beta_1 = 0.9$ and $\beta_2 = 0.95$ is around $0.22$.
