@@ -23,11 +23,17 @@
     <link rel="stylesheet" href="/css/normalize.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/muon/sidebar.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/assets/writing/muon/favicon.png" type="image/png">
 </head>
 <body>
+    <!-- Mobile chapter toggle button -->
+    <button class="chapter-toggle" id="chapter-toggle">Chapters ☰</button>
+    
     <!-- Chapter Index Sidebar -->
-    <div class="chapter-index">
-        <h3>Muon and Beyond</h3>
+    <div class="chapter-index" id="chapter-index">
+        <h3>Understanding Muon</h3>
         
         <div class="chapter-item">
             <a href="/writing/muon-1" class="chapter-link current">Chapter 1: Into the Matrix</a>
@@ -54,7 +60,7 @@
         </nav>
     </header>
     <main>
-        <h2 style="margin: 0;">Muon and Beyond</h2>
+        <h2 style="margin: 0;">Understanding Muon</h2>
         <h2 style="margin: 0;">Chapter 1: Into the Matrix</h2>
         <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
 
@@ -62,19 +68,21 @@
 
         <img src="/assets/writing/muon/morpheus.jpg" alt="Muon" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
 
+        <!--
         <p>We have seen
         <a href="https://x.com/Kimi_Moonshot/status/1897929976948965870" target="_blank" rel="noopener noreferrer" class="citation">a</a>
         <a href="https://arxiv.org/pdf/2505.02222" target="_blank" rel="noopener noreferrer" class="citation">lot</a>
         <a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer" class="citation">of</a>
         <a href="https://x.com/soumithchintala/status/1945297225988354315" target="_blank" rel="noopener noreferrer" class="citation">appreciation</a>
-        for the Muon optimizer
-        and, recently, excitement that it's been scaled up to training a
+        for the Muon optimizer,
+        and excitement that it's been scaled up to training a
         <a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer" class="citation">1T parameter model</a>.
-        So a lot of people are learning about Muon for the first time.
-        The first goal of this series is to be a useful guide for everyone who is getting started using Muon.
+        -->
+        A lot of people are learning about Muon for the first time.
+        The first goal of this series is to be a useful guide for those people. <!-- getting started with Muon. -->
         But I also think it's a good time to remind ourselves what are the fundamental
-        questions Muon tries to solve, and which ones are still unanswered? We wanted
-        1) fast and 2) scalable training.
+        questions Muon tries to solve, and which ones are still unanswered?
+        <!-- We wanted 1) fast and 2) scalable training. -->
         I want to argue that Muon is only half the picture: not only should we develop
         good ways to regulate <em>gradients</em>, but there is now an opportunity
         to use similar techniques to regulate the <em>weights</em>.
@@ -82,16 +90,15 @@
         </p>
         <ul>
             <li><a href="/writing/muon-1" class="chapter-link no-block">Chapter 1: Into the Matrix <span style="color: #666;">(speedy Muon explainer based on common confusion points)</span></a></li>
-            <li><a href="/writing/muon-2" class="chapter-link no-block">Chapter 2: Source Code <span style="color: #666;">(annotated PyTorch implementation + hyperparameter advice)</span></a></li>
-            <li><a href="/writing/muon-3" class="chapter-link no-block">Chapter 3: Weight Regulation <span style="color: #666;">(discussion of MuonClip, our work, and future directions)</span></a></li>
+            <li><a href="/writing/muon-2" class="chapter-link no-block">Chapter 2: The Source Code <span style="color: #666;">(annotated PyTorch implementation + usage advice)</span></a></li>
+            <li><a href="/writing/muon-3" class="chapter-link no-block">Chapter 3: Weight Regulation <span style="color: #666;">(MuonClip, our work, and future directions)</span></a></li>
         </ul>
 
         By the end we will see why
         <a href="https://kexue.fm/archives/11126" class="citation">Jianlin Su's recent blog on QK-clip</a>
-        deserves its praise, and why direct, designed weight constraints may be able to guarantee stable training.
-        If you're interested, check out our new paper about training transformers with weight constraints. We compare old and new methods and show we can train
-        a 145M parameter transformer with zero usual stability techniques such as layer norm, QK norm, and
-        logit softcapping.
+        deserves its praise, and why I'm excited about direct, designed weight constraints to guarantee stable training.
+        If you're interested, check out our new paper where we spectrally regulate the weights, which allows us to
+        train performant transformers with zero usual stability techniques such as layer norm, QK norm, and logit softcapping.
 
         <a href="https://arxiv.org/abs/2507.13338" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(186, 233, 255, 0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
             <span>Check out the paper (joint with fantastic collaborators)</span>
@@ -141,10 +148,35 @@
                 
                 if (content.style.display === 'none') {
                     content.style.display = 'block';
-                    toggle.textContent = 'collapse';
+                    toggle.textContent = 'click here to collapse other excellent resources on Muon';
                 } else {
                     content.style.display = 'none';
-                    toggle.textContent = 'expand';
+                    toggle.textContent = 'click here to expand other excellent resources on Muon';
+                }
+            });
+            
+            // Chapter index mobile toggle
+            document.getElementById('chapter-toggle').addEventListener('click', function() {
+                const chapterIndex = document.getElementById('chapter-index');
+                const toggleBtn = document.getElementById('chapter-toggle');
+                
+                if (chapterIndex.classList.contains('show')) {
+                    chapterIndex.classList.remove('show');
+                    toggleBtn.textContent = 'Chapters ☰';
+                } else {
+                    chapterIndex.classList.add('show');
+                    toggleBtn.textContent = 'Close ✕';
+                }
+            });
+            
+            // Close chapter index when clicking outside (mobile)
+            document.addEventListener('click', function(e) {
+                const chapterIndex = document.getElementById('chapter-index');
+                const toggleBtn = document.getElementById('chapter-toggle');
+                
+                if (!chapterIndex.contains(e.target) && e.target !== toggleBtn) {
+                    chapterIndex.classList.remove('show');
+                    toggleBtn.textContent = 'Chapters ☰';
                 }
             });
         </script>

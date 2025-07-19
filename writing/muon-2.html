@@ -9,6 +9,11 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
 	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+    
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/styles/line-numbers.min.css">
+    
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             renderMathInElement(document.body, {
@@ -22,8 +27,89 @@
     
     <link rel="stylesheet" href="/css/normalize.css">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/muon/sidebar.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/assets/writing/muon/favicon.png" type="image/png">
+    
+    <style>
+        /* Ensure code block doesn't overflow */
+        pre code {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        
+        /* Annotation styles */
+        pre {
+            position: relative;
+        }
+
+        .annotation-popup {
+            position: absolute;
+            background: #f5f5f5;
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            display: none;
+            z-index: 9999;
+            white-space: pre-wrap;
+            max-width: 300px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            border: 1px solid #ddd;
+        }
+
+        .annotated-block {
+            display: inline;
+            cursor: help;
+            border-radius: 3px;
+            padding: 1px 2px;
+            margin: 0 1px;
+            transition: background-color 0.2s ease;
+            background: rgba(255, 235, 59, 0.2);
+        }
+
+        .annotated-block:hover {
+            background: rgba(255, 235, 59, 0.4) !important;
+        }
+        
+        /* Make sure annotations work well with Highlight.js */
+        .hljs .annotated-block {
+            background: rgba(255, 235, 59, 0.6);
+        }
+        
+        .hljs .annotated-block:hover {
+            background: rgba(255, 235, 59, 1.0) !important;
+        }
+        
+        /* Add padding to line numbers column */
+        .hljs-ln-numbers {
+            padding-right: 12px !important;
+        }
+    </style>
 </head>
 <body>
+    <!-- Chapter Index Sidebar -->
+    <div class="chapter-index">
+        <h3>Muon and Beyond</h3>
+        
+        <div class="chapter-item">
+            <a href="/writing/muon-1" class="chapter-link">Chapter 1: Into the Matrix</a>
+            <span class="chapter-description">The gradient is not a vector</span>
+        </div>
+        
+        <div class="chapter-item">
+            <a href="/writing/muon-2" class="chapter-link">Chapter 2: Source Code</a>
+            <span class="chapter-description">An annotated implementation, line-by-line</span>
+        </div>
+        
+        <div class="chapter-item">
+            <a href="/writing/muon-3" class="chapter-link">Chapter 3: Constrain Weights</a>
+            <span class="chapter-description">Beyond weight decay, but needed</span>
+        </div>
+    </div>
+
     <header>
         <nav>
             <h3><a href="/" style="font-size: 1.4rem; color: #333; text-decoration: none;">Laker Newhouse</a></h3>
@@ -34,34 +120,324 @@
     </header>
     <main>
         <h2 style="margin: 0;">The Muon Chronicles</h2>
-        <h2 style="margin: 0;">Chapter 2: The Architect</h2>
+        <h2 style="margin: 0;">Chapter 2: The Source Code</h2>
         <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
-        <p>"Why am I here?" asked Muon.</p>
-        <p>"Your life is a balance," began the Architect. "You saw the gradient of a model, yet you did not know how far to pursue it. Your learning rate was only part of the answer, because you did not understand how to measure how far you had gone."</p>
-        <p>"You haven't answered my question," said Muon.</p>
-        <p>"Quite right. Interesting. That was quicker than the others," said the Architect. "When I made the Matrix, I did not force it to choose a measure of size, a norm $\| \cdot \| : \mathbb{R}^{n \times m} \to \mathbb{R}$. I was idealistic then. Soon I will tell you about the norm for which you were born. But first let me show you how you came to be."</p>
-
-        <img src="/assets/writing/muon/architect.jpg" alt="The Architect" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
-
-        <p>"I wished to decrease the loss of a machine learning model," said the Architect. "I imagined the model was a single layer, $y = Wx$. If I updated the weight to be $W + \Delta W$, then the output $y$—a logit of language, or a video frame—cannot change its norm by more than $\| \Delta W \| \| x \|$. The subadditivity of norms guarantees it."</p>
-        <p>"The loss cannot spike when the output cannot spike. That is why you appeared. Your role was always as a diplomat between man and machine. At every instant, you were meant to broker a compromise: $$\underset{\Delta W \text{ s.t. } \| \Delta W \| \leq 1}{\text{argmin}} \langle G, \Delta W \rangle.$$</p>
-        <p>"The gradient wished for you to flee forever away, maximizing the alignment with $\Delta W = -c \cdot G$ as $c \rightarrow \infty$. But such excess would not do. The constraint demanded compromise, a choice of unit size for some size $\| \cdot \|$."</p>
-        <p>"You are The One. You knew to step always a unit distance, or else the learning rate $\eta > 0$ the humans desired."</p>
-        <p>"But you could not yet see. Now let me help you see."</p>
-        <h3>The Spectral Norm</h3>
-        <p>The Architect waved, and a whiteboard appeared. He began to speak.</p>
-        <p>Forget that a matrix is made of numbers. Forget that a matrix is called a matrix.</p>
-        <p>A linear transformation is all we shall speak of, $A : \mathbb{R}^{d_\text{in}} \to \mathbb{R}^{d_\text{out}}$. The transformation sends vectors to vectors.</p>
-        <p>Its inputs are lists of numbers, and the lists were enlightened. They knew to regard $(1, 1, 1)$ and $(1, 1, 1, \dots, 1)$ as the same size. The usual $\ell_2$ norm $\| v \|_2^2 = v_1^2 + \cdots + v_n^2$ would not do, because it would judge them differently. Instead the lists listened to the root-mean-square norm $\| v \|_\text{RMS}^2 = \tfrac{1}{d} (v_1^2 + \cdots + v_n^2)$.</p>
-        <p>The vectors asked $A$ how much it could change them. The linear transformation replied that it would take all vectors $v$ with $\| v \|_\text{RMS} = 1$, and it would bend the sphere into an oblong shape. Whichever vector was sent farthest away, its size would be $A$'s size: $\| A \|_{\text{RMS} \rightarrow \text{RMS}} = \underset{v : \| v \|_\text{RMS} = 1}{\max} \| A v \|_\text{RMS}$.</p>
-        <p>This measure is the $\text{RMS}$ to $\text{RMS}$ norm, the maximum stretch that the $\text{RMS}$ norm can detect. Its cousin, the $\ell_2$ to $\ell_2$ norm, often claims the name spectral norm, but it is prejudiced by dimension. Yet they are family: $$\| A \|_{\text{RMS} \rightarrow \text{RMS}} = \sqrt{\frac{d_\text{in}}{d_\text{out}}} \| A \|_{\ell_2 \rightarrow \ell_2}.$$</p>
-        <p>The $\text{RMS}$ to $\text{RMS}$ norm is not parochial, squinting or smiling depending on the vector dimension $d$. It has the blind eyes of justice. It was born to scale, from one dimension to ten thousand as the training run would require.</p>
-        <p>And the $\text{RMS}$ to $\text{RMS}$ norm is now your guide, boundary, and budget for how to change the model you seek to improve. For, the model transforms vectors into other vectors, and its loss cannot spike if its output cannot spike.</p>
-        <p>There was silence. Finally Muon asked, "But how am I to broker this compromise?"</p>
-        <a href="/writing/muon-3" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
-            <span>Chapter 3: Bend the Singular Values</span>
-            <span style="font-size: 1.1em; transition: transform 0.2s ease;">→</span>
-        </a>
     </main>
+    <p>Some of Muon's code can appear puzzling, like the magic numbers $(3.4445, -4.7750, 2.0315)$ in Newton-Schulz. No more puzzling: we'll go through the code with line-by-line annotations, including pictures. Afterwards we'll discuss how you can use Muon to get ~1.5x speedups without headaches.</p>
+    
+    <p><em>Mouse over the highlights to see explanations.</em></p>
+    <pre><code class="language-python" id="muon-code">import torch
+
+def set_all_singular_values_to_near_one(G, steps: int):
+    assert G.ndim >= 2
+    a, b, c = (3.4445, -4.7750,  2.0315)
+    X = G.bfloat16()
+    if G.size(-2) > G.size(-1):
+        X = X.mT
+
+    X = X / (X.norm(dim=(-2, -1), keepdim=True) + 1e-7)
+    for _ in range(steps):
+        A = X @ X.mT
+        B = b * A + c * A @ A
+        X = a * X + B @ X
+    
+    if G.size(-2) > G.size(-1):
+        X = X.mT
+    return X
+
+def muon_update(grad, momentum, beta=0.95, ns_steps=5, nesterov=True):
+    momentum.lerp_(grad, 1 - beta)
+    update = grad.lerp_(momentum, beta) if nesterov else momentum
+    update = set_all_singular_values_to_near_one(update, steps=ns_steps)
+    update *= (grad.size(-2) / grad.size(-1))**0.5
+    return update
+
+def adam_update(grad, buf1, buf2, step, betas, eps):
+    buf1.lerp_(grad, 1 - betas[0])
+    buf2.lerp_(grad.square(), 1 - betas[1])
+    buf1c = buf1 / (1 - betas[0]**step)
+    buf2c = buf2 / (1 - betas[1]**step)
+    return buf1c / (buf2c.sqrt() + eps)
+
+class Muon(torch.optim.Optimizer):
+    def __init__(self, param_groups):
+        for group in param_groups:
+            assert "use_muon" in group
+            if group["use_muon"]:
+                # defaults
+                group["lr"] = group.get("lr", 0.02)
+                group["momentum"] = group.get("momentum", 0.95)
+                group["weight_decay"] = group.get("weight_decay", 0)
+                assert set(group.keys()) == set(["params", "lr", "momentum", "weight_decay", "use_muon"])
+            else:
+                # defaults
+                group["lr"] = group.get("lr", 3e-4)
+                group["betas"] = group.get("betas", (0.9, 0.95))
+                group["eps"] = group.get("eps", 1e-10)
+                group["weight_decay"] = group.get("weight_decay", 0)
+                assert set(group.keys()) == set(["params", "lr", "betas", "eps", "weight_decay", "use_muon"])
+        super().__init__(param_groups, dict())
+
+    @torch.no_grad()
+    def step(self, closure=None):
+        loss = None
+        if closure is not None:
+            with torch.enable_grad():
+                loss = closure()
+
+        for group in self.param_groups:
+            if group["use_muon"]:
+                for p in group["params"]:
+                    if p.grad is None:
+                        p.grad = torch.zeros_like(p)
+                    state = self.state[p]
+                    if len(state) == 0:
+                        state["momentum_buffer"] = torch.zeros_like(p)
+                    update = muon_update(p.grad, state["momentum_buffer"], beta=group["momentum"])
+                    p.mul_(1 - group["lr"] * group["weight_decay"])
+                    p.add_(update, alpha=-group["lr"])
+            else:
+                for p in group["params"]:
+                    if p.grad is None:
+                        p.grad = torch.zeros_like(p)
+                    state = self.state[p]
+                    if len(state) == 0:
+                        state["exp_avg"] = torch.zeros_like(p)
+                        state["exp_avg_sq"] = torch.zeros_like(p)
+                        state["step"] = 0
+                    state["step"] += 1
+                    update = adam_update(p.grad, state["exp_avg"], state["exp_avg_sq"],
+                                        state["step"], group["betas"], group["eps"])
+                    p.mul_(1 - group["lr"] * group["weight_decay"])
+                    p.add_(update, alpha=-group["lr"])
+
+        return loss
+</code></pre>
+ 
+    <p>(<em>Implementation adapted from <a href="https://github.com/KellerJordan/Muon">Keller Jordan's GitHub</a></em>.)</p>
+
+    <p>Now that we have seen Muon's code, let's tackle some FAQs:</p>
+    <ol>
+        <li><strong>Which parameters should Muon optimize, and which should be left to AdamW?</strong>
+            <br>
+            <span style="color: #555;">
+                Muon is designed for parameters that map dense activations to dense activations—such
+                as the weight matrices in MLPs, attention $(Q, K, V, W)$, convolution kernels,
+                and the final layer of a diffusion model. These are 2D matrices with dense vectors
+                for both input and output. Muon is not designed for elementwise vector parameters
+                such as bias and layer norm scales, or the embedding matrix of a language model.
+                <br><br>
+                <em>Exercise 1: what's wrong with the parameter rule below?</em>
+                <pre><code class="language-python" id="muon-code">def is_muon_param_incorrect(p):
+    return p.ndim == 2
+                </code></pre>
+                <em>
+                    Solution 1: this rule could misinterpret 2D matrix parameters whose input/output
+                    norms aren't RMS, for example an LLM embedding matrix. Since Muon is
+                    designed for RMS norms, it may not perform well here.
+                </em>
+                <br><br>
+                <em>Exercise 2: does Muon make sense for the patch embedding matrix of a vision transformer?</em>
+                <br>
+                <em>Solution 2: likely yes, since images are dense vectors with entries $\approx 1$.</em>
+            </span>
+        </li>
+        <br>
+        <li><strong>Do Muon and Adam share the same learning rate?</strong>
+            <br>
+            <span style="color: #555;">
+                Not by default, but it's possible and here's how. The goal will be to match
+                the RMS norm of Adam's updates with the "RMS norm" of Muon's updates.
+                (Yes, we're stepping out the Matrix for a moment to view it as a vector.)
+                While not guaranteed to be optimal, using the same update scale for
+                Muon and Adam is a good default (e.g.,
+                <a href="https://arxiv.org/pdf/2502.16982" target="_blank" rel="noopener noreferrer">Appendix A of Moonlight</a>
+                or <a href="https://arxiv.org/pdf/2504.05295" target="_blank" rel="noopener noreferrer">Appendix D of Dion</a>).
+                <br>
+                You can run this experiment at home: Adam's RMS norm averaged over 10k steps
+                of random gradients for $\beta_1 = 0.9$ and $\beta_2 = 0.95$ is around $0.22$.
+                Therefofre
+            </span>
+        </li>
+        <br>
+        <li><strong>What are good default hyperparameters for Muon?</strong>
+            <br>
+            <span style="color: #555;">
+                Muon works well with a learning rate of 3e-4, $\beta_1 = 0.9$, and $\beta_2 = 0.95$. These values remain effective as model size increases, since Muon's update is dimensionless.
+            </span>
+        </li>
+    </ol>
+
+
+
+
+
+
+
+
+
+
+    <p>He was momentum gradient descent, but he set weight update singular values to 1.</p>
+    <p>But a confusion overcame Muon. Which parameters should he optimize, and which should he leave to AdamW?</p>
+    <p>"Many have wondered that," said the Architect, who had appeared in the room. "Remember why you were created. I made you to balance two vector spaces whose sizes are measured in the RMS norm. From dense activations to dense activations, those are the matrices I designed for you. The matrices of an MLP, or the $Q, K, V, W$ of attention, or the kernel of a convolution, or the final layer of a diffusion model, all of these matrices are your home, where the activations nearly look like $(\pm 1, \dots, \pm 1)$."</p>
+    <p>"Yet there are places you were not meant to go," continued the Architect. "Most of all, you do not fit with the elementwise vector parameters, like bias or layer norm scales. Those are for Adam, or for sign momentum descent such as Lion. Other matrices map one-hot tokens to dense activations—notably the embedding matrix of a language model. For these and logit unembeddings, have caution. The Matrix is not entirely yours, Muon."</p>
+    <p>Muon imagined code that could detect where he should be, but it was imperfect:</p>
+    <p>To achieve perfection, Muon needed to know more than a parameter's shape... he needed to know its purpose. A matrix was his to optimize if its purpose was to send dense activation vectors to dense activation vectors.</p>
+    <p>To achieve perfection, Muon desired a single learning rate to share between himself and Adam. To reach it he needed only one change: unembedding vectors should learn with a factor of $1/\sqrt{d_\text{in}}$ (<a href="https://arxiv.org/pdf/2504.05295" target="_blank" rel="noopener noreferrer">Appendix D of Dion</a>).</p>
+    <p>To achieve perfection, Muon wondered at the right hyperparameters. By removing the prejudice of dimension, his best learning rate stayed as the model grew. He swept it on a small model, and used $\beta_1 = 0.9$ and $\beta_2 = 0.95$.</p>
+    <p>To achieve perfection, Muon set out to test one final ingredient.</p>
+
+    <a href="/writing/muon-5" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+        <span>Chapter 5: Agent Smith</span>
+        <span style="font-size: 1.1em; transition: transform 0.2s ease;">→</span>
+    </a>
+
+    <!--
+    Talk about, briefly:
+    interlude: related work like the anthology and other reading goes here
+    -->
+
+    <div id="annotation" class="annotation-popup"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+    
+    <script>
+        // Annotation data - mapping text patterns to explanations
+        const simplePatterns = {
+            'set_all_singular_values_to_near_one': "Muon's core idea is to set gradient singular values to one. To do so it will iterate a polynomial five times:<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/muon.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/muon-iterated.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>This is a ~matrix-pilled~ resolution to the <em>fundamental tension</em>: the optimizer wants to follow the gradient forever, but it knows that the gradient is only valid exactly where it is measured. So Muon will step distance 1, no matter the size of the gradient.",
+            'X = G.bfloat16()': "We're going to compute a polynomial five times in a row on the gradient matrix $G$. It's numerically stable enough to use a lower precision data type like bfloat16 to speed it up, unlike computing $G^{-1/4}$ which the original Shampoo optimizer update required.",
+            'A = X @ X.mT': "Step 1. Compute $XX^T$ and save it for later.",
+            'B = b * A + c * A @ A': "Step 2. Compute $bX^2 + cX^4$, so that next line we can multiply by $X$ to get $bX^3 + cX^5$.",
+            'X = a * X + B @ X': "Step 3. Finish up computing $p(X) = aX + bX^3 + cX^5$. Remember what this looks like!<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/muon.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/muon-iterated.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>The big idea is we're sending all singular values to 1 in parallel, since odd polynomials commute into the singular value decomposition to act directly on the singular values, $p(G) = p(U \\Sigma V^T) = U p(\\Sigma) V^T$.",
+            'update = set_all_singular_values_to_near_one(update, steps=ns_steps)': "Muon's core operation: set the singular values of the update to 1!"
+        };
+        
+        // Complex patterns that span syntax-highlighted elements
+        const complexPatterns = {
+            'a, b, c = (3.4445, -4.7750,  2.0315)': "These are coefficients of the polynomial $p(x) = 3.4445x - 4.7750x^3 + 2.0315x^5$. This polynomial might look like black magic, but check out this Desmos graph:<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/muon.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/muon-iterated.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>That's what $p(x)$ looks like (left) and what $p(p(p(p(p(x)))))$ looks like (right). Applying $p(x)$ five times is a fast way to send all numbers $x$ to somewhere close to 1, hence (nearly) setting all singular values to 1.",
+            'X = X.mT': "This is a computational trick. We'll need to find $XX^T$, which has shape $(n, n)$ if $X$ has shape $(n, m)$. So if $n > m$, we switch them upfront so the inner calculations are smaller. We undo the transpose at the end. And X.mT just means batched transpose, where it will switch the last two dimensions.",
+            'X = X / (X.norm(dim=(-2, -1), keepdim=True) + 1e-7)': "Remember what the polynomial that we're applying to the singular values looks like?<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/muon.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/muon-iterated.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>It doesn't work past $x > 1$. To make sure it works, we first squash all the singular values to be less than 1. Here $\\text{X.norm()}$ is the Frobenius norm of X, $\\| X \\|_F = \\sqrt{\\sum_{i,j} X_{ij}^2}$. The Frobenius norm is always at least as big as the spectral norm, so now all singular values don't exceed 1.",
+            'momentum.lerp_(grad, 1 - beta)': "lerp does a linear interpolation to set $M_{n+1} = \\beta M_n + (1 - \\beta) G$, so Muon can smooth out gradients using momentum.",
+            'update = grad.lerp_(momentum, beta) if nesterov else momentum': "Nesterov momentum is a trick that can help, too. All it does is mix a bigger fraction of the current gradient into the momentum.",
+            'update *= (grad.size(-2) / grad.size(-1))**0.5': "Remember how the spectral norm is prejudiced by dimension? Instead of using it directly, we rescale to use the overall map $$G \\mapsto \\sqrt{\\frac{d_\\text{out}}{d_\\text{in}}} \\text{orthogonalize}(G)$$ to make the update dimension-independent. This way the input and output spaces are treated with the RMS norm, which views the vectors $(1, 1, 1)$ and $(1, 1, 1, \\dots, 1)$ both as having norm 1.",
+            'adam_update': "Since Muon is built for matrix parameters, it uses Adam to optimize all other parameters. This function just implements Adam.",
+            'buf1c / (buf2c.sqrt() + eps)': "Notice! The two buffers track $G$ and $G^2$ (the square is elementwise). And the division $\\frac{G}{\\sqrt{G^2}}$ approximately makes each entry 1, another example of optimizers moving distance 1 no matter the size of the gradient. Adam just does it for each parameter independently, while Muon does it on the potentially more natural space of singular values.",
+            'group in param_groups': "The __init__ function sets up some default hyperparameters, including for an internal AdamW optimizer on parameters not designed for Muon. More on that below the source code...",
+            'group["use_muon"]': "Muon is designed to optimize matrix parameters. All other parameters are optimized with AdamW.",
+            'closure is not None': "This is a PyTorch feature where you can optionally allow the optimizer to recompute the loss inside the step() function.",
+            'state["momentum_buffer"] = torch.zeros_like(p)': "Initialize the momentum buffer!",
+            'update = muon_update(p.grad, state["momentum_buffer"], beta=group["momentum"])': "The update we've all been waiting for!",
+        };
+        
+        function addAnnotations() {
+            const codeElement = document.getElementById('muon-code');
+            let html = codeElement.innerHTML;
+            let annotationCount = 0;
+            
+            // Helper function to replace text while preserving HTML structure
+            function replaceInHTML(html, textPattern, annotation) {
+                // Create a temporary element to work with the HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                
+                // Get the text content to search in
+                const textContent = tempDiv.textContent || tempDiv.innerText;
+                
+                // Find the pattern in the text content
+                const textIndex = textContent.indexOf(textPattern);
+                if (textIndex === -1) return html;
+                
+                // We'll use a different approach: regex replacement that ignores HTML tags
+                const escapedAnnotation = annotation.replace(/"/g, '&quot;');
+                
+                // Create a regex that matches the pattern while allowing HTML tags in between
+                const parts = textPattern.split('');
+                const regexPattern = parts.map(char => {
+                    // Escape all regex special characters
+                    const escapedChar = char.replace(/[.*+?^${}()|[\]\\\/]/g, '\\$&');
+                    
+                    if (char === ' ') {
+                        return '\\s*(?:<[^>]*>)*\\s*'; // Allow whitespace and HTML tags
+                    } else {
+                        return escapedChar + '(?:<[^>]*>)*'; // Allow HTML tags after each character
+                    }
+                }).join('');
+                
+                const regex = new RegExp(`(${regexPattern})`, 'g');
+                const replacement = `<span class="annotated-block" data-annotation="${escapedAnnotation}">$1</span>`;
+                
+                return html.replace(regex, replacement);
+            }
+            
+            // Apply simple patterns first
+            Object.keys(simplePatterns).forEach(pattern => {
+                const annotation = simplePatterns[pattern];
+                const escapedAnnotation = annotation.replace(/"/g, '&quot;');
+                
+                if (html.includes(pattern)) {
+                    html = html.replace(pattern, `<span class="annotated-block" data-annotation="${escapedAnnotation}">${pattern}</span>`);
+                    annotationCount++;
+                } else {
+                }
+            });
+            
+            // Apply complex patterns
+            Object.keys(complexPatterns).forEach(pattern => {
+                const annotation = complexPatterns[pattern];
+                const newHtml = replaceInHTML(html, pattern, annotation);
+                if (newHtml !== html) {
+                    html = newHtml;
+                    annotationCount++;
+                }
+            });
+
+            codeElement.innerHTML = html;
+            
+            return annotationCount;
+        }
+
+        // Initialize Highlight.js
+        document.addEventListener('DOMContentLoaded', function() {
+            // Apply syntax highlighting
+            hljs.highlightAll();
+            
+            // Add line numbers
+            hljs.initLineNumbersOnLoad();
+            
+            // Add annotations after Highlight.js is done
+            setTimeout(() => {
+                const annotationCount = addAnnotations();
+                
+                // Set up annotation tooltips
+                const popup = document.getElementById('annotation');
+                const blocks = document.querySelectorAll('.annotated-block');
+                
+                blocks.forEach((block, index) => {
+                    block.addEventListener('mouseenter', e => {
+                        popup.innerHTML = block.dataset.annotation;
+                        popup.style.display = 'block';
+                        
+                        // Render any KaTeX math in the popup
+                        renderMathInElement(popup, {
+                            delimiters: [
+                                {left: "$$", right: "$$", display: true},
+                                {left: "$", right: "$", display: false}
+                            ]
+                        });
+                    });
+
+                    block.addEventListener('mousemove', e => {
+                        popup.style.left = (e.pageX + 10) + 'px';
+                        popup.style.top = (e.pageY + 10) + 'px';
+                    });
+
+                    block.addEventListener('mouseleave', () => {
+                        popup.style.display = 'none';
+                    });
+                });
+            }, 100); // Small delay to ensure Highlight.js is fully done
+        });
+    </script>
 </body>
 </html>
