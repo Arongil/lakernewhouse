@@ -23,6 +23,21 @@
     <link rel="stylesheet" href="/css/normalize.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/muon/sidebar.css">
+    
+    <style>
+        .poly-svg {
+            width: 40%;
+            aspect-ratio: 1;
+            object-fit: contain;
+        }
+        
+        @media (max-width: 838px) {
+            .poly-svg {
+                width: 320px;
+                max-width: 90vw;
+            }
+        }
+    </style>
 
     <!-- Favicon -->
     <link rel="icon" href="/assets/writing/muon/favicon.png" type="image/png">
@@ -188,15 +203,15 @@
             where $m_1$ tracks $G$, and $m_2$ tracks $G^2$ (elementwise square).
             So its updates resemble $\frac{G}{\sqrt{G^2}} = \text{sign}(G)$,
             and each <em>entry</em> of its updates hovers near one. Adam looks
-            at entries to step distance one, but that  may not be connected to
-            what the matrix does in a neural network: act on vectors.
+            at entries to step distance one, but that may not be connected to
+            what the weight matrix does in a neural network.
         </p>
         <p>But Muon... it has entered the Matrix. It does not see <em>entries</em> of a gradient matrix. It sees the matrix itself.</p>
         <p>And that will be very useful so that Muon can exploit a more sophisticated way to measure "distance one."</p>
 
         <!-- <p>A neural network does matrix multiplications (lots of them). Therefore Muon sees the gradients as matrices, unlike Adam which treats every parameter independently. And in the Matrix, there is a lot more you can do.</p> -->
 
-        <h3>The Fundamental Tension</h3>
+        <h3>The Fundamental Tension <span style="font-size: 1rem;">(in which a norm defines "size one" for a weight update)</span></h3>
 
         <p><em>"When I made the Matrix, I did not force it to choose a measure of size," began the Architect. "I was idealistic then. So for you I chose a norm $\| \cdot \| : \mathbb{R}^{n \times m} \to \mathbb{R}$, and it is how you came to be."</em></p>
 
@@ -217,39 +232,97 @@
         <p>Its inputs are lists of numbers, and we'd like to measure $(\pm 1, \dots, \pm 1)$ as size $1$ no matter how long the list is. That's because we'd like activations in our neural network to have entries approximately $1$ or $-1$. It's what $\mu\text{P}$ recommends for consistent dimension scaling, and it's the most expressive range for floating point numbers.</p>
         <p>But the regular $\ell_2$ norm $\| v \|_2^2 = v_1^2 + \cdots + v_n^2$ will not do, because it judges all-ones vectors differently depending on dimension. Instead we use the root-mean-square norm $\| v \|_\text{RMS}^2 = \tfrac{1}{d} (v_1^2 + \cdots + v_n^2)$.</p>
         <p>How much can $A$ change vectors? Imagine the linear transformation takes all vectors $v$ with $\| v \|_\text{RMS} = 1$, and it bends this sphere into an oblong shape. Whichever vector is sent farthest away, its size will be $A$'s size: $$\| A \|_{\text{RMS} \rightarrow \text{RMS}} := \underset{v : \| v \|_\text{RMS} = 1}{\max} \| A v \|_\text{RMS}.$$</p>
-        <p>This measure is the $\text{RMS}$ to $\text{RMS}$ norm, the maximum stretch that the $\text{RMS}$ norm can detect. It is closely related to the spectral norm, which measures matrix size in terms of the $\ell_2$ norm: $$\| A \|_{\text{RMS} \rightarrow \text{RMS}} = \sqrt{\frac{d_\text{in}}{d_\text{out}}} \| A \|_{\ell_2 \rightarrow \ell_2}.$$</p>
-        <p>For an optimizer to scale dimension-independently, $\mu \text{P}$ advocates initializing with $\| W \|_{\text{RMS} \rightarrow \text{RMS}} = 1$. Then $\mu\text{P}$ recommends that the update scale match the weight scale (prior to scaling by the learning rate $\eta > 0$). So we arrive back to our compromise, armed with a specific norm. But what is the solution to</p>
-
+        <p>This measure is the $\text{RMS}$ to $\text{RMS}$ norm, the maximum stretch that the $\text{RMS}$ norm can detect.</p>
+        <p>For an optimizer to scale dimension-independently, $\mu \text{P}$ advocates initializing weights with $\| W \|_{\text{RMS} \rightarrow \text{RMS}} = 1$. And then it recommends that the update scale match the weight scale (prior to applying the learning rate $\eta > 0$). So we arrive back to our compromise, now armed with a specific norm. But what is the solution to</p>
         <p>$$\underset{\Delta W \text{ s.t. } \| \Delta W \|_{\text{RMS} \rightarrow \text{RMS}} \leq 1}{\text{argmin}} \langle G, \Delta W \rangle?$$</p>
+        <p>We reformulate the constraint using the spectral norm, which measures matrix size via the $\ell_2$ norm: $$\| \Delta W \|_{\text{RMS} \rightarrow \text{RMS}} = \sqrt{\frac{d_\text{in}}{d_\text{out}}} \| \Delta W \|_{\ell_2 \rightarrow \ell_2}.$$</p>
+        <p>And the spectral norm $\| \cdot \|_{\ell_2 \rightarrow \ell_2}$ is very special and important because of its connection to <em>singular values</em>.</p>
+        <p>Every matrix $G \in \mathbb{R}^{d_\text{out} \times d_\text{in}}$ has a singular value decomposition $A = U \Sigma V^T$, where $U$ and $V$ are orthogonal—meaning they preserve a vector's norm—and $\Sigma$ is diagonal with nonnegative entries $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_n \geq 0$, called the singular values. The spectral norm of $A$ is its largest singular value $\sigma_1$.</p>
+        <p>Another way to see it is we can write $G = \sum_k \sigma_k u_k v_k^T$ where $u_k$ and $v_k$ are orthonormal vectors. Then</p>
+        <p>$$\underset{\| \Delta W \|_{\ell_2 \rightarrow \ell_2} \leq 1}{\text{argmin}} \langle G, \Delta W \rangle = \underset{\| \Delta W \|_{\ell_2 \rightarrow \ell_2} \leq 1}{\text{argmin}} \sum_k \sigma_k (u_k^T \Delta W v_k).$$</p>
+        <p>Now we can argmin each singular vector pair independently because they are orthogonal. For $\Delta W$'s spectral norm not to exceed $1$, each singular value has a budget of $1$. So use it up: set all the singular values to $1$. And keep the singular vectors $u_k$ and $v_k$ the same to maximize alignment. In other words, the solution is $$\Delta W = -UV^T$$ if $G = U \Sigma V^T$. This operation is called <em>orthogonalizing</em>. Finally we multiply by $\sqrt{d_\text{out} / d_\text{in}}$ to recover dimension-independence from the $\text{RMS}$ to $\text{RMS}$ norm. (More detail and full proof in <a href="https://arxiv.org/pdf/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">Anthology, Story 2</a>.)
+
+        <p>So we've resolved the fundamental tension. We know the update step—but can we compute it?</p>
 
         <h3>Bend the Singular Values</h3>
 
-        <p><em>The bald boy said, "Do not try to bend the singular values, that's impossible. The direct SVD calculation $$G = U \Sigma V^T \mapsto U f(\Sigma) V^T$$ to send every singular value $\sigma \mapsto f(\sigma)$ doesn't parallelize well on a GPU. Instead, only try to realize the truth... you don't need to see the singular values to bend them. Do you recall what singular values are?"</em></p>
+        <p><em>The bald boy said, "Do not try to bend the singular values, that's impossible. The direct SVD calculation $$G = U \Sigma V^T \mapsto U f(\Sigma) V^T$$ that sends every singular value $\sigma \mapsto f(\sigma)$ doesn't parallelize well on a GPU. Instead, only try to realize the truth... you don't need to see the singular values to bend them."</em></p>
 
         <img src="/assets/writing/muon/spoon.jpg" alt="Spoon" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
 
-        <p>The boy explains that every matrix $G \in \mathbb{R}^{d_\text{out} \times d_\text{in}}$ has a singular value decomposition $G = U \Sigma V^T$, where $U$ and $V$ are orthogonal—meaning they preserve a vector's norm—and $\Sigma$ is diagonal with nonnegative entries $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_n \geq 0$, called the singular values. The spectral norm of $G$ is its largest singular value $\sigma_1$.
-        <p>Another way to see it is we can write $G = \sum_k \sigma_k u_k v_k^T$ where $u_k$ and $v_k$ are orthonormal vectors. Then</p>
-        <p>$$\underset{\| \Delta W \|_{\ell_2 \rightarrow \ell_2} \leq 1}{\text{argmin}} \langle G, \Delta W \rangle = \underset{\| \Delta W \|_{\ell_2 \rightarrow \ell_2} \leq 1}{\text{argmin}} \sum_k \sigma_k (u_k^T \Delta W v_k).$$</p>
-        <p>We can argmin each singular vector pair independently because they are orthogonal. Since $\Delta W$'s singular values can't exceed $1$, we use up the budget: set all singular values to $1$. In other words, the solution is $\Delta W = U V^T$ if $G = U \Sigma V^T$. This operation is called <em>orthogonalizing</em>. Finally we multiply by $\sqrt{d_\text{out} / d_\text{in}}$ to recover dimension-independence from the $\text{RMS}$ to $\text{RMS}$ norm. (More detail and full proof in <a href="https://arxiv.org/pdf/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">Anthology, Story 2</a>.)
-        <p>But how can we set singular values to $1$? Materializing the SVD isn't friendly to the GPU.</p>
+        <p>If we could somehow apply a function $f$ to the singular values ("bending the singular values"), then we'd be done: using $f(x) = 1$, we get $U f(\Sigma) V^T = U V^T$. But materializing the SVD isn't friendly to the GPU.</p>
         <p>To bend singular values, there's a wonderful trick that Jeremy Bernstein devised in August 2024.</p>
-        <p>Cube it! Suddenly, the matrix bends but is still recognizable: $$G^3 := (GG^T)G = (U \Sigma V^T V \Sigma U^T) U \Sigma V^T = U \Sigma^3 V^T.$$</p>
-        <p>We can bend more odd powers, $G^{2k+1} = U \Sigma^{2k+1} V^T$. The odd powers commute straight into the singular values. We draw on linearity to form up a polynomial, $p(x) = ax + bx^3 + cx^5$, that bends singular values as directly as it bends a single number, without seeing a single one of them. So we do two things:</p>
-        <p>Divide the gradient by something certainly bigger than its largest singular value, say $\| G \|_F = \sqrt{\sum_{i,j} G_{ij}^2}$.</p>
-        <p>Then again and again and again apply $p(x) = \tfrac32 x - \tfrac12 x^3$ to push every number from $[0, \sqrt{3})$ toward $1$.</p>
+        <p>Take the matrix, and cube it! Suddenly, the matrix changes but is still recognizable: $$G^3 := (GG^T)G = (U \Sigma V^T V \Sigma U^T) U \Sigma V^T = U \Sigma^3 V^T.$$</p>
+        <p>We can take more odd powers, $G^{2k+1} = U \Sigma^{2k+1} V^T$. The odd powers commute straight into the singular values since $V^TV = I$ and $U^TU = I$. We draw on linearity to form up any polynomial $p(x) = a_0x + \cdots + a_kx^{2k+1}$ that bends singular values as directly as it bends a single number, without seeing a single one of them: $$\underbrace{p(U \Sigma V^T)}_{\text{acts on matrix}} = \underbrace{U p(\Sigma) V^T}_{\text{acts on numbers}}.$$</p>
+        <p>With this new power, we do two things. We squash the gradient's singular values into the range $[0, 1]$ by dividing by something certainly bigger than the spectral norm, say $\| G \|_F = \sqrt{\sum_{i,j} G_{ij}^2}$. Then again and again and again we apply some polynomial that will push numbers in the range $[0, 1]$ toward $1$.</p>
         
-        <div style="display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;">
-            <img src="/assets/writing/muon/simple.svg" alt="Simple" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
-            <img src="/assets/writing/muon/simple-iterated.svg" alt="Simple Iterated" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
+        <div style="margin: 1rem 0; text-align: center;">
+            <label for="poly-slider-simple">
+                Drag the slider to iteratively apply $p(x) = \tfrac{3}{2}x - \tfrac{1}{2}x^3$: 
+            </label>
+            <div id="poly-slider-images" style="margin-top: 1rem;">
+                 <img id="poly-img-simple-1" src="/assets/writing/muon/polynomials/simple-1.svg" alt="Iteration 1" class="poly-svg" style="display: none; margin: 0 auto;">
+                 <img id="poly-img-simple-2" src="/assets/writing/muon/polynomials/simple-2.svg" alt="Iteration 2" class="poly-svg" style="display: none; margin: 0 auto;">
+                 <img id="poly-img-simple-3" src="/assets/writing/muon/polynomials/simple-3.svg" alt="Iteration 3" class="poly-svg" style="display: block; margin: 0 auto;">
+                 <img id="poly-img-simple-4" src="/assets/writing/muon/polynomials/simple-4.svg" alt="Iteration 4" class="poly-svg" style="display: none; margin: 0 auto;">
+                 <img id="poly-img-simple-5" src="/assets/writing/muon/polynomials/simple-5.svg" alt="Iteration 5" class="poly-svg" style="display: none; margin: 0 auto;">
+             </div>
+            <div style="margin-top: 1rem;">
+                <input type="range" id="poly-slider-simple" min="1" max="5" value="3" step="1" style="width: 300px;">
+                <span id="poly-slider-value" style="font-weight: bold; margin-left: 0.3rem;">3</span>
+            </div>
         </div>
 
-        <p>Faster iterations abound if we are willing to sacrifice convergence, like Muon's own $$p(x) = 3.4445x - 4.7750x^3 + 2.0315x^5.$$</p>
-        
-        <div style="display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;">
-            <img src="/assets/writing/muon/muon.svg" alt="Muon" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
-            <img src="/assets/writing/muon/muon-iterated.svg" alt="Muon Iterated" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
+        <script>
+            document.getElementById('poly-slider-simple').addEventListener('input', function() {
+                const value = this.value;
+                const valueSpan = document.getElementById('poly-slider-value');
+                valueSpan.textContent = value;
+                
+                // Hide all images
+                for (let i = 1; i <= 5; i++) {
+                    document.getElementById('poly-img-simple-' + i).style.display = 'none';
+                }
+                
+                // Show the selected image
+                document.getElementById('poly-img-simple-' + value).style.display = 'block';
+            });
+        </script>
+
+        <p>What matters turns out to be how fast the polynomial can push $\sigma \ll 1$ toward $1$. Muon's own polynomial is very speedy due to its high linear coefficient $3.4445x$, and not converging to exactly $1$ turns out to be fine in practice.</p>
+
+        <div style="margin: 1rem 0; text-align: center;">
+            <label for="poly-slider-muon">
+                Drag the slider to iteratively apply $p(x) = 3.4445x - 4.7750x^3 + 2.0315x^5$: 
+            </label>
+            <div id="poly-slider-images-muon" style="margin-top: 1rem;">
+                <img id="poly-img-muon-1" src="/assets/writing/muon/polynomials/muon-1.svg" alt="Iteration 1" class="poly-svg" style="display: none; margin: 0 auto;">
+                <img id="poly-img-muon-2" src="/assets/writing/muon/polynomials/muon-2.svg" alt="Iteration 2" class="poly-svg" style="display: none; margin: 0 auto;">
+                <img id="poly-img-muon-3" src="/assets/writing/muon/polynomials/muon-3.svg" alt="Iteration 3" class="poly-svg" style="display: block; margin: 0 auto;">
+                <img id="poly-img-muon-4" src="/assets/writing/muon/polynomials/muon-4.svg" alt="Iteration 4" class="poly-svg" style="display: none; margin: 0 auto;">
+                <img id="poly-img-muon-5" src="/assets/writing/muon/polynomials/muon-5.svg" alt="Iteration 5" class="poly-svg" style="display: none; margin: 0 auto;">
+            </div>
+            <div style="margin-top: 1rem;">
+                <input type="range" id="poly-slider-muon" min="1" max="5" value="3" step="1" style="width: 300px;">
+                <span id="poly-slider-value-muon" style="font-weight: bold; margin-left: 0.3rem;">3</span>
+            </div>
         </div>
+
+        <script>
+            document.getElementById('poly-slider-muon').addEventListener('input', function() {
+                const value = this.value;
+                const valueSpan = document.getElementById('poly-slider-value-muon');
+                valueSpan.textContent = value;
+                
+                // Hide all images
+                for (let i = 1; i <= 5; i++) {
+                    document.getElementById('poly-img-muon-' + i).style.display = 'none';
+                }
+                
+                // Show the selected image
+                document.getElementById('poly-img-muon-' + value).style.display = 'block';
+            });
+        </script>
 
         <p>So we've followed the gradient as far as it will go, but only stepping distance $1$. And the distance is fundamentally <em>matrix-based</em>. Controlling $\Delta W$ this way controls how much each optimizer update can affect the model output.</p>
         <p>To recover Muon, we add back the smoothness of momentum, constructing $M_{n+1} = \beta M_n + (1 - \beta) G_{n+1}$ for some parameter $\beta$, typically $0.95$. Muon proposes its core update as orthogonalized momentum:</p>
