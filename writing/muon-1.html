@@ -258,7 +258,7 @@
         
         <div style="margin: 1rem 0; text-align: center;">
             <label for="poly-slider-simple">
-                Drag the slider to iteratively apply $p(x) = \tfrac{3}{2}x - \tfrac{1}{2}x^3$: 
+                <em>Drag the slider to iteratively apply $p(x) = \tfrac{3}{2}x - \tfrac{1}{2}x^3$:</em>
             </label>
             <div id="poly-slider-images" style="margin-top: 1rem;">
                  <img id="poly-img-simple-1" src="/assets/writing/muon/polynomials/simple-1.svg" alt="Iteration 1" class="poly-svg" style="display: none; margin: 0 auto;">
@@ -289,11 +289,11 @@
             });
         </script>
 
-        <p>What matters turns out to be how fast the polynomial can push $\sigma \ll 1$ toward $1$. Muon's own polynomial is very speedy due to its high linear coefficient $3.4445x$, and not converging to exactly $1$ turns out to be fine in practice.</p>
+        <p>What turns out to matter is how fast the polynomial can push very small $\sigma \ll 1$ toward $1$. Muon uses a $5$ steps of a speedy polynomial with high linear coefficient $3.4445x$, and not converging to $1$ turns out fine in practice.</p>
 
         <div style="margin: 1rem 0; text-align: center;">
             <label for="poly-slider-muon">
-                Drag the slider to iteratively apply $p(x) = 3.4445x - 4.7750x^3 + 2.0315x^5$: 
+                <em>Drag the slider to iteratively apply $p(x) = 3.4445x - 4.7750x^3 + 2.0315x^5$:</em> 
             </label>
             <div id="poly-slider-images-muon" style="margin-top: 1rem;">
                 <img id="poly-img-muon-1" src="/assets/writing/muon/polynomials/muon-1.svg" alt="Iteration 1" class="poly-svg" style="display: none; margin: 0 auto;">
@@ -324,7 +324,7 @@
             });
         </script>
 
-        <p>So we've followed the gradient as far as it will go, but only stepping distance $1$. And the distance is fundamentally <em>matrix-based</em>. Controlling $\Delta W$ this way controls how much each optimizer update can affect the model output.</p>
+        <p>So we've followed the gradient as far as it will go, but only stepping distance $1$. This compromise leads to the map $G \mapsto \sqrt{\tfrac{d_\text{out}}{d_\text{in}}} \; U V^T$ for $G = U \Sigma V^T$, which we compute by iterating odd polynomials since they act directly on the singular values. And the distance we're catering to is fundamentally <em>matrix-based</em>. Controlling $\Delta W$ this way controls how much the optimizer update can affect the model output.</p>
         <p>To recover Muon, we add back the smoothness of momentum, constructing $M_{n+1} = \beta M_n + (1 - \beta) G_{n+1}$ for some parameter $\beta$, typically $0.95$. Muon proposes its core update as orthogonalized momentum:</p>
         <p>$$\Delta W_n = \sqrt{\frac{d_\text{out}}{d_\text{in}}} \text{orthogonalize}(M_n).$$</p>
         <p>The spoon is bent without having even looked at it. In the next chapter, we'll go through Muon's PyTorch code line-by-line so that you can't get stuck understanding it. And we'll advise on learning rate and when to use Muon.</p>
