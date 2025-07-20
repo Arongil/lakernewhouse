@@ -58,12 +58,10 @@
     </header>
     <main>
         <h2 style="margin: 0;">Understanding Muon</h2>
-        <h2 style="margin: 0;">Chapter 1: Into the Matrix</h2>
-        <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
+        <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">20 July 2025</h4>
 
         <p style="text-align: center;">"To understand Muon, the first step is to enter the Matrix."<br>—Not quite Morpheus</p>
 
-        <img src="/assets/writing/muon/morpheus.jpg" alt="Muon" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
 
         <!--
         <p>We have seen
@@ -77,12 +75,12 @@
         -->
         A lot of people are learning about Muon for the first time.
         The first goal of this series is to be a useful guide for those people. <!-- getting started with Muon. -->
-        But I also think it's a good time to remind ourselves what are the fundamental
+        But I also think it's a good time to revisit what are the fundamental
         questions Muon tries to solve, and which ones are still unanswered?
         <!-- We wanted 1) fast and 2) scalable training. -->
-        I want to argue that Muon is only half the picture: not only should we develop
-        good ways to regulate <em>gradients</em>, but there is now an opportunity
-        to use similar techniques to regulate the <em>weights</em>.
+        I want to argue Muon is only half the picture: not only should we
+        develop good ways to regulate <em>gradients</em>, but now there is an
+        opportunity to use similar techniques to regulate the <em>weights</em>.
         This series proceeds in three parts:
         </p>
         <ul>
@@ -95,7 +93,7 @@
         <a href="https://kexue.fm/archives/11126" class="citation">Jianlin Su's recent blog on QK-clip</a>
         deserves its praise, and why I'm excited about direct, designed weight constraints to guarantee stable training.
         If you're interested, check out our new paper where we spectrally regulate the weights, which allows us to
-        train performant transformers with zero usual stability techniques such as layer norm, QK norm, and logit softcapping.
+        train performant transformers without usual stability techniques such as layer norm, QK norm, and logit softcapping.
 
         <a href="https://arxiv.org/abs/2507.13338" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(186, 233, 255, 0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
             <span>Check out the paper (joint with fantastic collaborators)</span>
@@ -153,9 +151,11 @@
             });
         </script>
 
-        <h3>Neo, The One</h3>
-        <p>"You take the blue pill? The story ends, and you believe that a gradient's entries are unrelated numbers."</p>
-        <p>"You take the red pill? You stay in Wonderland, and I show you how deep the rabbit hole goes."</p>
+        <h3>Neo, The One <span style="font-size: 1rem;">(in which we see that optimizers like to make updates of size one)</span></h3>
+        <p><em>"You take the blue pill? The story ends, and you believe that a gradient's entries are unrelated numbers."</em></p>
+        <p><em>"You take the red pill? You stay in Wonderland, and I show you how deep the rabbit hole goes."</em></p>
+
+        <img src="/assets/writing/muon/morpheus.jpg" alt="Muon" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
 
         <p>Let's start with a thought experiment. If the gradient is 10x as large, should an optimizer step 10x as far?</p>
         <p>Almost the opposite:</p>
@@ -184,8 +184,12 @@
         <p>
             The Adam optimizer actually reduces to SignSGD when its momentum is turned off
             <a href="https://arxiv.org/pdf/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">(Anthology, Story 1)</a>.
-            With momentum on, Adam's updates are still akin to $\frac{G}{\sqrt{G^2}} \approx \text{sign}(G)$,
-            and each <em>entry</em> of its updates hovers near one.
+            With momentum on, Adam's updates are akin to $\frac{m_1}{\sqrt{m_2}}$,
+            where $m_1$ tracks $G$, and $m_2$ tracks $G^2$ (elementwise square).
+            So its updates resemble $\frac{G}{\sqrt{G^2}} = \text{sign}(G)$,
+            and each <em>entry</em> of its updates hovers near one. Adam looks
+            at entries to step distance one, but that  may not be connected to
+            what the matrix does in a neural network: act on vectors.
         </p>
         <p>But Muon... it has entered the Matrix. It does not see <em>entries</em> of a gradient matrix. It sees the matrix itself.</p>
         <p>And that will be very useful so that Muon can exploit a more sophisticated way to measure "distance one."</p>
@@ -194,7 +198,7 @@
 
         <h3>The Fundamental Tension</h3>
 
-        <p>"When I made the Matrix, I did not force it to choose a measure of size," began the Architect. "I was idealistic then. So for you I chose a norm $\| \cdot \| : \mathbb{R}^{n \times m} \to \mathbb{R}$, and it is how you came to be."
+        <p><em>"When I made the Matrix, I did not force it to choose a measure of size," began the Architect. "I was idealistic then. So for you I chose a norm $\| \cdot \| : \mathbb{R}^{n \times m} \to \mathbb{R}$, and it is how you came to be."</em></p>
 
         <img src="/assets/writing/muon/architect.jpg" alt="The Architect" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
 
@@ -220,7 +224,7 @@
 
         <h3>Bend the Singular Values</h3>
 
-        <p>The bald boy said, "Do not try to bend the singular values, that's impossible. The direct SVD calculation $$G = U \Sigma V^T \mapsto U f(\Sigma) V^T$$ to send every singular value $\sigma \mapsto f(\sigma)$ doesn't parallelize well on a GPU. Instead, only try to realize the truth... you don't need to see the singular values to bend them. Do you recall what singular values are?"</p>
+        <p><em>The bald boy said, "Do not try to bend the singular values, that's impossible. The direct SVD calculation $$G = U \Sigma V^T \mapsto U f(\Sigma) V^T$$ to send every singular value $\sigma \mapsto f(\sigma)$ doesn't parallelize well on a GPU. Instead, only try to realize the truth... you don't need to see the singular values to bend them. Do you recall what singular values are?"</em></p>
 
         <img src="/assets/writing/muon/spoon.jpg" alt="Spoon" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
 
