@@ -226,6 +226,7 @@ class Muon(torch.optim.Optimizer):
                 and the final layer of a diffusion model. These are 2D matrices with dense vectors
                 for both input and output. Muon is not designed for elementwise vector parameters
                 such as bias and layer norm scales, or the embedding matrix of a language model.
+                Muon optimizes these other parameters with an AdamW backup.
                 <br><br>
                 <em>Exercise 1: what's wrong with the parameter rule below?</em>
                 <pre><code class="language-python" id="muon-code">def is_muon_param_incorrect(p):
@@ -246,23 +247,31 @@ class Muon(torch.optim.Optimizer):
         <li><strong>Do Muon and Adam share the same learning rate?</strong>
             <br>
             <span style="color: #555;">
-                Not by default, but it's possible and here's how. The goal will be to match
-                the RMS norm of Adam's updates with the "RMS norm" of Muon's updates.
-                (Yes, we're stepping out the Matrix for a moment to view it as a vector.)
-                While not guaranteed to be optimal, using the same update scale for
-                Muon and Adam is a good default (e.g.,
-                <a href="https://arxiv.org/pdf/2502.16982" target="_blank" rel="noopener noreferrer">Appendix A of Moonlight</a>
-                or <a href="https://arxiv.org/pdf/2504.05295" target="_blank" rel="noopener noreferrer">Appendix D of Dion</a>).
-
-                <br>
-                <br>
-                <strong>vvvvv  INCOMPLETE AFTER THIS POINT  vvvvv</strong>
-                <br>
-
-                <br>
-                You can run this experiment at home: Adam's RMS norm averaged over 10k steps
-                of random gradients for $\beta_1 = 0.9$ and $\beta_2 = 0.95$ is around $0.22$.
-                Therefofre
+                Not by default. The best way to do this may
+                actually be an open question, but two approaches are discussed in
+                <a href="https://arxiv.org/abs/2504.05295" target="_blank" rel="noopener noreferrer">Microsoft's Dion paper</a>
+                and
+                <a href="https://arxiv.org/abs/2502.16982" target="_blank" rel="noopener noreferrer">Moonshot AI's Muon paper</a>.
+                <ul>
+                    <li>
+                        <strong>Dion's approach:</strong> follow the dimensional factors that yield learning rate transfer
+                        across width, $\sqrt{d_\text{out}/d_\text{in}}$. Then use the same learning rate
+                        across Adam and Muon, except scale down the unembedding layer's learning rate by
+                        $1/\sqrt{d_\text{in}}$. More discussion in their Appendix D.
+                    </li>
+                    <li>
+                        <strong>Moonshot's approach:</strong> match the RMS norm of Adam's updates with the "RMS norm"
+                        of Muon's updates. (Yes, we're stepping out the Matrix for a moment to view
+                        the weight update as a vector.) Matching the entrywise update scales may be
+                        good default if you want to use Adam-like learning rates (3e-4 anyone?) for
+                        both Adam and Muon. If $A$ is an orthogonal matrix,
+                        $$\| \text{flatten}(A) \|_{\text{RMS}} = 1/\sqrt{\text{max}(d_\text{out}, d_\text{in})}.$$
+                        An experiment you can try at home is that an Adam update's average RMS norm over 10k steps
+                        with Gaussian random gradients is around $0.2$. So Moonshot recommends that Muon's update be
+                        $$W_{n+1} = W_n - 0.2 \sqrt{\text{max}(d_\text{out}, d_\text{in})} \cdot \eta \cdot \text{orthogonalize}(M_{n+1}).$$
+                        
+                    </li>
+                </ul>
             </span>
         </li>
         <br>
@@ -311,19 +320,19 @@ class Muon(torch.optim.Optimizer):
     <script>
         // Annotation data - mapping text patterns to explanations
         const simplePatterns = {
-            'set_all_singular_values_to_near_one': "Muon's core idea is to set gradient singular values to one. To do so it will iterate a polynomial five times:<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/muon.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/muon-iterated.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>This is a ~matrix-pilled~ resolution to the <em>fundamental tension</em>: the optimizer wants to follow the gradient forever, but it knows that the gradient is only valid exactly where it is measured. So Muon will step distance 1, no matter the size of the gradient.",
+            'set_all_singular_values_to_near_one': "Muon's core idea is to set gradient singular values to one. To do so it will iterate a polynomial five times:<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/polynomials/muon-1.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/polynomials/muon-5.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>This is a ~matrix-pilled~ resolution to the <em>fundamental tension</em>: the optimizer wants to follow the gradient forever, but it knows that the gradient is only valid exactly where it is measured. So Muon will step distance 1, no matter the size of the gradient.",
             'X = G.bfloat16()': "We're going to compute a polynomial five times in a row on the gradient matrix $G$. It's numerically stable enough to use a lower precision data type like bfloat16 to speed it up, unlike computing $G^{-1/4}$ which the original Shampoo optimizer update required.",
             'A = X @ X.mT': "Step 1. Compute $XX^T$ and save it for later.",
             'B = b * A + c * A @ A': "Step 2. Compute $bX^2 + cX^4$, so that next line we can multiply by $X$ to get $bX^3 + cX^5$.",
-            'X = a * X + B @ X': "Step 3. Finish up computing $p(X) = aX + bX^3 + cX^5$. Remember what this looks like!<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/muon.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/muon-iterated.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>The big idea is we're sending all singular values to 1 in parallel, since odd polynomials commute into the singular value decomposition to act directly on the singular values, $p(G) = p(U \\Sigma V^T) = U p(\\Sigma) V^T$.",
+            'X = a * X + B @ X': "Step 3. Finish up computing $p(X) = aX + bX^3 + cX^5$. Remember what this looks like!<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/polynomials/muon-1.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/polynomials/muon-5.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>The big idea is we're sending all singular values to 1 in parallel, since odd polynomials commute into the singular value decomposition to act directly on the singular values, $p(G) = p(U \\Sigma V^T) = U p(\\Sigma) V^T$.",
             'update = set_all_singular_values_to_near_one(update, steps=ns_steps)': "Muon's core operation: set the singular values of the update to 1!"
         };
         
         // Complex patterns that span syntax-highlighted elements
         const complexPatterns = {
-            'a, b, c = (3.4445, -4.7750,  2.0315)': "These are coefficients of the polynomial $p(x) = 3.4445x - 4.7750x^3 + 2.0315x^5$. This polynomial might look like black magic, but check out this Desmos graph:<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/muon.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/muon-iterated.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>That's what $p(x)$ looks like (left) and what $p(p(p(p(p(x)))))$ looks like (right). Applying $p(x)$ five times is a fast way to send all numbers $x$ to somewhere close to 1, hence (nearly) setting all singular values to 1.",
-            'X = X.mT': "This is a computational trick. We'll need to find $XX^T$, which has shape $(n, n)$ if $X$ has shape $(n, m)$. So if $n > m$, we switch them upfront so the inner calculations are smaller. We undo the transpose at the end. And X.mT just means batched transpose, where it will switch the last two dimensions.",
-            'X = X / (X.norm(dim=(-2, -1), keepdim=True) + 1e-7)': "Remember what the polynomial that we're applying to the singular values looks like?<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/muon.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/muon-iterated.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>It doesn't work past $x > 1$. To make sure it works, we first squash all the singular values to be less than 1. Here $\\text{X.norm()}$ is the Frobenius norm of X, $\\| X \\|_F = \\sqrt{\\sum_{i,j} X_{ij}^2}$. The Frobenius norm is always at least as big as the spectral norm, so now all singular values don't exceed 1.",
+            'a, b, c = (3.4445, -4.7750,  2.0315)': "These are coefficients of the polynomial $p(x) = 3.4445x - 4.7750x^3 + 2.0315x^5$. This polynomial might look like black magic, but check out this Desmos graph:<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/polynomials/muon-1.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/polynomials/muon-5.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>That's what $p(x)$ looks like (left) and what $p(p(p(p(p(x)))))$ looks like (right). Applying $p(x)$ five times is a fast way to send all numbers $x$ to somewhere close to 1, hence (nearly) setting all singular values to 1.",
+            'X = X.mT': "This is a computational trick. We'll need to find $XX^T$, which has shape $(n, n)$ if $X$ has shape $(n, m)$. So if $n > m$, we switch them upfront so the inner calculations are smaller. We undo the transpose at the end. And X.mT just means batched transpose, where it will switch the last two dimensions.<br><br>Interested in why it maintains correctness? The polynomial operation might seem complicated, but remember, it's just acting on the singular values. So it is fine to act on the transposed singular values: $p(X^T)^T = (V p(\\Sigma^T) U^T)^T = U p(\\Sigma) V^T$.",
+            'X = X / (X.norm(dim=(-2, -1), keepdim=True) + 1e-7)': "Remember what the polynomial that we're applying to the singular values looks like?<div style='display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;'><img src='/assets/writing/muon/polynomials/muon-1.svg' alt='Muon' style='width: 45%; aspect-ratio: 1; object-fit: contain;'><img src='/assets/writing/muon/polynomials/muon-5.svg' alt='Muon Iterated' style='width: 45%; aspect-ratio: 1; object-fit: contain;'></div>It doesn't work past $x > 1$. To make sure it works, we first squash all the singular values to be less than 1. Here $\\text{X.norm()}$ is the Frobenius norm of X, $\\| X \\|_F = \\sqrt{\\sum_{i,j} X_{ij}^2}$. The Frobenius norm is always at least as big as the spectral norm, so now all singular values don't exceed 1.",
             'momentum.lerp_(grad, 1 - beta)': "lerp does a linear interpolation to set $M_{n+1} = \\beta M_n + (1 - \\beta) G$, so Muon can smooth out gradients using momentum.",
             'update = grad.lerp_(momentum, beta) if nesterov else momentum': "Nesterov momentum is a trick that can help, too. All it does is mix a bigger fraction of the current gradient into the momentum.",
             'update *= (grad.size(-2) / grad.size(-1))**0.5': "Remember how the spectral norm is prejudiced by dimension? Instead of using it directly, we rescale to use the overall map $$G \\mapsto \\sqrt{\\frac{d_\\text{out}}{d_\\text{in}}} \\text{orthogonalize}(G)$$ to make the update dimension-independent. This way the input and output spaces are treated with the RMS norm, which views the vectors $(1, 1, 1)$ and $(1, 1, 1, \\dots, 1)$ both as having norm 1.",

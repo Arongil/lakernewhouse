@@ -244,7 +244,7 @@
 
         <p>So we've resolved the fundamental tension. We know the update step—but can we compute it?</p>
 
-        <h3>Bend the Singular Values</h3>
+        <h3>Bend the Singular Values <span style="font-size: 1rem;">(in which we learn that odd polynomials edit singular values)</span></h3>
 
         <p><em>The bald boy said, "Do not try to bend the singular values, that's impossible. The direct SVD calculation $$G = U \Sigma V^T \mapsto U f(\Sigma) V^T$$ that sends every singular value $\sigma \mapsto f(\sigma)$ doesn't parallelize well on a GPU. Instead, only try to realize the truth... you don't need to see the singular values to bend them."</em></p>
 
@@ -253,7 +253,7 @@
         <p>If we could somehow apply a function $f$ to the singular values ("bending the singular values"), then we'd be done: using $f(x) = 1$, we get $U f(\Sigma) V^T = U V^T$. But materializing the SVD isn't friendly to the GPU.</p>
         <p>To bend singular values, there's a wonderful trick that Jeremy Bernstein devised in August 2024.</p>
         <p>Take the matrix, and cube it! Suddenly, the matrix changes but is still recognizable: $$G^3 := (GG^T)G = (U \Sigma V^T V \Sigma U^T) U \Sigma V^T = U \Sigma^3 V^T.$$</p>
-        <p>We can take more odd powers, $G^{2k+1} = U \Sigma^{2k+1} V^T$. The odd powers commute straight into the singular values since $V^TV = I$ and $U^TU = I$. We draw on linearity to form up any polynomial $p(x) = a_0x + \cdots + a_kx^{2k+1}$ that bends singular values as directly as it bends a single number, without seeing a single one of them: $$\underbrace{p(U \Sigma V^T)}_{\text{acts on matrix}} = \underbrace{U p(\Sigma) V^T}_{\text{acts on numbers}}.$$</p>
+        <p>We can take more odd powers, $G^{2k+1} = U \Sigma^{2k+1} V^T$. The odd powers commute straight into the singular values since $V^TV = I$ and $U^TU = I$. Linearity forms up any polynomial $p(x) = a_0x + a_1x^3 + \cdots + a_kx^{2k+1}$ that bends singular values as directly as it bends a single number, without seeing a single one of them: $$\underbrace{p(U \Sigma V^T)}_{\text{acts on matrix}} = \underbrace{U p(\Sigma) V^T}_{\text{acts on numbers}}.$$</p>
         <p>With this new power, we do two things. We squash the gradient's singular values into the range $[0, 1]$ by dividing by something certainly bigger than the spectral norm, say $\| G \|_F = \sqrt{\sum_{i,j} G_{ij}^2}$. Then again and again and again we apply some polynomial that will push numbers in the range $[0, 1]$ toward $1$.</p>
         
         <div style="margin: 1rem 0; text-align: center;">
@@ -323,6 +323,15 @@
                 document.getElementById('poly-img-muon-' + value).style.display = 'block';
             });
         </script>
+
+        <p>And let's see what Muon's polynomial does to a real gradient matrix, visualized with singular value histograms:</p>
+
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <img src="/assets/writing/muon/gradient_raw.svg" alt="Raw Gradient" style="width: 45%; object-fit: contain;">
+            <img src="/assets/writing/muon/gradient_processed.svg" alt="Processed Gradient" style="width: 45%; object-fit: contain;">
+        </div>
+
+        <p>That's the surprising empirical fact: many gradient singular values are very small. Muon views them equally.</p>
 
         <p>So we've followed the gradient as far as it will go, but only stepping distance $1$. This compromise leads to the map $G \mapsto \sqrt{\tfrac{d_\text{out}}{d_\text{in}}} \; U V^T$ for $G = U \Sigma V^T$, which we compute by iterating odd polynomials since they act directly on the singular values. And the distance we're catering to is fundamentally <em>matrix-based</em>. Controlling $\Delta W$ this way controls how much the optimizer update can affect the model output.</p>
         <p>To recover Muon, we add back the smoothness of momentum, constructing $M_{n+1} = \beta M_n + (1 - \beta) G_{n+1}$ for some parameter $\beta$, typically $0.95$. Muon proposes its core update as orthogonalized momentum:</p>
