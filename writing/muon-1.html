@@ -149,6 +149,11 @@
                 <a href="https://arxiv.org/abs/2505.02222" target="_blank" rel="noopener noreferrer" class="citation">large batches</a>
                 and
                 <a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer" class="citation">up to 1T parameters</a>.
+                Really impressive recent work includes
+                <a href="https://arxiv.org/abs/2504.05295" target="_blank" rel="noopener noreferrer" class="citation">Dion</a>
+                (distributed Muon) and
+                <a href="https://arxiv.org/abs/2505.16932" target="_blank" rel="noopener noreferrer" class="citation">Polar Express</a>
+                (better polynomials).
             </p>
 
             <p>My MIT master's thesis (May 2025) is also designed to teach Muon. Its three chapters loosely reflect the three chapters here but are more detailed: intro to Muon, mechanics of Muon, and then weight constraints.</p>
@@ -341,7 +346,7 @@
 
         <p>That's the surprising empirical fact: many gradient singular values are very small. Muon views them equally.</p>
 
-        <p>So we've followed the gradient as far as it will go, but only stepping distance $1$. This compromise leads to the map $G \mapsto \sqrt{\tfrac{d_\text{out}}{d_\text{in}}} \; U V^T$ for $G = U \Sigma V^T$, which we compute by iterating odd polynomials since they act directly on the singular values. And the distance we're catering to is fundamentally <em>matrix-based</em>. Controlling $\Delta W$ this way controls how much the optimizer update can affect the model output—activation RMS can change by at most $1$.</p>
+        <p>So we've followed the gradient as far as it will go, but only stepping distance $1$. This compromise leads to the map $G \mapsto \sqrt{\tfrac{d_\text{out}}{d_\text{in}}} \; U V^T$ for $G = U \Sigma V^T$, which we compute by iterating odd polynomials since they act directly on the singular values. And the distance we're catering to is fundamentally <em>matrix-based</em>. Controlling $\Delta W$ this way controls how much the optimizer update can affect the model output—activation RMS changes by at most $1$.</p>
         <p>To recover Muon, we add back the smoothness of momentum, constructing $M_{n+1} = \beta M_n + (1 - \beta) G_{n+1}$ for some parameter $\beta$, typically $0.95$. Muon proposes its core update as orthogonalized momentum:</p>
         <p>$$\Delta W_n = \sqrt{\frac{d_\text{out}}{d_\text{in}}} \text{orthogonalize}(M_n).$$</p>
         <p>The spoon is bent without having even looked at it. In the next chapter, we'll go through Muon's PyTorch code line-by-line so that you can't get stuck understanding it. And we'll advise on learning rate and when to use Muon.</p>
