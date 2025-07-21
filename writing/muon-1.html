@@ -214,8 +214,8 @@
             <a href="https://arxiv.org/pdf/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">(Anthology, Story 1)</a>.
             With momentum on, Adam's updates are akin to $\frac{m_1}{\sqrt{m_2}}$,
             where $m_1$ tracks $G$, and $m_2$ tracks $G^2$ (elementwise square).
-            So its updates resemble $\frac{G}{\sqrt{G^2}} = \text{sign}(G)$,
-            and each <em>entry</em> of its updates hovers near one. Adam looks
+            Its updates resemble $\frac{G}{\sqrt{G^2}} = \text{sign}(G)$,
+            and each <em>entry</em> of its updates hovers near one. Yet Adam looks
             at entries to step distance one, even though that may not be connected to
             what the weight matrix does in a neural network.
         </p>
