@@ -91,9 +91,9 @@
             $$\| f(x_1) - f(x_2) \| \leq K \cdot \| x_1 - x_2 \|$$
             for all inputs $x_1$ and $x_2$. 
             Lipschitz bounds are an important kind of stability that have been extensively studied.
-            One way to look at it is Muon controls $\| x_1 - x_2 \|$ by regulating the
+            One way to look at it is Muon controls the $\| x_1 - x_2 \|$ term by regulating the
             weight update. But to enforce a Lipschitz constant we also need to control the other
-            part—the weight itself. And if we want to ensure the spectral norm of a matrix does
+            term—the weight itself. And to ensure the spectral norm of a matrix does
             not exceed $\sigma_\text{max} > 0$, then the simplest thing you could think of is to
             cap it at the threshold:
             $$\sigma \mapsto \min(\sigma, \sigma_\text{max})$$
