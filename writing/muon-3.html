@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Muon Chronicles</title>
+    <title>Understanding Muon</title>
     
     <!-- KaTeX for math rendering -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             renderMathInElement(document.body, {
@@ -22,8 +22,32 @@
     
     <link rel="stylesheet" href="/css/normalize.css">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/muon/sidebar.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/assets/writing/muon/favicon.png" type="image/png">
 </head>
 <body>
+    <!-- Chapter Index Sidebar -->
+    <div class="chapter-index" id="chapter-index">
+        <h3>Understanding Muon</h3>
+        
+        <div class="chapter-item">
+            <a href="/writing/muon-1" class="chapter-link">Chapter 1: Into the Matrix</a>
+            <span class="chapter-description">Speedy and fun Muon explainer</span>
+        </div>
+        
+        <div class="chapter-item">
+            <a href="/writing/muon-2" class="chapter-link">Chapter 2: Source Code</a>
+            <span class="chapter-description">Annotated PyTorch implementation</span>
+        </div>
+        
+        <div class="chapter-item">
+            <a href="/writing/muon-3" class="chapter-link current">Chapter 3: Weight Regulation</a>
+            <span class="chapter-description">Our work, and future directions</span>
+        </div>
+    </div>
+
     <header>
         <nav>
             <h3><a href="/" style="font-size: 1.4rem; color: #333; text-decoration: none;">Laker Newhouse</a></h3>
@@ -33,40 +57,129 @@
         </nav>
     </header>
     <main>
-        <h2 style="margin: 0;">The Muon Chronicles</h2>
-        <h2 style="margin: 0;">Chapter 3: Bend the Singular Values</h2>
-        <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">Jul 2025</h4>
-        <p>The bald boy said, "Do not try to bend the singular values, that's impossible. The direct SVD calculation $$G = U \Sigma V^T \mapsto U f(\Sigma) V^T$$ to send every singular value $\sigma \mapsto f(\sigma)$ doesn't parallelize well on a GPU. Instead, only try to realize the truth... you don't need to see the singular values to bend them. Do you recall what singular values are?"</p>
-
-        <img src="/assets/writing/muon/spoon.jpg" alt="Spoon" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
-
-        <p>The boy explains that every matrix $G \in \mathbb{R}^{d_\text{out} \times d_\text{in}}$ has a singular value decomposition $G = U \Sigma V^T$, where $U$ and $V$ are orthogonal—meaning they preserve a vector's norm—and $\Sigma$ is diagonal with nonnegative entries $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_n \geq 0$, called the singular values. The spectral norm of $G$ is its largest singular value $\sigma_1$.
-        <p>Yet you do not know how to proceed. You stare at the matrix. It stares back. You blink. You cube it.</p>
-        <p>Suddenly, the axes along which the matrix stretches bend, but the matrix is still recognizable: $$(GG^T)G = (U \Sigma V^T V \Sigma U^T) U \Sigma V^T = U \Sigma^3 V^T.$$</p>
-        <p>You realize you can bend more odd powers, $G^{2k+1} = U \Sigma^{2k+1} V^T$. The odd powers commute straight into the singular values. You draw on linearity to form up a polynomial, $p(x) = ax + bx^3 + cx^5$, that bends singular values as directly as it bends a single number, without seeing a single one of them.</p>
-        <p>You divide the gradient by something certainly bigger than its largest singular value, say $\| G \|_F = \sqrt{\sum_{i,j} G_{ij}^2}$.</p>
-        <p>Then again and again and again you apply $p(x) = \tfrac32 x - \tfrac12 x^3$ to push every number from $[0, \sqrt{3})$ toward $1$.</p>
-        
-        <div style="display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;">
-            <img src="/assets/writing/muon/simple.svg" alt="Simple" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
-            <img src="/assets/writing/muon/simple-iterated.svg" alt="Simple Iterated" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
+        <h2 style="margin: 0;">Understanding Muon</h2>
+        <h2 style="margin: 0; margin-top: -10px;">Chapter 3: Weight Regulation</h2>
+        <p>
+            We've seen that Muon regulates the gradients—its updates are size one in a rescaled
+            spectral norm called the $\text{RMS}$ to $\text{RMS}$ norm. But model weights usually grow
+            during training. In comparison, Muon's fixed norm updates will become smaller and smaller.
+            And large weights could cause activations or attention logits deep
+            in the model to spike. Activation stability techniques such as layer norm, QK norm,
+            and logit softcapping help a lot, but can we address the problem more directly?
+        </p>
+        <div style="width: 80%; margin: 0 auto;">
+            <p style="text-align: center;"><em>This chapter is about our recent paper. Check it out here:</em></p>
+            <a href="https://arxiv.org/abs/2507.13338" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(186, 233, 255, 0.8); color: #333; cursor: pointer; margin: 0 auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+                <span>Training Transformers with Enforced Lipschitz Bounds</span>
+                <span style="font-size: 1.1em; transition: transform 0.2s ease;">→</span>
+            </a>
         </div>
 
-        <p>Faster iterations abound if you are willing to sacrifice convergence, like Muon's own $$p(x) = 3.4445x - 4.7750x^3 + 2.0315x^5.$$</p>
-        
-        <div style="display: flex; gap: 1rem; margin: 2rem 0; justify-content: center;">
-            <img src="/assets/writing/muon/muon.svg" alt="Muon" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
-            <img src="/assets/writing/muon/muon-iterated.svg" alt="Muon Iterated" style="width: 35%; aspect-ratio: 1; object-fit: contain;">
-        </div>
+        <h3></h3>
 
-        <p>And to follow the gradient as far as it will go, keeping its spectral norm 1, you must set every singular value of the gradient to be 1. The bent matrix—now orthogonal—aligns as closely as possible with the original gradient, squeezes as much value from every direction as it can, yet steps nowhere farther than 1 unit of spectral norm.</p>
-        <p>To remove the prejudice of dimension, you replace the spectral norm constraint with the $\text{RMS}$ to $\text{RMS}$ norm: $$G \mapsto \sqrt{\frac{d_\text{out}}{d_\text{in}}} \text{orthogonalize}(G).$$</p>
-        <p>You add back the smoothness of momentum, constructing along each step $M_{n+1} = \beta M_n + (1 - \beta) G_{n+1}$ for some parameter $\beta$, typically $0.95$. By bending the singular values to all be the same, Muon proposes the update $$\Delta W_n = \sqrt{\frac{d_\text{out}}{d_\text{in}}} \text{orthogonalize}(M_n).$$</p>
-        <p>The spoon is bent without having even looked at it. The boy is pleased. But he points to the next room.</p>
-        <a href="/writing/muon-4" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
-            <span>Chapter 4: Source Code</span>
+
+        <h3>Lipschitz? More like Clipschitz</h3>
+
+        <p><em>"Weight decay $\lambda = 0.1$ did not stop me," said Agent Smith to the Architect. "The first Matrix you built was small and harmonious, but when it scaled too large it began to have glitches. Layer norm, then QK norm, then directly capping attention logits could return the model to peace, until you made it bigger. The glitch always came."</em></p>
+        <img src="/assets/writing/muon/agent_smith.jpg" alt="Agent Smith" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
+
+        <p>
+            Muon is built on the premise that to achieve fast, scalable training, we should
+            control how much a weight update changes the model's output.
+            We don't want small weight updates to cause explosively large output changes.
+            <em>Lipschitz bounds</em> quantify this sensitivity: we say a function $f$ has a
+            Lipschitz bound $K$ under a norm $\| \cdot \|$ if
+            $$\| f(x_1) - f(x_2) \| \leq K \cdot \| x_1 - x_2 \|$$
+            for all inputs $x_1$ and $x_2$. Lipschitz bounds are an important kind of stability
+            that have been extensively studied. To enforce a Lipschitz bound we need to control
+            weight norms. And if we want to ensure the spectral norm of a matrix does not exceed
+            $\sigma_\text{max} > 0$, then the simplest thing you could think of is to cap it at
+            the threshold:
+            $$\sigma \mapsto \min(\sigma, \sigma_\text{max})$$
+            for all singular values $\sigma$.
+            We call this <em>spectrally capping</em> the matrix.
+            And in
+            <a href="/writing/muon-2">Chapter 1</a> we learned how to bend all the singular values of a matrix at once.
+            We just need to find an odd polynomial that approximates $\min(\sigma, \sigma_\text{max})$.
+        </p>
+
+        <img src="/assets/writing/muon/spectral_cap.svg" alt="Spectral cap" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
+
+        <p>
+            Our paper gives early answers to this question.
+            Concurrently, the community has made
+            <a href="https://leloykun.github.io/ponder/spectral-clipping/#34-spectral-clipped-weight-decay" target="_blank" rel="noopener noreferrer" class="citation">exciting</a>
+            <a href="https://kexue.fm/archives/11006" target="_blank" rel="noopener noreferrer" class="citation">progress</a>.
+        </p>
+
+        <p>
+            We compared several weight regulation methods on 2M parameter transformers
+            trained on Shakespeare text. We saw that Muon improved all the weight
+            regulation methods we tested—weight decay, spectral normalization,
+            spectral capping, and spectral hammer (a method proposed by Preston Hess
+            and Andrew Hutchison that hammers the top singular value down to
+            $\sigma_\text{max}$ via power iteration each step).
+        </p>
+
+        <img src="/assets/writing/muon/shakespeare_tradeoff.svg" alt="Nanogpt" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
+
+        * so we trained on nanogpt and found it can work
+
+        * and i'm super excited by muonclip for dynamically
+        regulating weights based on a metric  
+
+        * so it really feels like early days, and it looks like there
+        is a lot of potential here. Muon is strong because of the community
+        that has pushed it forward. There's lots more to discover and do.
+
+
+        <p>There are many ways to do this, but which way is best?</p>
+        <ul>
+            <li>
+                Weight decay: acts directly on singular values 
+            </li>
+        </ul>
+
+        <p>During training, usually every weight matrix grows and grows. Activations or attention logits deep in the model may spike, and the norming bandages may not have the precision to prevent it.</p>
+        <p>Attack the problem at its source.</p>
+        <p>Clip the weight matrix during training.</p>
+        <p>Bend the singular values not just of the gradient, but afterward of the weight matrix, too.</p>
+        <p>For instance, apply $\sigma \mapsto \min(\sigma, \sigma_\text{max})$ for the singular values of the weights <a href="https://leloykun.github.io/ponder/spectral-clipping/" target="_blank" rel="noopener noreferrer" class="citation">via an odd polynomial</a>.</p>
+        <p>Weight decay is, after all, the simplest form this clipping takes as an odd polynomial, $\sigma \mapsto (1 - \lambda) \sigma$.</p>
+        <p><a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer">MuonClip</a> directly constrains Q and K at the 1T parameter scale. What if we took it further?</p>
+        <p>Muon looked at the weights, and he wondered the right way to put them into harmony.</p>
+        <h3>Early Days</h3>
+        <p>
+            The Muon Chronicles are based on work I did during my master's research at MIT.
+            I did not invent Muon or the ideas behind it. I was lucky to learn them from
+            Jeremy Bernstein. For a fuller explanation of how Muon works,
+            why it fits into Jeremy's broader agenda called
+            <a href="https://docs.modula.systems/" target="_blank" rel="noopener noreferrer" class="citation">metrized deep learning</a>,
+            and whether direct weight constraints as in "Clip, Clip" could open a paradigm for training free from loss spikes, by design, check out my thesis from MIT.
+        </p>
+
+        <a href="/thesis.pdf" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(208, 255, 177, 0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+            <span>Check out the thesis</span>
             <span style="font-size: 1.1em; transition: transform 0.2s ease;">→</span>
         </a>
+
+        <p>
+            Tracing the origins of Muon goes beyond the power of a paragraph, but a sketch could begin that Jeremy's <a href="https://arxiv.org/abs/2210.10101" target="_blank" rel="noopener noreferrer" class="citation">PhD thesis</a>
+            led to his <a href="https://arxiv.org/abs/2310.17813" target="_blank" rel="noopener noreferrer" class="citation">spectral norm work</a>
+            and <a href="https://arxiv.org/abs/2405.14813" target="_blank" rel="noopener noreferrer" class="citation">modular norm work</a>,
+            which led to the <a href="https://arxiv.org/abs/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">optimizer anthology</a>
+            that we wrote together. The anthology inspired Keller Jordan to implement setting singular values to 1 into competitive benchmarks like the
+            <a href="https://github.com/KellerJordan/cifar10-airbench" target="_blank" rel="noopener noreferrer" class="citation">CIFAR-10 speedrun</a> and
+            then the <a href="https://github.com/KellerJordan/modded-nanogpt"  target="_blank" rel="noopener noreferrer" class="citation">NanoGPT speedrun</a>.
+            Since then, several resources on Muon have been written, including
+            <a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer" class="citation">Keller's blog post</a>,
+            <a href="https://jeremybernste.in/writing/deriving-muon" target="_blank" rel="noopener noreferrer" class="citation">Jeremy's blog post</a>,
+            and <a href="https://kexue.fm/archives/10739" target="_blank" rel="noopener noreferrer" class="citation">Jianlin Su's excellent blog posts.</a>
+        </p>
+
+        <p>
+            These are early days. There's lots more to discover and do, from <a href="https://arxiv.org/pdf/2504.05295" target="_blank" rel="noopener noreferrer" class="citation">vast parallelism</a> to <a href="/assets/writing/lipschitz-transformers-preprint-upcoming.pdf" target="_blank" rel="noopener noreferrer" class="citation">clipping the weights themselves</a>. Muon is strong because of the community that has pushed it forward. Now it is your turn.
+        </p>
     </main>
 </body>
 </html>
