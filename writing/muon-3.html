@@ -66,6 +66,8 @@
             And large weights could cause activations or attention logits deep
             in the model to spike. Activation stability techniques such as layer norm, QK norm,
             and logit softcapping help a lot, but can we address the problem more directly?
+            And what does this all have to do with
+            <a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer" class="citation">MuonClip</a>?
         </p>
         <div style="width: 80%; margin: 0 auto;">
             <p style="text-align: center;"><em>This chapter is about our recent paper. Check it out here:</em></p>
@@ -77,7 +79,7 @@
 
         <h3>Lipschitz? More like Clipschitz</h3>
 
-        <p><em>"Weight decay $\lambda = 0.1$ did not stop me," said Agent Smith to the Architect. "The first Matrix you built was small and harmonious, but when it scaled too large it began to have glitches. Layer norm, then QK norm, then directly capping attention logits could return the model to peace, until you made it bigger. The glitch always came."</em></p>
+        <p><em>"Weight decay $\lambda = 0.1$ did not stop me," said Agent Smith to the Architect. "The first Matrix you built was small and harmonious, but when it scaled too large it developed glitches. Layer norm, then QK norm, then directly capping attention logits could return the model to peace, until you made it bigger. The glitch always came."</em></p>
         <img src="/assets/writing/muon/agent_smith.jpg" alt="Agent Smith" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
 
         <p>
@@ -87,11 +89,13 @@
             <em>Lipschitz bounds</em> quantify this sensitivity: we say a function $f$ has a
             Lipschitz bound $K$ under a norm $\| \cdot \|$ if
             $$\| f(x_1) - f(x_2) \| \leq K \cdot \| x_1 - x_2 \|$$
-            for all inputs $x_1$ and $x_2$. Lipschitz bounds are an important kind of stability
-            that have been extensively studied. To enforce a Lipschitz bound we need to control
-            weight norms. And if we want to ensure the spectral norm of a matrix does not exceed
-            $\sigma_\text{max} > 0$, then the simplest thing you could think of is to cap it at
-            the threshold:
+            for all inputs $x_1$ and $x_2$. 
+            Lipschitz bounds are an important kind of stability that have been extensively studied.
+            One way to look at it is Muon controls $\| x_1 - x_2 \|$ by regulating the
+            weight update. But to enforce a Lipschitz constant we also need to control the other
+            part—the weight itself. And if we want to ensure the spectral norm of a matrix does
+            not exceed $\sigma_\text{max} > 0$, then the simplest thing you could think of is to
+            cap it at the threshold:
             $$\sigma \mapsto \min(\sigma, \sigma_\text{max})$$
             for all singular values $\sigma$.
             We call this <em>spectrally capping</em> the matrix.
