@@ -149,9 +149,12 @@
                 We were able to create performant Lipschitz-enforced transformers
                 at the 145M parameter scale. For instance our &lt;10-Lipschitz transformer
                 reaches accuracy 21% on FineWeb internet text. But to match baseline 39%
-                accuracy requires an (almost comical) Lipschitz bound of $10^{264}$.
+                accuracy requires an (almost comical) input-to-output Lipschitz bound of $10^{264}$.
                 Can you beat it? We think there's lots of room to improve our methods.
-                Nonetheless we are excited because <em>activation norms</em> stay
+                <br><br>
+                But even now we are excited because of smoothness in the internal units
+                of the model. Each layer has a much better Lipschitz bound.
+                Representations evolve smoothly layer to layer. And <em>activation norms</em> stay
                 smaller when regulating weight norm: the max activation entry is ~100
                 compared to ~1000 in the baseline (which is already Lipschitz). Bounded
                 activations could improve training stability or low-precision inference.
@@ -186,6 +189,7 @@
             Jeremy Bernstein,
             Jordan Juravsky,
             Kwangjun Ahn,
+            Phillip Isola,
             Adrian Rodriguez-Munoz,
             Juan Cervino,
             and
