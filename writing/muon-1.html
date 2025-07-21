@@ -73,7 +73,8 @@
     </header>
     <main>
         <h2 style="margin: 0;">Understanding Muon</h2>
-        <h4 style="margin-top: 0; margin-bottom: 2rem; text-align: center;">20 July 2025</h4>
+        <h2 style="margin: 0; margin-top: -10px;">Chapter 1: Into the Matrix</h2>
+        <h4 style="margin: 0; margin-top: -5px; text-align: center;">July 21, 2025</h4>
 
         <p style="text-align: center;">"To understand Muon, the first step is to enter the Matrix."<br>—Not quite Morpheus</p>
 
@@ -337,7 +338,7 @@
 
         <p>That's the surprising empirical fact: many gradient singular values are very small. Muon views them equally.</p>
 
-        <p>So we've followed the gradient as far as it will go, but only stepping distance $1$. This compromise leads to the map $G \mapsto \sqrt{\tfrac{d_\text{out}}{d_\text{in}}} \; U V^T$ for $G = U \Sigma V^T$, which we compute by iterating odd polynomials since they act directly on the singular values. And the distance we're catering to is fundamentally <em>matrix-based</em>. Controlling $\Delta W$ this way controls how much the optimizer update can affect the model output.</p>
+        <p>So we've followed the gradient as far as it will go, but only stepping distance $1$. This compromise leads to the map $G \mapsto \sqrt{\tfrac{d_\text{out}}{d_\text{in}}} \; U V^T$ for $G = U \Sigma V^T$, which we compute by iterating odd polynomials since they act directly on the singular values. And the distance we're catering to is fundamentally <em>matrix-based</em>. Controlling $\Delta W$ this way controls how much the optimizer update can affect the model output—activation RMS can change by at most $1$.</p>
         <p>To recover Muon, we add back the smoothness of momentum, constructing $M_{n+1} = \beta M_n + (1 - \beta) G_{n+1}$ for some parameter $\beta$, typically $0.95$. Muon proposes its core update as orthogonalized momentum:</p>
         <p>$$\Delta W_n = \sqrt{\frac{d_\text{out}}{d_\text{in}}} \text{orthogonalize}(M_n).$$</p>
         <p>The spoon is bent without having even looked at it. In the next chapter, we'll go through Muon's PyTorch code line-by-line so that you can't get stuck understanding it. And we'll advise on learning rate and when to use Muon.</p>

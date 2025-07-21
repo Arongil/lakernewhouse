@@ -103,7 +103,7 @@
             We just need to find an odd polynomial that approximates $\min(\sigma, \sigma_\text{max})$.
         </p>
 
-        <img src="/assets/writing/muon/spectral_cap.svg" alt="Spectral cap" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
+        <img src="/assets/writing/muon/method.svg" alt="Spectral cap" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
 
         <p>
             Our paper gives early answers to this question.
@@ -112,73 +112,66 @@
             <a href="https://kexue.fm/archives/11006" target="_blank" rel="noopener noreferrer" class="citation">progress</a>.
         </p>
 
+        <p>To highlight that progress, a major insight is that we can apply $\text{min}(1, x)$ to the singular values by cleverly combining the orthogonalizing operation from Muon. To warm up, let's understand the identity</p>
+        <p>$$\text{min}(1, x) = 0.5((1+x)\text{sign}(1+x)-(1-x)\text{sign}(1-x)) \; \text{ for } x \geq 0.$$</p>
+        <p>We can understand this formula by parsing two cases. When $|x| < 1$, both signs are $+1$ and the formula is $0.5(1+x-1+x) = x$. When $|x| > 1$, one of the signs flips and the formula is $0.5(1+x+1-x) = 1$.</p>
+
+        <img src="/assets/writing/muon/min1x_via_sign.svg" alt="min(1, x)" style="width: 40%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
+
+        <p>Extending to a matrix changes things a little, but the idea is the same (Appendix B for details). If we abbreviate Muon's orthogonalizing operation $U \Sigma V^T \mapsto U V^T$ as $f(X)$, then we can see spectral capping in action:</p>
+        <p>$$\text{spectral\_cap}(W; \beta) = 0.5(\beta f(W) + W - f(\beta I - f(W)W^T)(\beta f(W) - W)).$$</p>
+
+        <img src="/assets/writing/muon/spectral_cap.svg" alt="Spectral cap" style="width: 50%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
+
+        <p>And spectrally capping is a special case of <em>spectrally clipping</em>, which sends $\sigma \mapsto \text{clip}(\sigma, \sigma_\text{min}, \sigma_\text{max})$.</p>
+
         <p>
-            We compared several weight regulation methods on 2M parameter transformers
-            trained on Shakespeare text. We saw that Muon improved all the weight
-            regulation methods we tested—weight decay, spectral normalization,
-            spectral capping, and spectral hammer (a method proposed by Preston Hess
-            and Andrew Hutchison that hammers the top singular value down to
-            $\sigma_\text{max}$ via power iteration each step).
+            In our work we made small steps toward applying these tools to training transformers.
         </p>
-
-        <img src="/assets/writing/muon/shakespeare_tradeoff.svg" alt="Nanogpt" style="width: 80%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
-
-        * so we trained on nanogpt and found it can work
-
-        * and i'm super excited by muonclip for dynamically
-        regulating weights based on a metric  
-
-        * so it really feels like early days, and it looks like there
-        is a lot of potential here. Muon is strong because of the community
-        that has pushed it forward. There's lots more to discover and do.
-
-
-        <p>There are many ways to do this, but which way is best?</p>
-        <ul>
+        <ol>
             <li>
-                Weight decay: acts directly on singular values 
+                We found that Muon improved all the weight regulation methods
+                we tested—weight decay, spectral normalization, spectral capping,
+                and spectral hammer—along a trade-off frontier of performance vs.
+                Lipschitz bound. And at this scale our <em>fastest</em> training runs
+                are with weight constraints.
+
+                <img src="/assets/writing/muon/shakespeare_tradeoff.png" alt="Nanogpt" style="width: 60%; max-width: 100%; height: auto; margin: 0.5rem auto; display: block; border-radius: 20px;">
             </li>
-        </ul>
+            <li>
+                We were able to create performant Lipschitz-enforced transformers
+                at the 145M parameter scale. For instance our &lt;10-Lipschitz transformer
+                reaches accuracy 21% on FineWeb internet text. But to match baseline 39%
+                accuracy requires an (almost comical) Lipschitz bound of $10^{264}$.
+                Can you beat it? We think there's lots of room to improve our methods.
+                Nonetheless we are excited because <em>activation norms</em> stay
+                smaller when regulating weight norm: the max activation entry is ~100
+                compared to ~1000 in the baseline (which is already Lipschitz). Bounded
+                activations could improve training stability or low-precision inference.
+            </li>
+        </ol>
 
-        <p>During training, usually every weight matrix grows and grows. Activations or attention logits deep in the model may spike, and the norming bandages may not have the precision to prevent it.</p>
-        <p>Attack the problem at its source.</p>
-        <p>Clip the weight matrix during training.</p>
-        <p>Bend the singular values not just of the gradient, but afterward of the weight matrix, too.</p>
-        <p>For instance, apply $\sigma \mapsto \min(\sigma, \sigma_\text{max})$ for the singular values of the weights <a href="https://leloykun.github.io/ponder/spectral-clipping/" target="_blank" rel="noopener noreferrer" class="citation">via an odd polynomial</a>.</p>
-        <p>Weight decay is, after all, the simplest form this clipping takes as an odd polynomial, $\sigma \mapsto (1 - \lambda) \sigma$.</p>
-        <p><a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer">MuonClip</a> directly constrains Q and K at the 1T parameter scale. What if we took it further?</p>
-        <p>Muon looked at the weights, and he wondered the right way to put them into harmony.</p>
-        <h3>Early Days</h3>
+        <h3>Early days</h3>
+
         <p>
-            The Muon Chronicles are based on work I did during my master's research at MIT.
-            I did not invent Muon or the ideas behind it. I was lucky to learn them from
-            Jeremy Bernstein. For a fuller explanation of how Muon works,
-            why it fits into Jeremy's broader agenda called
-            <a href="https://docs.modula.systems/" target="_blank" rel="noopener noreferrer" class="citation">metrized deep learning</a>,
-            and whether direct weight constraints as in "Clip, Clip" could open a paradigm for training free from loss spikes, by design, check out my thesis from MIT.
+            Just over a week ago, Jianlin Su and his team published
+            <a href="https://moonshotai.github.io/Kimi-K2/" target="_blank" rel="noopener noreferrer">MuonClip</a>,
+            which directly constrains the attention $Q$ and $K$ norms at the 1T parameter scale.
+            This idea is brilliant, because it <em>dynamically</em> regulates the weight
+            norm according to a metric—in this case, "max logit" in attention. 
+        </p>
+        <p>
+            I think there's so much potential here.
+            One problem our method had is we constrained all the weights a fixed amount,
+            and that might overburden the model. Our NanoGPT transformers can take 4x as
+            long to reach the same loss. Dynamic contraints—validated at the 1T parameter
+            scale—feel like a very promising direction.
         </p>
 
-        <a href="/thesis.pdf" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(208, 255, 177, 0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
-            <span>Check out the thesis</span>
-            <span style="font-size: 1.1em; transition: transform 0.2s ease;">→</span>
-        </a>
-
-        <p>
-            Tracing the origins of Muon goes beyond the power of a paragraph, but a sketch could begin that Jeremy's <a href="https://arxiv.org/abs/2210.10101" target="_blank" rel="noopener noreferrer" class="citation">PhD thesis</a>
-            led to his <a href="https://arxiv.org/abs/2310.17813" target="_blank" rel="noopener noreferrer" class="citation">spectral norm work</a>
-            and <a href="https://arxiv.org/abs/2405.14813" target="_blank" rel="noopener noreferrer" class="citation">modular norm work</a>,
-            which led to the <a href="https://arxiv.org/abs/2409.20325" target="_blank" rel="noopener noreferrer" class="citation">optimizer anthology</a>
-            that we wrote together. The anthology inspired Keller Jordan to implement setting singular values to 1 into competitive benchmarks like the
-            <a href="https://github.com/KellerJordan/cifar10-airbench" target="_blank" rel="noopener noreferrer" class="citation">CIFAR-10 speedrun</a> and
-            then the <a href="https://github.com/KellerJordan/modded-nanogpt"  target="_blank" rel="noopener noreferrer" class="citation">NanoGPT speedrun</a>.
-            Since then, several resources on Muon have been written, including
-            <a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer" class="citation">Keller's blog post</a>,
-            <a href="https://jeremybernste.in/writing/deriving-muon" target="_blank" rel="noopener noreferrer" class="citation">Jeremy's blog post</a>,
-            and <a href="https://kexue.fm/archives/10739" target="_blank" rel="noopener noreferrer" class="citation">Jianlin Su's excellent blog posts.</a>
-        </p>
-
-        <p>
-            These are early days. There's lots more to discover and do, from <a href="https://arxiv.org/pdf/2504.05295" target="_blank" rel="noopener noreferrer" class="citation">vast parallelism</a> to <a href="/assets/writing/lipschitz-transformers-preprint-upcoming.pdf" target="_blank" rel="noopener noreferrer" class="citation">clipping the weights themselves</a>. Muon is strong because of the community that has pushed it forward. Now it is your turn.
+        <p style="margin-bottom: 3rem;">
+            So it really feels like early days. Muon is strong because of the community
+            that has pushed it forward. There is a lot more to do and discover in fast,
+            stable training. And it all started by looking the right way at a Matrix.
         </p>
     </main>
 </body>
