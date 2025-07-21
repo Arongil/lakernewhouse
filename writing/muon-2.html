@@ -228,8 +228,8 @@ class Muon(torch.optim.Optimizer):
                 Muon optimizes these other parameters with an AdamW backup.
                 <br><br>
                 <em>Exercise 1: what's wrong with the parameter rule below?</em>
-                <pre><code class="language-python" id="muon-code">def is_muon_param_incorrect(p):
-    return p.ndim == 2
+                <pre><code class="language-python" id="muon-code">def is_muon_param(p):
+    return p.ndim == 2  # incorrect
                 </code></pre>
                 <em>
                     Solution 1: this rule could misinterpret 2D matrix parameters whose input/output
