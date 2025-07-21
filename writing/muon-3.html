@@ -163,7 +163,7 @@
         </p>
         <p>
             I think there's so much potential here.
-            One problem our method had is we constrained all the weights a fixed amount,
+            One problem with our method is we constrained all the weights a fixed amount,
             and that might overburden the model. Our NanoGPT transformers can take 4x as
             long to reach the same loss. Dynamic contraints—validated at the 1T parameter
             scale—feel like a very promising direction.
@@ -175,7 +175,7 @@
             stable training. And you could be part of the next step.
         </p>
 
-        <p style="margin-bottom: 3rem;"><em>
+        <p><em>
             Thank you to 
             Jeremy Bernstein,
             Jordan Juravsky,
@@ -186,6 +186,77 @@
             Dana Manor
             for feedback on early drafts.
         </em></p>
+
+        <!-- BibTeX Citation -->
+        <div style="margin-top: 3rem; margin-bottom: 4rem; position: relative;">
+            <button id="copyButton" onclick="copyBibtex()" style="
+                position: absolute;
+                top: 0.75rem;
+                right: 0.75rem;
+                background: #4084f3;
+                color: white;
+                border: none;
+                padding: 0.4rem 0.8rem;
+                border-radius: 6px;
+                font-size: 0.8rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 0.4rem;
+                z-index: 10;
+            " onmouseover="this.style.background='#2563eb'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#3b82f6'; this.style.transform='translateY(0)'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            </button>
+            
+            <pre id="bibtexCitation" style="
+                background: #f0f9ff;
+                padding: 1.25rem;
+                border-radius: 8px;
+                border: 1px solid #e9ecef;
+                font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Courier New', monospace;
+                font-size: 0.85rem;
+                line-height: 1.5;
+                margin: 0;
+                overflow-x: auto;
+                color: #2d3748;
+                tab-size: 2;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            ">@misc{newhouse2025understanding,
+  title = {Understanding Muon},
+  author = {Laker Newhouse},
+  url = {https://lakernewhouse.com/muon}
+  year = {2025},
+}</pre>
+        </div>
+
+        <script>
+        function copyBibtex() {
+            const bibtexText = document.getElementById('bibtexCitation').textContent;
+            const button = document.getElementById('copyButton');
+            
+            navigator.clipboard.writeText(bibtexText).then(function() {
+                // Success feedback
+                const originalHTML = button.innerHTML;
+                button.innerHTML = 'Copied!';
+                
+                setTimeout(function() {
+                    button.innerHTML = originalHTML;
+                }, 1500);
+            }).catch(function(err) {
+                // Fallback for older browsers
+                console.error('Could not copy text: ', err);
+                button.innerHTML = 'Copy failed';
+                setTimeout(function() {
+                    button.innerHTML = 'Copy BibTeX';
+                }, 2000);
+            });
+        }
+        </script>
     </main>
 </body>
 </html>
