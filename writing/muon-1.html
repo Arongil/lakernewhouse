@@ -216,8 +216,8 @@
             where $m_1$ tracks $G$, and $m_2$ tracks $G^2$ (elementwise square).
             Its updates resemble $\frac{G}{\sqrt{G^2}} = \text{sign}(G)$,
             and each <em>entry</em> of its updates hovers near one. Yet Adam looks
-            at entries to step distance one, even though that may not be connected to
-            what the weight matrix does in a neural network.
+            at entries to step distance one, even though the entries link indirectly
+            to what the weight matrix does in a neural network.
         </p>
         <p>But Muon... it has entered the Matrix. It does not see <em>entries</em> of a gradient matrix. It sees the matrix itself.</p>
         <p>And that will be very useful so that Muon can exploit a more sophisticated way to measure "distance one."</p>
@@ -242,9 +242,9 @@
 
         <p>To see, forget that a matrix is made of numbers. Forget that a matrix is called a matrix.</p>
         <p>A linear transformation is all there is, $A : \mathbb{R}^{d_\text{in}} \to \mathbb{R}^{d_\text{out}}$. The transformation sends vectors to vectors.</p>
-        <p>Its inputs are lists of numbers, and we'd like to measure $(\pm 1, \dots, \pm 1)$ as size $1$ no matter how long the list is. That's because we'd like activations in our neural network to have entries approximately $1$ or $-1$. It's what $\mu\text{P}$ recommends for consistent dimension scaling, and it's the most expressive range for floating point numbers.</p>
+        <p>Its inputs are lists of numbers, and we'd like to measure $(\pm 1, \dots, \pm 1)$ as size $1$ no matter how long the list is. That's because we'd like activations in our neural network to have entries around $1$ or $-1$. It's what $\mu\text{P}$ recommends for consistent dimension scaling, and it's the most expressive range for floating point numbers.</p>
         <p>But the regular $\ell_2$ norm $\| v \|_2^2 = v_1^2 + \cdots + v_n^2$ will not do, because it judges all-ones vectors differently depending on dimension. Instead we use the root-mean-square norm $\| v \|_\text{RMS}^2 = \tfrac{1}{d} (v_1^2 + \cdots + v_n^2)$.</p>
-        <p>How much can $A$ change vectors? Imagine the linear transformation takes all vectors $v$ with $\| v \|_\text{RMS} = 1$, and it bends this sphere into an oblong shape. Whichever vector is sent farthest away, its size will be $A$'s size: $$\| A \|_{\text{RMS} \rightarrow \text{RMS}} := \underset{v : \| v \|_\text{RMS} = 1}{\max} \| A v \|_\text{RMS}.$$</p>
+        <p>How much can $A$ change vectors? Imagine the linear transformation takes all vectors $v$ with $\| v \|_\text{RMS} = 1$, and it bends this sphere into an oblong shape. Whichever vector is made the largest, its size will be $A$'s size: $$\| A \|_{\text{RMS} \rightarrow \text{RMS}} := \underset{v : \| v \|_\text{RMS} = 1}{\max} \| A v \|_\text{RMS}.$$</p>
         <p>This measure is the $\text{RMS}$ to $\text{RMS}$ norm, the maximum stretch that the $\text{RMS}$ norm can detect. It is a measure of size that accounts for what the matrix actually does in a neural network: transform vectors.</p>
         <p>For an optimizer to scale dimension-independently, $\mu \text{P}$ advocates initializing weights with $\| W \|_{\text{RMS} \rightarrow \text{RMS}} = 1$. And it recommends that the update scale match the weight scale (prior to applying the learning rate $\eta > 0$). So we arrive back to our compromise, now armed with a specific norm. But what is the solution to</p>
         <p>$$\underset{\Delta W \text{ s.t. } \| \Delta W \|_{\text{RMS} \rightarrow \text{RMS}} \leq 1}{\text{argmin}} \langle G, \Delta W \rangle?$$</p>
