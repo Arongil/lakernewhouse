@@ -92,7 +92,7 @@
             for all inputs $x_1$ and $x_2$. 
             Lipschitz bounds are an important kind of stability that have been extensively studied.
             One way to look at it is Muon controls the $\| x_1 - x_2 \|$ term by regulating the
-            weight update. But to enforce a Lipschitz constant we also need to control the other
+            weight update. But to get the benefit of a Lipschitz constant we also need to control the other
             term—the weight itself. And to ensure the spectral norm of a matrix does
             not exceed $\sigma_\text{max} > 0$, then the simplest thing you could think of is to
             cap it at the threshold:
@@ -125,6 +125,12 @@
         <img src="/assets/writing/muon/spectral_cap.svg" alt="Spectral cap" style="width: 50%; height: auto; margin: 2rem auto; display: block; border-radius: 20px;">
 
         <p>And spectrally capping is a special case of <em>spectrally clipping</em>, which sends $\sigma \mapsto \text{clip}(\sigma, \sigma_\text{min}, \sigma_\text{max})$.</p>
+        <p>
+            Preston Hess and Andrew Hutchison invented another weight regulation method called <em>spectral hammer</em>.
+            Every step spectral hammer sets the largest singular value to $1$ via power iteration.
+            Spectral hammer often works well with Adam—a low stable rank update.
+            But spectral cap works better with Muon—a full rank update.
+        </p>
 
         <p>
             In our work we made small steps toward applying these tools to training transformers.
