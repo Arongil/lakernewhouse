@@ -58,7 +58,7 @@
         </div>
         
         <div class="chapter-item">
-            <a href="/writing/muon-3" class="chapter-link">Chapter 3: Constrain Weights</a>
+            <a href="/writing/muon-3" class="chapter-link">Chapter 3: Weight Regulation</a>
             <span class="chapter-description">Our work, and future directions</span>
         </div>
     </div>
@@ -100,15 +100,17 @@
         </p>
         <ul>
             <li><a href="/writing/muon-1" class="chapter-link no-block">Chapter 1: Into the Matrix <span style="color: #666;">(speedy Muon explainer based on common confusion points)</span></a></li>
-            <li><a href="/writing/muon-2" class="chapter-link no-block">Chapter 2: The Source Code <span style="color: #666;">(annotated PyTorch implementation + usage advice)</span></a></li>
+            <li><a href="/writing/muon-2" class="chapter-link no-block">Chapter 2: Source Code <span style="color: #666;">(annotated PyTorch implementation + usage advice)</span></a></li>
             <li><a href="/writing/muon-3" class="chapter-link no-block">Chapter 3: Weight Regulation <span style="color: #666;">(MuonClip, our work, and future directions)</span></a></li>
         </ul>
 
         By the end we will see why
         <a href="https://kexue.fm/archives/11126" class="citation">Jianlin Su's recent blog on QK-clip</a>
-        deserves its praise, and why I'm excited about direct, designed weight constraints to guarantee stable training.
-        If you're interested, check out our new paper where we spectrally regulate the weights, which allows us to
-        train performant transformers without usual stability techniques such as layer norm, QK norm, and logit softcapping.
+        deserves its praise, and why I'm excited about direct, designed weight constraints
+        to guarantee stable training. If you're interested, check out our new paper where
+        we train performant transformers by spectrally regulating the weights,
+        without using activation stability tricks such as layer norm, QK norm, or logit softcapping.
+        This may address a "root cause" of unstable training.
 
         <a href="https://arxiv.org/abs/2507.13338" style="display: flex; justify-content: center; align-items: center; gap: 0.5em; font-size: 0.95rem; font-weight: 500; padding: 0.75em 1.25em; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(186, 233, 255, 0.8); color: #333; cursor: pointer; margin: 2rem auto; transition: all 0.2s ease; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: fit-content;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
             <span>Check out the paper (joint with fantastic collaborators)</span>
@@ -127,7 +129,9 @@
             <p>
                 Our series here is inspired by all three sources above.
                 In addition, this series is about my master's research this year at MIT.
-                Tracing Muon's scholarly history has many branches, including
+                Tracing Muon's scholarly history has
+                <a href="https://docs.modula.systems/intro/reading-list/" target="_blank" rel="noopener noreferrer" class="citation">many branches</a>,
+                including
                 <a href="https://arxiv.org/abs/1802.09568" target="_blank" rel="noopener noreferrer" class="citation">Shampoo</a>,
                 <a href="https://proceedings.mlr.press/v38/carlson15.pdf" target="_blank" rel="noopener noreferrer" class="citation">spectral descent</a>, 
                 and <a href="https://arxiv.org/pdf/1708.00523" target="_blank" rel="noopener noreferrer" class="citation">duality descent</a>
