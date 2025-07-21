@@ -92,8 +92,8 @@
             for all inputs $x_1$ and $x_2$. 
             Lipschitz bounds are an important kind of stability that have been extensively studied.
             One way to look at it is Muon controls the $\| x_1 - x_2 \|$ term by regulating the
-            weight update. But to get the benefit of a Lipschitz constant we also need to control the other
-            term—the weight itself. And to ensure the spectral norm of a matrix does
+            weight update. But to get the benefit of a Lipschitz constant we also need to control
+            the $K$ term—the weight norm. And to ensure the spectral norm of a matrix does
             not exceed $\sigma_\text{max} > 0$, then the simplest thing you could think of is to
             cap it at the threshold:
             $$\sigma \mapsto \min(\sigma, \sigma_\text{max})$$
@@ -113,7 +113,7 @@
             <a href="https://kexue.fm/archives/11006" target="_blank" rel="noopener noreferrer" class="citation">progress</a>.
         </p>
 
-        <p>To highlight that progress, a major insight is that we can apply $\text{min}(1, x)$ to the singular values by cleverly combining the orthogonalizing operation from Muon. To warm up, let's understand the identity</p>
+        <p>To highlight that progress, a major insight is that we can apply $\text{min}(1, x)$ to the singular values by cleverly using the orthogonalizing operation that we originally developed for Muon. To warm up, let's understand the identity</p>
         <p>$$\text{min}(1, x) = 0.5((1+x)\text{sign}(1+x)-(1-x)\text{sign}(1-x)) \; \text{ for } x \geq 0.$$</p>
         <p>We can understand this formula by parsing two cases. When $|x| < 1$, both signs are $+1$ and the formula is $0.5(1+x-1+x) = x$. When $|x| > 1$, one of the signs flips and the formula is $0.5(1+x+1-x) = 1$.</p>
 
