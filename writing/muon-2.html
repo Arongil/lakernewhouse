@@ -244,20 +244,22 @@ class Muon(torch.optim.Optimizer):
             </span>
         </li>
         <br>
-        <li><strong>Do Muon and Adam share the same learning rate?</strong>
+        <li><strong>Should Muon and Adam share the same learning rate?</strong>
             <br>
             <span style="color: #555;">
-                Not by default. The best way to do this may
-                actually be an open question, but two approaches are discussed in
+                Not necessarily. If you do share a learning rate, then while the best way to do it may
+                actually be an open question, two approaches are discussed in
                 <a href="https://arxiv.org/abs/2504.05295" target="_blank" rel="noopener noreferrer">Microsoft's Dion paper</a>
                 and
                 <a href="https://arxiv.org/abs/2502.16982" target="_blank" rel="noopener noreferrer">Moonshot AI's Muon paper</a>.
                 <ul>
                     <li>
-                        <strong>Dion's approach:</strong> follow the dimensional factors that yield learning rate transfer
+                        <strong>Dion's approach:</strong> follow the usual dimensional factors that transfer learning rate
                         across width, $\sqrt{d_\text{out}/d_\text{in}}$. Then use the same learning rate
                         across Adam and Muon, except scale down the unembedding layer's learning rate by
-                        $1/\sqrt{d_\text{in}}$. More discussion in their Appendix D.
+                        $1/\sqrt{d_\text{in}}$. More discussion in their Appendix D. For more on "natural
+                        norms" that inspired this approach see
+                        <a href="https://arxiv.org/abs/2310.17813" target="_blank" rel="noopener noreferrer">Jeremy's spectral condition paper</a>.
                     </li>
                     <li>
                         <strong>Moonshot's approach:</strong> match the RMS norm of Adam's updates with the "RMS norm"
@@ -278,11 +280,19 @@ class Muon(torch.optim.Optimizer):
         <li><strong>What are good default hyperparameters for Muon?</strong>
             <br>
             <span style="color: #555;">
-                Muon works well with a learning rate of 3e-4, $\beta_1 = 0.9$, and $\beta_2 = 0.95$. These values remain effective as model size increases, since Muon's update is dimensionless.
+                Muon works well with learning rate around $0.02$, but sweep in logspace to find the
+                best one. Using the $\text{RMS}$ to $\text{RMS}$ norm means Muon's optimal learning
+                rate transfers as model dimension grows, so you can sweep on a smaller model.
+                For momentum, $\beta = 0.95$ works well. Tuning it may not make much difference.
+                Weight decay ($0.1$, $0.01$, or sweep in logspace) becomes important for larger models
+                (>0.5B parameters). For the internal Adam optimizer, $\beta_1 = 0.9$ and $\beta_2 = 0.95$
+                work well. It may also be promising to replace the internal Adam with an internal Lion
+                optimizer with $\beta_1 = 0.95$ and $\beta_2 = 0.98$.
             </span>
         </li>
     </ol>
 
+    What else could one want? 
 
 
 
