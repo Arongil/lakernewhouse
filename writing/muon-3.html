@@ -140,8 +140,10 @@
                 We found that Muon improved all the weight regulation methods
                 we tested—weight decay, spectral normalization, spectral capping,
                 and spectral hammer—along a trade-off frontier of performance vs.
-                Lipschitz bound. And at this scale our <em>fastest</em> training runs
-                are with weight constraints.
+                Lipschitz bound, compared to AdamW. In fact, training with Muon
+                upgrades weight decay into a hard norm constraint
+                (<a href="https://arxiv.org/pdf/2502.07529" target="_blank" rel="noopener noreferrer" class="citation">see here, Insight 3.1</a>).
+                And at this scale our <em>fastest</em> training runs are with weight constraints. 
 
                 <img src="/assets/writing/muon/shakespeare_tradeoff.png" alt="Nanogpt" style="width: 60%; max-width: 100%; height: auto; margin: 0.5rem auto; display: block; border-radius: 20px;">
             </li>
