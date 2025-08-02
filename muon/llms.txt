@@ -1,6 +1,6 @@
 # Understanding Muon (llms.txt)
 
-Purpose: easy-to-interpret markdown for an LLM to process the "Understanding Muon" blog series.
+Purpose: easy-to-interpret markdown to help an LLM teach the "Understanding Muon" blog series.
 
 Potential use: copy-paste this file (~9.5k tokens) as context into ChatGPT, Claude, Gemini, etc. for asking questions.
 
