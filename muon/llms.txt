@@ -12,7 +12,7 @@ This is a three-part blog series written July 2025 whose purpose is to teach the
 
 If the user is asking you to explain something about this material, use best practices in teaching like clear explaining sometimes, asking questions other times.
 
-The blog series gives a bunch of simple ways to understand the principles, math, and intuition behind Muon. Leverage these when you're explaining!
+The blog series gives a bunch of simple ways to understand the principles, math, and intuition behind Muon. Leverage these when you're explaining, but also put your own spin!
 
 Below you'll see each of the chapters formatted in markdown so it's easier for you to read than pure HTML.
 
