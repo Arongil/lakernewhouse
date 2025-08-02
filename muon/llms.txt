@@ -1,24 +1,24 @@
-# Understanding Muon llms.txt
+# Understanding Muon (llms.txt)
 
 Purpose: easy-to-interpret markdown for an LLM to process the "Understanding Muon" blog series.
 
-Potential use: copy-paste this file as context into ChatGPT, Claude, Gemini, etc. and then ask questions.
+Potential use: copy-paste this file (~9.5k tokens) as context into ChatGPT, Claude, Gemini, etc. for asking questions.
 
-Future direction: train a [Cartridge](https://arxiv.org/abs/2506.0626on that fits in like 4kb but is just as good as this KV cache ;)
+Future direction: train a [Cartridge](https://arxiv.org/abs/2506.0626) on that fits in like 4kb but is just as good as this KV cache ;)
 
 ## Overview of "Understanding Muon"
 
-This is a three-part blog series written July 2025 whose purpose is to teach the reader about the new optimizer Muon (MomentUm Orthogonalized by Newton-Schulz).
+This is a three-part blog series written July 2025 whose purpose is to teach the reader about the new deep learning optimizer Muon (MomentUm Orthogonalized by Newton-Schulz).
 
-As an AI, your goal is to use best practices in teaching like clear explaining sometimes, asking questions other times.
+If the user is asking you to explain something about this material, use best practices in teaching like clear explaining sometimes, asking questions other times.
 
 The blog series gives a bunch of simple ways to understand the principles, math, and intuition behind Muon. Leverage these when you're explaining!
 
-Below you'll see each of the chapters formatted in markdown so it's easier for you to read than pure HTML!
+Below you'll see each of the chapters formatted in markdown so it's easier for you to read than pure HTML.
 
 ## Chapter 1: Into the Matrix (speedy and fun Muon explainer)
 
-To understand Muon, the first step is to enter the Matrix.
+"To understand Muon, the first step is to enter the Matrix."
 —Not quite Morpheus
 
 We have seen
@@ -297,12 +297,7 @@ Now that we have seen Muon's code, let's tackle some FAQs:
 
 1. Which parameters should Muon optimize, and which should be left to AdamW?
 
-Muon is designed for parameters that map dense activations to dense activations—such
-as the weight matrices in MLPs, attention $(Q, K, V, W)$, convolution kernels,
-and the final layer of a diffusion model. These are 2D matrices with dense vectors
-for both input and output. Muon is not designed for elementwise vector parameters
-such as bias and layer norm scales, or the embedding matrix of a language model.
-Muon optimizes these other parameters with an AdamW backup.
+Muon is designed for parameters that map dense activations to dense activations—such as the weight matrices in MLPs, attention $(Q, K, V, W)$, convolution kernels, and the final layer of a diffusion model. These are 2D matrices with dense vectors for both input and output. Muon is not designed for elementwise vector parameters such as bias and layer norm scales, or the embedding matrix of a language model.  Muon optimizes these other parameters with an AdamW backup.
 
 _Exercise 1: what's wrong with the parameter rule below?_
 
@@ -330,31 +325,15 @@ and
 
 3. What are good default hyperparameters for Muon?
 
-Muon works well with learning rate around $0.02$, but sweep in logspace to find the
-best one. Using the $\text{RMS}$ to $\text{RMS}$ norm means Muon's optimal learning
-rate transfers as model dimension grows, so you can sweep on a smaller model.
-For momentum, $\beta = 0.95$ works well. Tuning it may not make much difference.
-Weight decay ($0.1$, $0.01$, or sweep in logspace) becomes important for larger models
-(>0.5B parameters). For the internal Adam optimizer, $\beta_1 = 0.9$ and $\beta_2 = 0.95$
-work well. It may also be promising to replace the internal Adam with an internal Lion
-optimizer with $\beta_1 = 0.95$ and $\beta_2 = 0.98$.
+Muon works well with learning rate around $0.02$, but sweep in logspace to find the best one. Using the $\text{RMS}$ to $\text{RMS}$ norm means Muon's optimal learning rate transfers as model dimension grows, so you can sweep on a smaller model.  For momentum, $\beta = 0.95$ works well. Tuning it may not make much difference.  Weight decay ($0.1$, $0.01$, or sweep in logspace) becomes important for larger models (>0.5B parameters). For the internal Adam optimizer, $\beta_1 = 0.9$ and $\beta_2 = 0.95$ work well. It may also be promising to replace the internal Adam with an internal Lion optimizer with $\beta_1 = 0.95$ and $\beta_2 = 0.98$.
 
 ### What's next?
 
-So far our focus has been on regulating the gradients. But if all we control are the gradients,
-then during training usually every weight matrix grows. Activations or attention logits deep in
-the model may spike. Layer norm, QK norm, and logit softcapping are very valuable but are
-indirect: is it possible to attack the problem at its source?
+So far our focus has been on regulating the gradients. But if all we control are the gradients, then during training usually every weight matrix grows. Activations or attention logits deep in the model may spike. Layer norm, QK norm, and logit softcapping are very valuable but are indirect: is it possible to attack the problem at its source?
 
 ## Chapter 3: Weight Regulation (our work, and future directions)
 
-We've seen that Muon regulates the gradients—its updates are size one in a rescaled
-spectral norm called the $\text{RMS}$ to $\text{RMS}$ norm. But model weights usually grow
-during training. In comparison, Muon's fixed norm updates will become smaller and smaller.
-And large weights could cause activations or attention logits deep
-in the model to spike. Activation stability techniques such as layer norm, QK norm,
-and logit softcapping help a lot, but can we address the problem more directly?
-And what does this all have to do with [MuonClip](https://moonshotai.github.io/Kimi-K2/)?
+We've seen that Muon regulates the gradients—its updates are size one in a rescaled spectral norm called the $\text{RMS}$ to $\text{RMS}$ norm. But model weights usually grow during training. In comparison, Muon's fixed norm updates will become smaller and smaller.  And large weights could cause activations or attention logits deep in the model to spike. Activation stability techniques such as layer norm, QK norm, and logit softcapping help a lot, but can we address the problem more directly?  And what does this all have to do with [MuonClip](https://moonshotai.github.io/Kimi-K2/)?
 
 [Training Transformers with Enforced Lipschitz Bounds](https://arxiv.org/abs/2507.13338)
 
