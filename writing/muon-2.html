@@ -271,11 +271,11 @@ class Muon(torch.optim.Optimizer):
                 <a href="https://arxiv.org/abs/2502.16982" target="_blank" rel="noopener noreferrer">Moonshot AI's Muon paper</a>.
                 <ul>
                     <li>
-                        <strong>Dion's approach:</strong> follow the usual dimensional factors that transfer learning rate
-                        across width, $\sqrt{d_\text{out}/d_\text{in}}$. Then use the same learning rate
+                        <strong>Dion's approach:</strong> follow the dimensional factor that transfers learning rate
+                        across width, $\sqrt{d_\text{out}/d_\text{in}}$. Then match learning rates
                         across Adam and Muon, except scale down the unembedding layer's learning rate by
-                        $1/\sqrt{d_\text{in}}$. More discussion in their Appendix D. For more on "natural
-                        norms" that inspired this approach see
+                        $1/\sqrt{d_\text{in}}$. <a href="https://github.com/microsoft/dion">Check out their GitHub</a>
+                        for a full implementation and excellent explanation. For more on "natural norms" that inspired this approach, see
                         <a href="https://arxiv.org/abs/2310.17813" target="_blank" rel="noopener noreferrer">Jeremy's spectral condition paper</a>.
                     </li>
                     <li>
