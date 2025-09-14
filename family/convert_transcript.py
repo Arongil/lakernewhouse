@@ -153,6 +153,8 @@ def generate_html(segments, output_file, interviewee):
         if partner_file:
             nav_buttons += f' <a href="{partner_file}" class="nav-button">{partner}\'s Interview →</a>'
     
+    joe_predendum = '' if interviewee != 'Joe' else '<a href="https://www.nlm.nih.gov/hmd/nichsr/newhouse.html" style="text-align: center; margin: auto;">Predendum: Joe did an oral interview in 1998 accessible here.</a>'
+    
     # Create the complete HTML content
     html_content = f'''<!DOCTYPE html>
 <html lang="en">
@@ -272,6 +274,7 @@ def generate_html(segments, output_file, interviewee):
         </div>
 
         <div class="transcript-content">
+            {joe_predendum}
             {transcript_html}
         </div>
 
