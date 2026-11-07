@@ -12,6 +12,10 @@ body {
     padding: 0 1.25rem;
 }
 
+main.article {
+    padding-bottom: 10vh;
+}
+
 h1, h2 {
     text-align: center;
 }
